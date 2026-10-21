@@ -59,6 +59,12 @@ function HomeTab() {
         <CommandButton id="list.indent" />
         <CommandButton id="list.outdent" />
       </Group>
+      <Group label={t('ribbon.groups.find')}>
+        <div className="stack">
+          <CommandButton id="edit.find" label />
+          <CommandButton id="edit.replace" label />
+        </div>
+      </Group>
       {inTable && (
         <Group label={t('ribbon.groups.table')}>
           <CommandButton id="table.addRowBefore" />

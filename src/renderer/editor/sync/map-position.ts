@@ -22,7 +22,7 @@ function blockOffset(doc: PmNode, index: number): number {
   return offset;
 }
 
-function buildTextIndex(block: PmNode, base: number): TextIndex {
+export function buildTextIndex(block: PmNode, base: number): TextIndex {
   let text = '';
   const pos: number[] = [];
   let seenTextblock = false;

@@ -190,7 +190,16 @@ export function serializeDoc(doc: PmNode): SerializedDoc {
   blocks.forEach((block, i) => {
     let text = initial[i]!;
     if (isList(block) && text !== (block.attrs['src'] as string | null)) {
-      text = blockSource(block, defs, pickMarkers([prevText, initial[i + 1] ?? null]));
+      // Se evita el marcador del vecino anterior y el del siguiente solo si este no va a cambiar
+      // (si también se reescribe, será él quien se adapte).
+      const next = blocks[i + 1];
+      const nextIsStable =
+        !next || !isList(next) || initial[i + 1] === (next.attrs['src'] as string | null);
+      text = blockSource(
+        block,
+        defs,
+        pickMarkers([prevText, nextIsStable ? (initial[i + 1] ?? null) : null]),
+      );
     }
     if (text === '' && block.type.name === 'paragraph') {
       ranges.push({ from: out.length, to: out.length });

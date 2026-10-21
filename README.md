@@ -13,7 +13,7 @@ Node LTS y npm. Windows es la plataforma principal.
 | `npm run dev`       | Arranca la app con recarga en caliente              |
 | `npm run build`     | Compila main, preload y renderer a `out/`           |
 | `npm test`          | Pruebas unitarias (Vitest)                          |
-| `npm run e2e`       | Compila y ejecuta las pruebas E2E (Playwright)      |
+| `npm run e2e`       | Compila y ejecuta las pruebas E2E (Playwright)     |
 | `npm run lint`      | ESLint                                              |
 | `npm run typecheck` | TypeScript estricto                                 |
 | `npm run dist`      | Instalador Windows (NSIS, sin firmar) en `release/` |
@@ -27,12 +27,23 @@ Notas de entorno:
 
 ```
 src/
-  main/       proceso principal: ventana, CSP, IPC validado, seguridad
+  main/       proceso principal: ventana, CSP, IPC validado, archivos con concesiones
   preload/    puente tipado `window.mdteca`
-  renderer/   React: app, ui, commands (registro central), i18n, styles
+  renderer/
+    app/        shell y estado de la interfaz
+    commands/   registro central de comandos y atajos
+    documents/  pestañas, abrir/guardar, cambios externos, diálogos
+    editor/
+      model/      esquema ProseMirror ↔ mdast, preservación de fuente, escapado
+      wysiwyg/    vista ProseMirror, comandos, vistas de nodo, resaltado, búsqueda
+      source/     vista CodeMirror, comandos de modo texto
+      sync/       mapeo de cursor entre modos
+      controller.ts  orquesta ambos modos y los comandos
+    i18n/  styles/  ui/
   shared/     contrato IPC (zod) y tipos compartidos
 tests/
   unit/       Vitest, cada test cita el id del requisito
   e2e/        Playwright-Electron
+  fixtures/roundtrip/  corpus de round-trip (scripts/gen-corpus.mjs)
 specs/        fuente de verdad (+ design/, adr/)
 ```

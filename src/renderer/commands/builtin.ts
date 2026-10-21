@@ -41,6 +41,8 @@ import {
   Pilcrow,
   Quote,
   Redo2,
+  Replace,
+  Search,
   RemoveFormatting,
   Save,
   SaveAll,
@@ -58,6 +60,7 @@ import {
 import { useUi } from '../app/store';
 import { closeDocument, newDocument, openFileDialog, saveDocument } from '../documents/actions';
 import { useDocs } from '../documents/store';
+import { useFind } from '../editor/find-store';
 import { editor, type FormatCommand } from '../editor/controller';
 import type { FormatState } from '../editor/wysiwyg/commands';
 import { registerCommand } from './registry';
@@ -68,6 +71,7 @@ interface Options {
   shortcut?: string;
   native?: boolean;
   global?: boolean;
+  inFields?: boolean;
   when?: () => boolean;
   active?: (f: FormatState) => boolean;
 }
@@ -86,21 +90,27 @@ const withDoc = (fn: (id: string) => void) => () => {
 };
 
 // ----- Archivo ---------------------------------------------------------------------------------
-def('file.new', FilePlus, () => void newDocument(), { shortcut: 'Ctrl+N', global: true });
-def('file.open', FolderOpen, () => void openFileDialog(), { shortcut: 'Ctrl+O', global: true });
+def('file.new', FilePlus, () => void newDocument(), {
+  shortcut: 'Ctrl+N',
+  global: true,
+  inFields: true,
+});
+def('file.open', FolderOpen, () => void openFileDialog(), {
+  shortcut: 'Ctrl+O',
+  global: true,
+  inFields: true,
+});
 def(
   'file.save',
   Save,
   withDoc((id) => void saveDocument(id)),
-  { shortcut: 'Ctrl+S' },
+  { shortcut: 'Ctrl+S', inFields: true },
 );
 def(
   'file.saveAs',
   SaveAll,
   withDoc((id) => void saveDocument(id, true)),
-  {
-    shortcut: 'Ctrl+Shift+S',
-  },
+  { shortcut: 'Ctrl+Shift+S', inFields: true },
 );
 def(
   'file.close',
@@ -129,6 +139,15 @@ def(
   () => void window.mdteca.clipboard.readText().then((text) => editor.pasteAsMarkdown(text)),
   { shortcut: 'Ctrl+Alt+V' },
 );
+
+def('edit.find', Search, () => useFind.getState().show(false), {
+  shortcut: 'Ctrl+F',
+  inFields: true,
+});
+def('edit.replace', Replace, () => useFind.getState().show(true), {
+  shortcut: 'Ctrl+H',
+  inFields: true,
+});
 
 // ----- Formato en línea ----------------------------------------------------------------------------
 fmt('format.bold', Bold, 'bold', { shortcut: 'Ctrl+B', active: (f) => f.bold });

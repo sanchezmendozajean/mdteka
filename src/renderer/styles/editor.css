@@ -402,11 +402,3 @@
 .cm-editor.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground {
   background: color-mix(in srgb, var(--accent) 24%, transparent) !important;
 }
-
-/*
- * ED-12: contención de layout por bloque de primer nivel. Teclear en un párrafo solo recalcula
- * ese bloque, no los miles de nodos del resto del documento.
- */
-.ProseMirror > * {
-  contain: layout style;
-}

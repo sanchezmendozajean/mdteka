@@ -93,7 +93,7 @@ export function highlightPlugin(): Plugin<DecorationSet> {
   return new Plugin<DecorationSet>({
     key,
     state: {
-      init: (_, state) => buildDecorations(state.doc, () => undefined),
+      init: (_, state) => buildDecorations(state.doc, () => pendingRefresh?.()),
       apply(tr, value, _old, state) {
         if (!tr.docChanged && !tr.getMeta(key)) return value;
         if (tr.docChanged && !tr.getMeta(key) && !touchesCodeBlock(tr)) {

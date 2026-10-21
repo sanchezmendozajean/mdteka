@@ -11,6 +11,7 @@ import { goToNextCell, tableEditing } from 'prosemirror-tables';
 import { EditorView } from 'prosemirror-view';
 import { schema } from '../model/schema';
 import { insertHardBreak } from './commands';
+import { findPlugin } from './find';
 import { highlightPlugin } from './highlight';
 import { nodeViews } from './nodeviews';
 
@@ -52,6 +53,7 @@ function plugins() {
     gapCursor(),
     dropCursor({ color: 'var(--accent)', width: 2 }),
     highlightPlugin(),
+    findPlugin(),
   ];
 }
 
@@ -86,6 +88,17 @@ export function createWysiwygView(
       'aria-multiline': 'true',
     },
     transformPastedHTML: sanitizePasted,
+    // Ctrl/Cmd + clic abre el enlace (solo http, https y mailto: lo valida el proceso principal).
+    handleClick(v, pos, event) {
+      if (!(event.ctrlKey || event.metaKey)) return false;
+      const $pos = v.state.doc.resolve(pos);
+      const link = [...$pos.marks(), ...($pos.nodeAfter?.marks ?? [])].find(
+        (m) => m.type.name === 'link',
+      );
+      if (!link) return false;
+      void window.mdteca.shell.openExternal(link.attrs['href'] as string);
+      return true;
+    },
     dispatchTransaction(tr) {
       const next = view.state.apply(tr);
       view.updateState(next);

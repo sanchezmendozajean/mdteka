@@ -21,6 +21,7 @@ import {
   toggleWrap,
   currentLinkHref,
 } from './source/commands';
+import { setSourceFind, sourceFindMove, sourceReplaceAll, sourceReplaceNext } from './source/find';
 import { createSourceState, createSourceView } from './source/view';
 import { pmToSourceOffset, sourceToPmOffset } from './sync/map-position';
 import {
@@ -51,6 +52,14 @@ import {
   toggleStrike,
   toggleTaskList,
 } from './wysiwyg/commands';
+import {
+  findMove,
+  replaceAll as pmReplaceAll,
+  replaceCurrent,
+  setFind,
+  type FindInfo,
+  type FindOptions,
+} from './wysiwyg/find';
 import { createWysiwygState, createWysiwygView } from './wysiwyg/view';
 import { schema } from './model/schema';
 
@@ -111,6 +120,11 @@ export type FormatCommand =
   | 'tableAlignRight';
 
 const SYNC_DELAY_MS = 300;
+
+/** Palabras: secuencias de letras o cifras; ignora la sintaxis Markdown. */
+export function countWords(text: string): number {
+  return (text.match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) ?? []).length;
+}
 
 function sameFormat(a: FormatState, b: FormatState): boolean {
   return (Object.keys(a) as (keyof FormatState)[]).every((key) => a[key] === b[key]);
@@ -196,6 +210,7 @@ class EditorController {
     }
     this.showMode(rt.mode);
     this.load(rt);
+    useDocs.getState().update(rt.id, { words: countWords(rt.source) });
     this.restoreScroll(rt.scrollRatio);
     this.scheduleFormat();
     this.focus();
@@ -275,7 +290,7 @@ class EditorController {
     rt.stale = false;
     useDocs.getState().update(rt.id, {
       dirty: rt.source !== rt.savedSource,
-      words: text.split(/\s+/).filter(Boolean).length,
+      words: countWords(text),
     });
   }
 
@@ -591,6 +606,41 @@ class EditorController {
       return pasteMarkdown(text)(this.pm.state, this.pm.dispatch);
     }
     return this.cm ? insertAtCursor(this.cm, text) : false;
+  }
+
+  // -------------------------------------------------------------------------------------------
+  // Buscar y reemplazar (la barra es común a los dos modos)
+  // -------------------------------------------------------------------------------------------
+
+  private static readonly NO_MATCHES: FindInfo = { count: 0, current: -1, invalid: false };
+
+  /** Define la búsqueda activa (o la borra con `null`) y devuelve el recuento. */
+  find(opts: FindOptions | null, replace = ''): FindInfo {
+    const rt = this.current();
+    if (!rt) return EditorController.NO_MATCHES;
+    if (rt.mode === 'wysiwyg' && this.pm) return setFind(this.pm, opts);
+    return this.cm ? setSourceFind(this.cm, opts, replace) : EditorController.NO_MATCHES;
+  }
+
+  findStep(opts: FindOptions, direction: 1 | -1): FindInfo {
+    const rt = this.current();
+    if (!rt) return EditorController.NO_MATCHES;
+    if (rt.mode === 'wysiwyg' && this.pm) return findMove(this.pm, direction);
+    return this.cm ? sourceFindMove(this.cm, opts, direction) : EditorController.NO_MATCHES;
+  }
+
+  replaceOne(opts: FindOptions, replace: string): FindInfo {
+    const rt = this.current();
+    if (!rt) return EditorController.NO_MATCHES;
+    if (rt.mode === 'wysiwyg' && this.pm) return replaceCurrent(this.pm, replace);
+    return this.cm ? sourceReplaceNext(this.cm, opts, replace) : EditorController.NO_MATCHES;
+  }
+
+  replaceEvery(opts: FindOptions, replace: string): FindInfo {
+    const rt = this.current();
+    if (!rt) return EditorController.NO_MATCHES;
+    if (rt.mode === 'wysiwyg' && this.pm) return pmReplaceAll(this.pm, replace);
+    return this.cm ? sourceReplaceAll(this.cm, opts, replace) : EditorController.NO_MATCHES;
   }
 
   // Utilidades para pruebas E2E y diagnóstico.

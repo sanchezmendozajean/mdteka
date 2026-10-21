@@ -511,3 +511,42 @@ kbd {
 .modal-hint {
   font-size: 12px;
 }
+
+/* ---------- Buscar y reemplazar ---------- */
+.find-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+.find-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.find-input {
+  flex: 1;
+  min-width: 160px;
+  max-width: 360px;
+  font: inherit;
+  padding: 4px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--field);
+  color: var(--text);
+}
+.find-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.find-input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+.find-status {
+  min-width: 96px;
+  color: var(--text-2);
+  font-size: 12px;
+}

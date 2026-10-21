@@ -13,6 +13,8 @@ export interface Command {
   native?: boolean;
   /** Requiere un documento abierto (por defecto sí, salvo `global`). */
   global?: boolean;
+  /** Se puede ejecutar con el foco en un campo de texto de la interfaz (búsqueda, diálogos). */
+  inFields?: boolean;
   /** Condición adicional para estar disponible. */
   when?: () => boolean;
   /** Estado «pulsado» del botón según la selección. */

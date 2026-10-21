@@ -9,6 +9,7 @@ import { CommandButton } from '../ui/CommandButton';
 import { Dialogs } from '../ui/Dialogs';
 import { DocTabs } from '../ui/DocTabs';
 import { EditorHost } from '../ui/EditorHost';
+import { FindBar } from '../ui/FindBar';
 import { Icon } from '../ui/Icon';
 import { Ribbon } from '../ui/Ribbon';
 import { SidePanel } from '../ui/SidePanel';
@@ -46,9 +47,10 @@ export function App() {
   // Atajos del registro de comandos (se atienden en captura para ganar al editor).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (isTextField(e.target)) return;
       const cmd = findByShortcut(e);
       if (!cmd) return;
+      // En un campo de texto de la interfaz solo valen archivo y buscar; el resto es del campo.
+      if (isTextField(e.target) && !cmd.inFields) return;
       const enabled =
         (cmd.global || useDocs.getState().activeId !== null) && (cmd.when ? cmd.when() : true);
       if (!enabled) return;
@@ -84,6 +86,7 @@ export function App() {
         )}
         <main className="canvas">
           <DocTabs />
+          {hasDocs && <FindBar />}
           <div className="canvas-body" hidden={!hasDocs}>
             <EditorHost />
           </div>

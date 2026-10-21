@@ -8,7 +8,7 @@ import {
 } from '@codemirror/language';
 import { languages } from '@codemirror/language-data';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
-import { highlightSelectionMatches, searchKeymap } from '@codemirror/search';
+import { highlightSelectionMatches, search } from '@codemirror/search';
 import { EditorState, type Extension, type Transaction } from '@codemirror/state';
 import { drawSelection, EditorView, keymap } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
@@ -60,7 +60,9 @@ export function sourceExtensions(): Extension[] {
     headingFolding,
     foldGutter({ openText: '▾', closedText: '▸' }),
     highlightSelectionMatches(),
-    keymap.of([...historyKeymap, ...foldKeymap, ...searchKeymap, ...defaultKeymap, indentWithTab]),
+    // La barra de búsqueda es la de MDteca, común a ambos modos: se anula el panel de CodeMirror.
+    search({ createPanel: () => ({ dom: document.createElement('span') }) }),
+    keymap.of([...historyKeymap, ...foldKeymap, ...defaultKeymap, indentWithTab]),
     EditorView.contentAttributes.of({ 'data-testid': 'source', spellcheck: 'true' }),
   ];
 }
