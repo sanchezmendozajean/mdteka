@@ -1,0 +1,63 @@
+/* Tokens tomados de specs/design/MDteca.dc.html */
+:root {
+  --bg-app: #f3f2ef;
+  --surface: #fbfaf8;
+  --surface-raised: #ffffff;
+  --panel: #f8f7f4;
+  --field: #ffffff;
+  --canvas: #e7e5e1;
+  --line: #e4e1db;
+  --line-strong: #d2cec6;
+  --text: #1e1d1b;
+  --text-2: #5b5750;
+  --text-3: #7f7a72;
+  --hover: rgba(40, 32, 20, 0.055);
+  --active: rgba(40, 32, 20, 0.09);
+  --accent: #1d6a72;
+  --on-accent: #ffffff;
+  --danger: #c0402c;
+  --warn: #a86a12;
+  --success: #2f7d4f;
+  --overlay: rgba(24, 22, 19, 0.28);
+  --shadow-pop: 0 8px 28px rgba(30, 24, 16, 0.14), 0 1px 3px rgba(30, 24, 16, 0.08);
+  --sheet-shadow:
+    0 0 0 1px rgba(30, 24, 16, 0.04), 0 1px 2px rgba(30, 24, 16, 0.06),
+    0 6px 20px rgba(30, 24, 16, 0.07);
+  --kbd-bg: rgba(40, 32, 20, 0.06);
+  --paper: #ffffff;
+  --ink: #1f1e1c;
+  --accent-soft: color-mix(in oklch, var(--accent) 12%, var(--surface));
+  --selection: color-mix(in srgb, var(--accent) 22%, transparent);
+  --radius: 6px;
+  --radius-lg: 8px;
+  --dur: 150ms;
+  --ease: ease-out;
+}
+
+:root[data-theme='dark'] {
+  --bg-app: #1b1b1a;
+  --surface: #222220;
+  --surface-raised: #2a2927;
+  --panel: #1f1f1d;
+  --field: #1a1a19;
+  --canvas: #141413;
+  --line: #2f2e2b;
+  --line-strong: #3d3b37;
+  --text: #ece9e5;
+  --text-2: #aca79f;
+  --text-3: #8a857d;
+  --hover: rgba(255, 250, 240, 0.06);
+  --active: rgba(255, 250, 240, 0.1);
+  --accent: #5db0b8;
+  --on-accent: #0f2427;
+  --overlay: rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 8px 28px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --sheet-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.45);
+  --kbd-bg: rgba(255, 255, 255, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur: 0ms;
+  }
+}

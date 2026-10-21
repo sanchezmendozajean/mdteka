@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Literata:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="./lc-icon.js"></script>
+<script src="./mdteca-data.js"></script>
+<style>
+body{--bg-app:#F3F2EF;--surface:#FBFAF8;--surface-raised:#FFFFFF;--panel:#F8F7F4;--field:#FFFFFF;--canvas:#E7E5E1;--line:#E4E1DB;--line-strong:#D2CEC6;--text:#1E1D1B;--text-2:#5B5750;--text-3:#7F7A72;--hover:rgba(40,32,20,0.055);--active:rgba(40,32,20,0.09);--accent:#1D6A72;--on-accent:#FFFFFF;--danger:#C0402C;--warn:#A86A12;--success:#2F7D4F;--overlay:rgba(24,22,19,0.28);--shadow-pop:0 8px 28px rgba(30,24,16,0.14),0 1px 3px rgba(30,24,16,0.08);--shadow-lg:0 24px 64px rgba(30,24,16,0.22),0 2px 6px rgba(30,24,16,0.08);--sheet-shadow:0 0 0 1px rgba(30,24,16,0.04),0 1px 2px rgba(30,24,16,0.06),0 6px 20px rgba(30,24,16,0.07);--toast-bg:#2A2926;--toast-fg:#F3F2EF;--kbd-bg:rgba(40,32,20,0.06);--paper:#FFFFFF;--ink:#1F1E1C;--ink-2:#5A564F;--ink-3:#97928A;--ink-rule:#DDD9D2;--code-bg:#F5F3EF;--doc-link:#1D6A72;--ph-a:#F1EFEB;--ph-b:#E9E6E0;--ruler-margin:#ECEAE5}
+body{--accent-soft:color-mix(in oklch,var(--accent) 12%,var(--surface));--accent-ink:color-mix(in oklch,var(--accent) 82%,var(--text));--selection:color-mix(in srgb,var(--accent) 22%,transparent)}
+body[data-theme=dark]{--bg-app:#1B1B1A;--surface:#222220;--surface-raised:#2A2927;--panel:#1F1F1D;--field:#1A1A19;--canvas:#141413;--line:#2F2E2B;--line-strong:#3D3B37;--text:#ECEAE5;--text-2:#ACA79F;--text-3:#8A857D;--hover:rgba(255,250,240,0.06);--active:rgba(255,250,240,0.10);--accent:#5DB0B8;--on-accent:#0F2427;--overlay:rgba(0,0,0,0.5);--shadow-pop:0 8px 28px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.04);--shadow-lg:0 24px 64px rgba(0,0,0,0.6);--sheet-shadow:0 0 0 1px rgba(0,0,0,0.4),0 8px 24px rgba(0,0,0,0.45);--toast-bg:#ECEAE5;--toast-fg:#1B1B1A;--kbd-bg:rgba(255,255,255,0.08)}
+body[data-paper=dark]{--paper:#262523;--ink:#E6E3DD;--ink-2:#A9A49B;--ink-3:#7A756D;--ink-rule:#3A3835;--code-bg:#1E1D1B;--doc-link:#7CC3CA;--ph-a:#2C2B28;--ph-b:#33312E;--ruler-margin:#1F1E1C}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg-app)}
+body{font-family:Inter,system-ui,sans-serif;font-size:13px;color:var(--text);-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+::selection{background:var(--selection)}
+button,input,select{font:inherit;color:inherit}
+input[type=number]{-moz-appearance:textfield}
+input::-webkit-inner-spin-button,input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:10px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</helmet>
+<div style="height:100vh; min-width:1100px; display:flex; flex-direction:column; position:relative; background:var(--bg-app); color:var(--text); overflow:hidden;">
+<sc-if value="{{ showChrome }}" hint-placeholder-val="{{ true }}">
+<div style="height:40px; flex:none; display:flex; align-items:center; gap:10px; padding-left:12px; position:relative; user-select:none;">
+  <div style="width:22px; height:22px; border-radius:6px; background:var(--accent); color:var(--on-accent); display:flex; align-items:center; justify-content:center;"><lc-i n="book-open-text" s="14" w="1.8"></lc-i></div>
+  <sc-if value="{{ isEditor }}" hint-placeholder-val="{{ true }}">
+    <div data-pop="1" style="position:relative;">
+      <button onClick="{{ toggleModeMenu }}" title="Cambiar entre modo Archivo y Proyecto" style="display:flex; align-items:center; gap:6px; height:26px; padding:0 7px; border:1px solid var(--line); border-radius:6px; background:var(--surface); cursor:pointer; font-size:12.5px; font-weight:500; transition:background-color 120ms ease-out;" style-hover="background: var(--surface-raised)"><lc-i n="{{ modeIcon }}" s="14"></lc-i>{{ modeLabel }}<span style="color:var(--text-3); display:flex;"><lc-i n="chevrons-up-down" s="13"></lc-i></span></button>
+      <sc-if value="{{ modeMenu }}">
+        <div style="position:absolute; top:32px; left:0; width:340px; background:var(--surface-raised); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow-pop); padding:6px; z-index:80;">
+          <div style="padding:6px 8px 4px; font-size:11px; color:var(--text-3); text-transform:uppercase; letter-spacing:0.06em;">Modo de trabajo</div>
+          <sc-for list="{{ modeOpts }}" as="mo" hint-placeholder-count="2">
+            <button onClick="{{ mo.onClick }}" style="width:100%; display:grid; grid-template-columns:32px minmax(0,1fr) 16px; gap:10px; align-items:center; text-align:left; padding:8px; border:none; border-radius:7px; background:{{ mo.bg }}; cursor:pointer;" style-hover="background: var(--hover)">
+              <span style="width:32px; height:32px; border-radius:7px; background:var(--hover); color:{{ mo.fg }}; display:flex; align-items:center; justify-content:center;"><lc-i n="{{ mo.icon }}" s="17"></lc-i></span>
+              <span style="display:flex; flex-direction:column; gap:2px;"><span style="font-weight:500;">{{ mo.label }}</span><span style="font-size:11.5px; color:var(--text-3); line-height:1.4;">{{ mo.desc }}</span></span>
+              <sc-if value="{{ mo.on }}"><span style="color:var(--accent); display:flex;"><lc-i n="check" s="15"></lc-i></span></sc-if>
+            </button>
+          </sc-for>
+          <div style="height:1px; background:var(--line); margin:6px 4px;"></div>
+          <button onClick="{{ modeAction.onClick }}" style="width:100%; display:flex; align-items:center; gap:10px; padding:8px 10px; border:none; border-radius:7px; background:transparent; cursor:pointer; text-align:left;" style-hover="background: var(--hover)">
+            <span style="color:var(--text-2); display:flex;"><lc-i n="{{ modeAction.icon }}" s="16"></lc-i></span>
+            <span style="display:flex; flex-direction:column; gap:1px;"><span style="font-weight:500;">{{ modeAction.label }}</span><span style="font-size:11.5px; color:var(--text-3);">{{ modeAction.hint }}</span></span>
+          </button>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+  <div style="position:absolute; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:7px; font-size:12.5px; pointer-events:none; white-space:nowrap;">
+    <span style="font-weight:500;">{{ titleName }}</span>
+    <sc-if value="{{ titleDirty }}"><span title="Cambios sin guardar" style="width:6px; height:6px; border-radius:50%; background:var(--text-2);"></span></sc-if>
+    <sc-if value="{{ titleProj }}"><span style="color:var(--text-3);">— Manual del Sistema de Planillas</span></sc-if>
+  </div>
+  <div style="flex:1;"></div>
+  <sc-if value="{{ isEditor }}" hint-placeholder-val="{{ true }}">
+    <button title="Paleta de comandos" style="display:flex; align-items:center; gap:8px; width:230px; height:26px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--text-3); cursor:pointer; font-size:12px;" style-hover="border-color: var(--line-strong)"><lc-i n="search" s="14"></lc-i><span style="flex:1; min-width:0; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Buscar comandos…</span><span style="flex:none; white-space:nowrap; font-size:10.5px; padding:1px 5px; border-radius:4px; background:var(--kbd-bg);">Ctrl+Shift+P</span></button>
+  </sc-if>
+  <button onClick="{{ toggleTheme }}" title="Cambiar tema" style="width:30px; height:28px; border:none; border-radius:6px; background:transparent; color:var(--text-2); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="{{ themeIcon }}" s="16"></lc-i></button>
+  <div style="display:flex; height:40px;">
+    <button title="Minimizar" style="width:46px; border:none; background:transparent; color:var(--text-2); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="minus" s="15"></lc-i></button>
+    <button title="Maximizar" style="width:46px; border:none; background:transparent; color:var(--text-2); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="square" s="12"></lc-i></button>
+    <button title="Cerrar" style="width:46px; border:none; background:transparent; color:var(--text-2); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: #C42B1C; color: #FFFFFF"><lc-i n="x" s="16"></lc-i></button>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{ chromeEditor }}" hint-placeholder-val="{{ true }}">
+<div role="tablist" style="height:34px; flex:none; display:flex; align-items:flex-end; gap:2px; padding:0 10px;">
+  <sc-for list="{{ ribbonTabs }}" as="t" hint-placeholder-count="7">
+    <button role="tab" onClick="{{ t.onClick }}" style="position:relative; height:32px; padding:0 12px; border:none; background:transparent; cursor:pointer; font-size:13px; font-weight:{{ t.weight }}; color:{{ t.fg }};" style-hover="color: var(--text)">{{ t.label }}<span style="position:absolute; left:12px; right:12px; bottom:0; height:2px; border-radius:2px; background:{{ t.bar }};"></span><sc-if value="{{ keytips }}"><span style="position:absolute; top:0; right:0; min-width:16px; height:16px; border-radius:4px; background:var(--text); color:var(--surface); font-size:10px; font-weight:600; display:flex; align-items:center; justify-content:center;">{{ t.kt }}</span></sc-if></button>
+  </sc-for>
+  <div style="flex:1;"></div>
+  <div style="height:32px; display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-3); padding-right:6px;"><lc-i n="{{ saveIcon }}" s="14"></lc-i>{{ saveLabel }}</div>
+  <button onClick="{{ toggleRibbon }}" title="Contraer la cinta (Ctrl+F1)" style="width:28px; height:28px; margin-bottom:2px; border:none; border-radius:6px; background:transparent; color:var(--text-2); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="{{ ribbonChev }}" s="15"></lc-i></button>
+</div>
+<sc-if value="{{ showRibbon }}" hint-placeholder-val="{{ true }}">
+<div role="toolbar" style="height:94px; flex:none; display:flex; align-items:stretch; background:var(--surface); border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:6px 6px 0; overflow:hidden;">
+  <sc-for list="{{ groups }}" as="g" hint-placeholder-count="5">
+    <div style="display:flex; flex-direction:column; padding:0 7px; position:relative; flex:none;">
+      <div style="flex:1; display:flex; align-items:flex-start; gap:6px;">
+        <sc-if value="{{ g.hasBig }}"><div style="display:flex; gap:2px;">
+          <sc-for list="{{ g.big }}" as="it"><button onClick="{{ it.onClick }}" onMouseEnter="{{ it.onEnter }}" onMouseLeave="{{ hideTip }}" aria-label="{{ it.label }}" style="display:flex; flex-direction:column; align-items:center; gap:4px; min-width:54px; max-width:78px; height:66px; padding:7px 6px 4px; border:none; border-radius:6px; background:{{ it.bg }}; color:{{ it.fg }}; cursor:pointer; transition:background-color 140ms ease-out;" style-hover="background: var(--hover)"><lc-i n="{{ it.icon }}" s="24"></lc-i><span style="font-size:11.5px; line-height:1.2; text-align:center;">{{ it.label }}<sc-if value="{{ it.split }}"><span style="display:inline-flex; vertical-align:-2px; margin-left:2px; color:var(--text-3);"><lc-i n="chevron-down" s="11"></lc-i></span></sc-if></span></button></sc-for>
+        </div></sc-if>
+        <sc-if value="{{ g.hasSmall }}"><div style="display:grid; grid-template-rows:repeat(2, 30px); grid-auto-flow:column; gap:3px 2px; padding-top:3px;">
+          <sc-for list="{{ g.small }}" as="it"><button onClick="{{ it.onClick }}" onMouseEnter="{{ it.onEnter }}" onMouseLeave="{{ hideTip }}" aria-label="{{ it.label }}" style="width:30px; height:30px; border:none; border-radius:6px; background:{{ it.bg }}; color:{{ it.fg }}; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background-color 140ms ease-out;" style-hover="background: var(--hover)"><lc-i n="{{ it.icon }}" s="18"></lc-i></button></sc-for>
+        </div></sc-if>
+        <sc-if value="{{ g.hasLbl }}"><div style="display:grid; grid-template-rows:repeat(3, 21px); grid-auto-flow:column; gap:1px 6px; padding-top:1px;">
+          <sc-for list="{{ g.lbl }}" as="it"><button onClick="{{ it.onClick }}" onMouseEnter="{{ it.onEnter }}" onMouseLeave="{{ hideTip }}" style="height:21px; display:flex; align-items:center; gap:7px; padding:0 7px 0 5px; border:none; border-radius:5px; background:{{ it.bg }}; color:{{ it.fg }}; cursor:pointer; font-size:12px; white-space:nowrap;" style-hover="background: var(--hover)"><lc-i n="{{ it.icon }}" s="16"></lc-i>{{ it.label }}<sc-if value="{{ it.drop }}"><span style="color:var(--text-3); display:flex;"><lc-i n="chevron-down" s="12"></lc-i></span></sc-if></button></sc-for>
+        </div></sc-if>
+        <sc-if value="{{ g.gallery }}"><div style="display:flex; gap:4px; padding:3px; margin-top:1px; border:1px solid var(--line); border-radius:7px; background:var(--field);">
+          <sc-for list="{{ styleGallery }}" as="sg" hint-placeholder-count="6"><button onClick="{{ sg.onClick }}" onMouseEnter="{{ sg.onEnter }}" onMouseLeave="{{ hideTip }}" style="width:70px; height:54px; border:1px solid {{ sg.border }}; border-radius:5px; background:var(--paper); cursor:pointer; display:flex; flex-direction:column; align-items:flex-start; justify-content:space-between; padding:7px 7px 5px; overflow:hidden;"><span style="{{ sg.css }}">{{ sg.sample }}</span><span style="font-size:10px; color:var(--ink-2); display:flex; align-items:center; gap:3px;"><lc-i n="{{ sg.icon }}" s="11"></lc-i>{{ sg.label }}</span></button></sc-for>
+          <button title="Más estilos" style="width:18px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="chevron-down" s="13"></lc-i></button>
+        </div></sc-if>
+        <sc-if value="{{ g.presets }}"><div style="display:flex; gap:5px; padding-top:1px;">
+          <sc-for list="{{ presets }}" as="pr" hint-placeholder-count="5"><button onClick="{{ pr.onClick }}" onMouseEnter="{{ pr.onEnter }}" onMouseLeave="{{ pr.onLeave }}" title="Vista previa en vivo al pasar el ratón" style="width:64px; height:60px; border:{{ pr.border }}; border-radius:6px; background:var(--paper); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; padding:7px 7px 5px; overflow:hidden;">
+            <span style="{{ pr.famCss }}">Aa</span>
+            <span style="display:flex; flex-direction:column; gap:2px; width:100%;"><span style="height:2px; width:100%; background:var(--ink-rule);"></span><span style="height:2px; width:72%; background:var(--ink-rule);"></span></span>
+            <span style="font-size:10px; color:var(--ink-2); text-align:left;">{{ pr.label }}</span>
+          </button></sc-for>
+        </div></sc-if>
+        <sc-if value="{{ g.note }}"><div style="max-width:280px; font-size:12px; color:var(--text-2); line-height:1.5; padding:8px 4px; display:flex; gap:8px;"><span style="color:var(--text-3); display:flex; padding-top:2px;"><lc-i n="info" s="15"></lc-i></span>{{ g.noteText }}</div></sc-if>
+      </div>
+      <div style="height:20px; display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text-3); white-space:nowrap;">{{ g.label }}</div>
+      <div style="position:absolute; right:0; top:4px; bottom:8px; width:1px; background:var(--line);"></div>
+    </div>
+  </sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ showInfobar }}">
+<div style="height:34px; flex:none; display:flex; align-items:center; gap:10px; padding:0 10px 0 14px; background:var(--accent-soft); border-bottom:1px solid var(--line); font-size:12.5px;">
+  <span style="color:var(--accent); display:flex;"><lc-i n="library" s="15"></lc-i></span>
+  <span>Este archivo forma parte de <strong style="font-weight:600;">Manual de Planillas</strong></span>
+  <span style="color:var(--text-3);">·</span>
+  <button onClick="{{ toProject }}" style="border:none; background:transparent; color:var(--accent-ink); font-weight:600; cursor:pointer; padding:0; display:flex; align-items:center; gap:5px;" style-hover="text-decoration: underline"><lc-i n="folder-open" s="14"></lc-i>Abrir proyecto</button>
+  <div style="flex:1;"></div>
+  <button onClick="{{ dismissInfobar }}" title="Cerrar" style="width:24px; height:24px; border:none; border-radius:5px; background:transparent; color:var(--text-2); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="x" s="14"></lc-i></button>
+</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{ isEditor }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1; min-height:0; display:flex; position:relative;">
+  <sc-if value="{{ showLeft }}" hint-placeholder-val="{{ true }}">
+  <div style="width:{{ navW }}px; flex:none; display:flex; flex-direction:column; background:var(--panel); border-right:1px solid var(--line); position:relative; min-height:0;">
+    <div style="height:38px; flex:none; display:flex; align-items:center; gap:2px; padding:0 6px 0 8px; border-bottom:1px solid var(--line);">
+      <sc-for list="{{ leftTabs }}" as="lt" hint-placeholder-count="2"><button onClick="{{ lt.onClick }}" style="height:26px; padding:0 10px; display:flex; align-items:center; gap:6px; border:none; border-radius:6px; background:{{ lt.bg }}; color:{{ lt.fg }}; font-size:12.5px; font-weight:500; cursor:pointer;" style-hover="color: var(--text)"><lc-i n="{{ lt.icon }}" s="14"></lc-i>{{ lt.label }}</button></sc-for>
+      <div style="flex:1;"></div>
+      <button onClick="{{ closeLeft }}" title="Ocultar panel (Ctrl+Shift+B)" style="width:26px; height:26px; border:none; border-radius:6px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="panel-left-close" s="15"></lc-i></button>
+    </div>
+    <sc-if value="{{ isNavTab }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:12px 10px 8px 12px; display:flex; flex-direction:column; gap:10px; flex:none;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="flex:1; min-width:0;"><div style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Manual del Sistema de Planillas</div><div style="font-size:11.5px; color:var(--text-3); margin-top:2px;">manual-planillas.mdteca</div></div>
+          <button title="Ajustes del proyecto" style="width:26px; height:26px; border:none; border-radius:6px; background:transparent; color:var(--text-2); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="settings-2" s="15"></lc-i></button>
+        </div>
+        <div style="display:flex; align-items:center; gap:7px; height:28px; padding:0 9px; border:1px solid var(--line); border-radius:6px; background:var(--field); color:var(--text-3);"><lc-i n="search" s="14"></lc-i><input placeholder="Filtrar capítulos" style="flex:1; min-width:0; border:none; outline:none; background:transparent; font-size:12.5px;"></div>
+      </div>
+      <div role="tree" style="flex:1; min-height:0; overflow:auto; padding:2px 6px 10px;">
+        <sc-for list="{{ navRows }}" as="r" hint-placeholder-count="12">
+          <sc-if value="{{ r.isColl }}"><button onClick="{{ r.onClick }}" style="width:100%; height:30px; margin-top:6px; display:flex; align-items:center; gap:6px; padding:0 6px; border:none; border-radius:6px; background:transparent; color:var(--text-3); cursor:pointer; font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;" style-hover="background: var(--hover)"><lc-i n="{{ r.chev }}" s="13"></lc-i><lc-i n="{{ r.icon }}" s="13"></lc-i><span style="flex:1; text-align:left;">{{ r.title }}</span><span style="font-weight:500; letter-spacing:0;">{{ r.count }}</span></button></sc-if>
+          <sc-if value="{{ r.isBook }}"><button onClick="{{ r.onClick }}" style="width:100%; height:28px; display:flex; align-items:center; gap:6px; padding:0 6px; border:none; border-radius:6px; background:transparent; cursor:pointer; font-size:12.5px; font-weight:500;" style-hover="background: var(--hover)"><span style="color:var(--text-3); display:flex;"><lc-i n="{{ r.chev }}" s="13"></lc-i></span><span style="color:var(--text-2); display:flex;"><lc-i n="{{ r.icon }}" s="15"></lc-i></span><span style="flex:1; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.title }}</span><span style="color:var(--text-3); font-size:11.5px; font-weight:400;">{{ r.count }}</span></button></sc-if>
+          <sc-if value="{{ r.isChap }}"><div role="treeitem" onClick="{{ r.onClick }}" style="position:relative; height:28px; display:flex; align-items:center; gap:6px; padding:0 8px 0 {{ r.pl }}px; border-radius:6px; background:{{ r.bg }}; color:{{ r.fg }}; cursor:pointer; font-size:12.5px; font-weight:{{ r.weight }};" style-hover="background: var(--hover)">
+            <span style="position:absolute; left:{{ r.gl }}px; top:0; bottom:0; width:1px; background:var(--line);"></span>
+            <sc-if value="{{ r.hasKids }}"><span onClick="{{ r.onToggle }}" style="color:var(--text-3); display:flex; margin-left:-16px;"><lc-i n="{{ r.chev }}" s="12"></lc-i></span></sc-if>
+            <lc-i n="{{ r.icon }}" s="14"></lc-i>
+            <span style="flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-decoration:{{ r.deco }};">{{ r.title }}</span>
+            <sc-if value="{{ r.isDirty }}"><span title="Cambios sin guardar" style="width:7px; height:7px; border-radius:50%; background:var(--accent); flex:none;"></span></sc-if>
+            <sc-if value="{{ r.isOpen }}"><span title="Abierto" style="width:7px; height:7px; border-radius:50%; border:1.5px solid var(--text-3); flex:none;"></span></sc-if>
+            <sc-if value="{{ r.isMissing }}"><span title="Archivo faltante · Localizar… / Quitar del índice" style="color:var(--danger); display:flex;"><lc-i n="triangle-alert" s="14"></lc-i></span></sc-if>
+          </div></sc-if>
+        </sc-for>
+      </div>
+      <div style="flex:none; border-top:1px solid var(--line); padding:6px;">
+        <button onClick="{{ toggleUn }}" style="width:100%; height:28px; display:flex; align-items:center; gap:6px; padding:0 6px; border:none; border-radius:6px; background:transparent; color:var(--text-2); cursor:pointer; font-size:12px; font-weight:500;" style-hover="background: var(--hover)"><lc-i n="{{ unChev }}" s="13"></lc-i><lc-i n="file-question" s="14"></lc-i><span style="flex:1; text-align:left;">Sin indexar</span><span style="color:var(--text-3);">2</span></button>
+        <sc-if value="{{ unOpen }}"><sc-for list="{{ unindexed }}" as="u" hint-placeholder-count="2"><div style="height:26px; display:flex; align-items:center; gap:6px; padding:0 4px 0 30px; border-radius:6px; color:var(--text-2); font-size:12px;" style-hover="background: var(--hover)"><lc-i n="file" s="13"></lc-i><span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ u.f }}</span><button onClick="{{ u.add }}" title="Añadir al libro…" style="width:22px; height:22px; border:none; border-radius:5px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--active); color: var(--text)"><lc-i n="book-plus" s="13"></lc-i></button></div></sc-for></sc-if>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isOutlineTab }}">
+      <div style="padding:10px 6px; overflow:auto; flex:1;">
+        <sc-for list="{{ outline }}" as="ol" hint-placeholder-count="5"><div style="height:28px; display:flex; align-items:center; gap:7px; padding:0 8px 0 {{ ol.pl }}px; border-radius:6px; cursor:pointer; font-size:12.5px; font-weight:{{ ol.weight }}; color:{{ ol.fg }}; white-space:nowrap; overflow:hidden;" style-hover="background: var(--hover)"><span style="color:var(--text-3); display:flex;"><lc-i n="hash" s="12"></lc-i></span>{{ ol.text }}</div></sc-for>
+      </div>
+    </sc-if>
+    <div onMouseDown="{{ dragNav }}" style="position:absolute; top:0; bottom:0; right:-3px; width:6px; cursor:col-resize; z-index:3;" style-hover="background: var(--selection)"></div>
+  </div>
+  </sc-if>
+  <div style="flex:1; min-width:0; display:flex; flex-direction:column;">
+    <sc-if value="{{ showChrome }}" hint-placeholder-val="{{ true }}">
+    <div role="tablist" style="height:36px; flex:none; display:flex; align-items:flex-end; gap:2px; padding:0 10px; background:var(--bg-app); border-bottom:1px solid var(--line);">
+      <sc-for list="{{ docTabs }}" as="dt" hint-placeholder-count="3"><div role="tab" onClick="{{ dt.onClick }}" style="height:31px; max-width:250px; display:flex; align-items:center; gap:7px; padding:0 6px 0 11px; margin-bottom:-1px; border:1px solid {{ dt.border }}; border-bottom:none; border-radius:7px 7px 0 0; background:{{ dt.bg }}; color:{{ dt.fg }}; cursor:pointer; font-size:12.5px;" style-hover="color: var(--text)"><lc-i n="{{ dt.icon }}" s="14"></lc-i><span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ dt.title }}</span><sc-if value="{{ dt.dirty }}"><span title="Cambios sin guardar" style="width:7px; height:7px; border-radius:50%; background:var(--accent); flex:none;"></span></sc-if><span title="Cerrar (Ctrl+W)" style="width:20px; height:20px; border-radius:5px; color:var(--text-3); display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="x" s="12"></lc-i></span></div></sc-for>
+      <button title="Nuevo documento (Ctrl+N)" style="width:28px; height:28px; margin-bottom:3px; border:none; border-radius:6px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="plus" s="15"></lc-i></button>
+    </div>
+    </sc-if>
+    <div onScroll="{{ onScroll }}" onMouseUp="{{ onCanvasUp }}" onMouseDown="{{ onCanvasDown }}" onContextMenu="{{ onCtx }}" style="flex:1; min-height:0; overflow:auto; background:var(--canvas); position:relative;">
+      <div style="zoom:{{ zoomF }}; min-width:max-content; display:flex; flex-direction:column; align-items:center; padding:0 48px 72px;">
+        <sc-if value="{{ showRuler }}" hint-placeholder-val="{{ true }}">
+          <div style="position:sticky; top:0; z-index:4; align-self:stretch; display:flex; justify-content:center; padding:8px 0 10px; background:var(--canvas);">
+            <div style="position:relative; width:{{ ruler.w }}px; height:20px; background:var(--paper); border-radius:2px; box-shadow:0 0 0 1px var(--line); user-select:none;">
+              <div style="position:absolute; left:0; top:0; bottom:0; width:{{ ruler.l }}px; background:var(--ruler-margin);"></div>
+              <div style="position:absolute; right:0; top:0; bottom:0; width:{{ ruler.r }}px; background:var(--ruler-margin);"></div>
+              <sc-for list="{{ ruler.ticks }}" as="tk"><div style="{{ tk.css }}"></div><sc-if value="{{ tk.hasLabel }}"><span style="{{ tk.lcss }}">{{ tk.label }}</span></sc-if></sc-for>
+              <div onMouseDown="{{ dragML }}" title="Margen izquierdo · arrastra para ajustar" style="position:absolute; top:-2px; left:{{ ruler.lh }}px; width:9px; height:24px; cursor:ew-resize; display:flex; justify-content:center;"><div style="width:3px; height:100%; border-radius:2px; background:var(--accent);"></div></div>
+              <div onMouseDown="{{ dragMR }}" title="Margen derecho · arrastra para ajustar" style="position:absolute; top:-2px; left:{{ ruler.rh }}px; width:9px; height:24px; cursor:ew-resize; display:flex; justify-content:center;"><div style="width:3px; height:100%; border-radius:2px; background:var(--accent);"></div></div>
+              <sc-if value="{{ ruler.showVal }}"><div style="position:absolute; top:26px; left:{{ ruler.valX }}px; transform:translateX(-50%); background:var(--toast-bg); color:var(--toast-fg); font-size:11px; padding:3px 8px; border-radius:5px; white-space:nowrap;">{{ ruler.val }}</div></sc-if>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noRuler }}"><div style="height:28px; flex:none;"></div></sc-if>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:24px;">
+          <sc-for list="{{ pages }}" as="p" hint-placeholder-count="2">
+            <div data-sheet="1" onMouseEnter="{{ sheetEnter }}" onMouseLeave="{{ sheetLeave }}" style="{{ p.css }}">
+              <sc-if value="{{ p.hasHF }}"><div style="{{ p.headCss }}">{{ p.header }}</div><div style="{{ p.footCss }}">{{ p.footer }}</div></sc-if>
+              <div style="{{ p.bodyCss }}">
+                <sc-if value="{{ p.isWys }}">
+                  <sc-for list="{{ p.blocks }}" as="b">
+                    <sc-if value="{{ b.isH }}"><div style="{{ b.css }}">{{ b.text }}</div></sc-if>
+                    <sc-if value="{{ b.isTxt }}"><div style="{{ b.css }}">
+                      <sc-if value="{{ b.hasBullet }}"><span style="{{ b.bulletCss }}">•</span></sc-if>
+                      <sc-if value="{{ b.isTask }}"><span style="{{ b.boxCss }}"><sc-if value="{{ b.done }}"><lc-i n="check" s="11" w="3"></lc-i></sc-if></span></sc-if>
+                      <span style="flex:1;"><sc-for list="{{ b.runs }}" as="r"><sc-if value="{{ r.isPlain }}">{{ r.t }}</sc-if><sc-if value="{{ r.isB }}"><strong style="font-weight:700;">{{ r.t }}</strong></sc-if><sc-if value="{{ r.isCode }}"><code style="font-family:{{ monoFam }}; font-size:0.86em; background:var(--code-bg); padding:0 0.3em; border-radius:3px;">{{ r.t }}</code></sc-if><sc-if value="{{ r.isSpell }}"><span data-spell="1" style="text-decoration:underline wavy #D14B3A; text-decoration-thickness:1px; text-underline-offset:3px; text-decoration-skip-ink:none;">{{ r.t }}</span></sc-if><sc-if value="{{ r.isLink }}"><span data-pop="1" style="position:relative;"><span onClick="{{ toggleLinkPop }}" style="color:var(--doc-link); text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:2px; cursor:pointer;">{{ r.t }}</span><sc-if value="{{ linkPopOpen }}"><span style="position:absolute; left:0; top:1.7em; z-index:20; display:flex; align-items:center; gap:2px; padding:4px 4px 4px 10px; background:var(--surface-raised); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow-pop); font-family:Inter, sans-serif; font-size:12px; font-weight:400; font-style:normal; color:var(--text); white-space:nowrap; text-align:left;"><lc-i n="file-text" s="13"></lc-i><span style="padding:0 8px 0 6px; color:var(--text-2);">02-requisitos.md</span><span title="Abrir en pestaña" style="width:26px; height:26px; border-radius:5px; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="external-link" s="14"></lc-i></span><span title="Editar enlace (Ctrl+K)" style="width:26px; height:26px; border-radius:5px; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="pencil" s="14"></lc-i></span><span title="Copiar enlace" style="width:26px; height:26px; border-radius:5px; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="copy" s="14"></lc-i></span><span title="Quitar enlace" style="width:26px; height:26px; border-radius:5px; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="unlink" s="14"></lc-i></span></span></sc-if></span></sc-if></sc-for></span>
+                    </div></sc-if>
+                    <sc-if value="{{ b.isTable }}"><div style="{{ b.css }}"><div style="display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr; border-top:1px solid var(--ink-rule);"><sc-for list="{{ b.cells }}" as="cell"><div style="{{ cell.css }}">{{ cell.t }}</div></sc-for></div><div style="font-size:0.88em; color:var(--ink-2); margin-top:0.55em;">{{ b.caption }}</div></div></sc-if>
+                    <sc-if value="{{ b.isCodeB }}"><div style="{{ b.css }}"><span style="position:absolute; top:6px; right:8px; display:flex; align-items:center; gap:4px; font-family:Inter, sans-serif; font-size:10.5px; color:var(--ink-3);">{{ b.lang }}<lc-i n="chevron-down" s="11"></lc-i></span><sc-for list="{{ b.lines }}" as="ln"><div style="white-space:pre-wrap; word-break:break-all; padding-right:3em;"><sc-for list="{{ ln.tks }}" as="tk"><span style="color:{{ tk.c }};">{{ tk.t }}</span></sc-for></div></sc-for></div></sc-if>
+                    <sc-if value="{{ b.isImg }}"><div style="{{ b.css }}">
+                      <div data-pop="1" onClick="{{ selectImg }}" style="position:relative; width:100%; aspect-ratio:16 / 8.5; cursor:pointer; outline:{{ b.outline }}; outline-offset:3px; background:repeating-linear-gradient(135deg, var(--ph-a) 0 8px, var(--ph-b) 8px 16px); border-radius:2px; display:flex; align-items:center; justify-content:center;">
+                        <span style="font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ink-2); background:var(--paper); padding:4px 9px; border-radius:4px;">captura · panel de control · manual.001.png</span>
+                        <sc-if value="{{ imgSel }}">
+                          <span style="position:absolute; left:-7px; top:-7px; width:9px; height:9px; background:var(--paper); border:1.5px solid var(--accent); border-radius:2px;"></span><span style="position:absolute; right:-7px; top:-7px; width:9px; height:9px; background:var(--paper); border:1.5px solid var(--accent); border-radius:2px;"></span><span style="position:absolute; left:-7px; bottom:-7px; width:9px; height:9px; background:var(--paper); border:1.5px solid var(--accent); border-radius:2px;"></span><span style="position:absolute; right:-7px; bottom:-7px; width:9px; height:9px; background:var(--paper); border:1.5px solid var(--accent); border-radius:2px; cursor:nwse-resize;"></span>
+                          <span style="position:absolute; top:-46px; left:50%; transform:translateX(-50%); display:flex; gap:2px; padding:4px; background:var(--surface-raised); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow-pop); color:var(--text);">
+                            <span title="Texto alternativo" style="width:28px; height:28px; border-radius:5px; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="text" s="16"></lc-i></span>
+                            <span title="Título" style="width:28px; height:28px; border-radius:5px; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="heading" s="16"></lc-i></span>
+                            <span title="Reemplazar" style="width:28px; height:28px; border-radius:5px; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="replace" s="16"></lc-i></span>
+                            <span title="Convertir a base64" style="width:28px; height:28px; border-radius:5px; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="binary" s="16"></lc-i></span>
+                            <span title="Abrir carpeta" style="width:28px; height:28px; border-radius:5px; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="folder-open" s="16"></lc-i></span>
+                            <span style="width:1px; margin:4px 2px; background:var(--line);"></span>
+                            <span title="Quitar" style="width:28px; height:28px; border-radius:5px; display:flex; align-items:center; justify-content:center; color:var(--danger);" style-hover="background: var(--hover)"><lc-i n="trash-2" s="16"></lc-i></span>
+                          </span>
+                        </sc-if>
+                      </div>
+                      <div style="font-size:0.85em; color:var(--ink-2); text-align:center; margin-top:0.7em;">{{ b.caption }}</div>
+                    </div></sc-if>
+                    <sc-if value="{{ b.isBreak }}"><div style="display:flex; align-items:center; gap:10px; margin:1.4em 0; color:var(--ink-3); font-family:Inter, sans-serif; font-size:11px; user-select:none;"><div style="flex:1; border-top:1px dashed var(--ink-rule);"></div><span style="display:flex; align-items:center; gap:5px;"><lc-i n="file-minus" s="12"></lc-i>Salto de página</span><div style="flex:1; border-top:1px dashed var(--ink-rule);"></div></div></sc-if>
+                  </sc-for>
+                </sc-if>
+                <sc-if value="{{ p.isText }}">
+                  <sc-for list="{{ p.lines }}" as="ln"><div style="min-height:1.65em;"><sc-for list="{{ ln.tks }}" as="tk"><span style="{{ tk.css }}">{{ tk.t }}</span></sc-for></div></sc-for>
+                  <sc-if value="{{ p.chip }}"><button onClick="{{ openPanel }}" title="El bloque mdteca:config está plegado y no es editable aquí" style="margin-top:0.6em; display:inline-flex; align-items:center; gap:7px; height:26px; padding:0 10px; border:1px solid var(--ink-rule); border-radius:13px; background:var(--code-bg); color:var(--ink-2); font-family:Inter, sans-serif; font-size:11.5px; cursor:pointer;"><lc-i n="braces" s="13"></lc-i>Configuración del documento<span style="color:var(--ink-3);">·</span><span style="color:var(--doc-link); font-weight:500;">abrir panel</span></button></sc-if>
+                </sc-if>
+              </div>
+              <sc-if value="{{ p.handles }}">
+                <div onMouseDown="{{ dragCwL }}" title="Arrastra para cambiar el ancho de columna" style="position:absolute; top:0; bottom:0; left:-11px; width:22px; cursor:ew-resize; opacity:{{ handleOp }}; transition:opacity 160ms ease-out;"><div style="position:sticky; top:200px; margin-top:200px; height:44px; width:16px; margin-left:3px; border-radius:8px; background:var(--surface-raised); box-shadow:var(--shadow-pop); color:var(--text-2); display:flex; align-items:center; justify-content:center;"><lc-i n="grip-vertical" s="13"></lc-i></div></div>
+                <div onMouseDown="{{ dragCwR }}" title="Arrastra para cambiar el ancho de columna" style="position:absolute; top:0; bottom:0; right:-11px; width:22px; cursor:ew-resize; opacity:{{ handleOp }}; transition:opacity 160ms ease-out;"><div style="position:sticky; top:200px; margin-top:200px; height:44px; width:16px; margin-left:3px; border-radius:8px; background:var(--surface-raised); box-shadow:var(--shadow-pop); color:var(--text-2); display:flex; align-items:center; justify-content:center;"><lc-i n="grip-vertical" s="13"></lc-i></div></div>
+                <sc-if value="{{ cwDragging }}"><div style="position:absolute; top:16px; left:50%; transform:translateX(-50%); background:var(--toast-bg); color:var(--toast-fg); font-family:Inter, sans-serif; font-size:11.5px; padding:4px 9px; border-radius:6px;">Columna · {{ contWidth }} px</div></sc-if>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+<sc-if value="{{ showRight }}" hint-placeholder-val="{{ true }}">
+  <div style="width:{{ rightW }}px; flex:none; display:flex; flex-direction:column; background:var(--panel); border-left:1px solid var(--line); position:relative; min-height:0;">
+    <div onMouseDown="{{ dragRight }}" style="position:absolute; top:0; bottom:0; left:-3px; width:6px; cursor:col-resize; z-index:3;" style-hover="background: var(--selection)"></div>
+    <div style="height:38px; flex:none; display:flex; align-items:center; gap:8px; padding:0 6px 0 14px; border-bottom:1px solid var(--line);"><lc-i n="sliders-horizontal" s="15"></lc-i><span style="font-weight:600;">Documento</span><div style="flex:1;"></div><button onClick="{{ closeRight }}" title="Ocultar panel (Ctrl+Shift+D)" style="width:26px; height:26px; border:none; border-radius:6px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="panel-right-close" s="15"></lc-i></button></div>
+    <div style="flex:none; padding:9px 14px; display:flex; align-items:center; gap:12px; font-size:11.5px; color:var(--text-3); border-bottom:1px solid var(--line);"><span>Origen</span><span style="display:flex; align-items:center; gap:4px;"><lc-i n="app-window" s="13"></lc-i>App</span><span style="display:flex; align-items:center; gap:4px; color:var(--text-2);"><lc-i n="library" s="13"></lc-i>Proyecto</span><span style="display:flex; align-items:center; gap:4px; color:var(--accent);"><lc-i n="file-text" s="13"></lc-i>Documento</span></div>
+    <div style="flex:1; min-height:0; overflow:auto;">
+      <div style="padding:0 14px;">
+        <button onClick="{{ sec.page.toggle }}" style="width:100%; height:40px; display:flex; align-items:center; gap:8px; padding:0; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:12.5px;"><span style="color:var(--text-2); display:flex;"><lc-i n="file" s="15"></lc-i></span>Página<div style="flex:1;"></div><span style="color:var(--text-3); display:flex;"><lc-i n="{{ sec.page.chev }}" s="14"></lc-i></span></button>
+        <sc-if value="{{ sec.page.open }}" hint-placeholder-val="{{ true }}"><div style="display:flex; flex-direction:column; gap:7px; padding-bottom:14px;">
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Tamaño</span><div style="position:relative;"><select value="{{ v.size }}" onChange="{{ on.size }}" style="appearance:none; width:100%; height:28px; padding:0 26px 0 9px; border:1px solid var(--line); border-radius:6px; background:var(--field); font-size:12.5px; cursor:pointer;"><option value="A4">A4 · 210 × 297 mm</option><option value="A5">A5 · 148 × 210 mm</option><option value="Letter">Carta · 216 × 279 mm</option><option value="Legal">Oficio · 216 × 356 mm</option><option value="B5">B5 · 176 × 250 mm</option></select><span style="position:absolute; right:7px; top:7px; pointer-events:none; color:var(--text-3); display:flex;"><lc-i n="chevron-down" s="14"></lc-i></span></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.size.tip }}" style="color:{{ o.size.color }}; display:flex;"><lc-i n="{{ o.size.icon }}" s="14"></lc-i></span><sc-if value="{{ o.size.isDoc }}"><button onClick="{{ o.size.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Orientación</span><div style="display:flex; padding:2px; background:var(--hover); border-radius:7px; gap:2px;"><sc-for list="{{ segs.orient }}" as="so" hint-placeholder-count="2"><button onClick="{{ so.onClick }}" title="{{ so.label }}" aria-label="{{ so.label }}" style="flex:1; display:flex; align-items:center; justify-content:center; height:24px; border:none; border-radius:5px; background:{{ so.bg }}; color:{{ so.fg }}; box-shadow:{{ so.sh }}; cursor:pointer;"><lc-i n="{{ so.icon }}" s="14"></lc-i></button></sc-for></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.orientation.tip }}" style="color:{{ o.orientation.color }}; display:flex;"><lc-i n="{{ o.orientation.icon }}" s="14"></lc-i></span><sc-if value="{{ o.orientation.isDoc }}"><button onClick="{{ o.orientation.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:start; gap:8px;"><span style="color:var(--text-2); font-size:12px; padding-top:6px;">Márgenes<br><span style="color:var(--text-3); font-size:11px;">mm</span></span><div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+            <div title="Superior" style="display:flex; align-items:center; gap:4px; height:28px; padding:0 6px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><span style="color:var(--text-3); display:flex;"><lc-i n="arrow-up-to-line" s="12"></lc-i></span><input type="number" value="{{ v.mt }}" onChange="{{ on.mt }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12px;"></div>
+            <div title="Inferior" style="display:flex; align-items:center; gap:4px; height:28px; padding:0 6px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><span style="color:var(--text-3); display:flex;"><lc-i n="arrow-down-to-line" s="12"></lc-i></span><input type="number" value="{{ v.mb }}" onChange="{{ on.mb }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12px;"></div>
+            <div title="Izquierdo" style="display:flex; align-items:center; gap:4px; height:28px; padding:0 6px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><span style="color:var(--text-3); display:flex;"><lc-i n="arrow-left-to-line" s="12"></lc-i></span><input type="number" value="{{ v.ml }}" onChange="{{ on.ml }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12px;"></div>
+            <div title="Derecho" style="display:flex; align-items:center; gap:4px; height:28px; padding:0 6px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><span style="color:var(--text-3); display:flex;"><lc-i n="arrow-right-to-line" s="12"></lc-i></span><input type="number" value="{{ v.mr }}" onChange="{{ on.mr }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12px;"></div>
+          </div><span style="display:flex; align-items:center; gap:4px; padding-top:7px;"><span title="{{ o.margins.tip }}" style="color:{{ o.margins.color }}; display:flex;"><lc-i n="{{ o.margins.icon }}" s="14"></lc-i></span><sc-if value="{{ o.margins.isDoc }}"><button onClick="{{ o.margins.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Encabezado</span><div style="display:flex; align-items:center; gap:6px; height:28px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><span style="color:var(--text-3); display:flex;"><lc-i n="panel-top" s="13"></lc-i></span><input value="{{ v.header }}" onChange="{{ on.header }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12px;"></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.header.tip }}" style="color:{{ o.header.color }}; display:flex;"><lc-i n="{{ o.header.icon }}" s="14"></lc-i></span><sc-if value="{{ o.header.isDoc }}"><button onClick="{{ o.header.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Pie</span><div style="display:flex; align-items:center; gap:6px; height:28px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><span style="color:var(--text-3); display:flex;"><lc-i n="panel-bottom" s="13"></lc-i></span><input value="{{ v.footer }}" onChange="{{ on.footer }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12px;"></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.footer.tip }}" style="color:{{ o.footer.color }}; display:flex;"><lc-i n="{{ o.footer.icon }}" s="14"></lc-i></span><sc-if value="{{ o.footer.isDoc }}"><button onClick="{{ o.footer.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+          <button onClick="{{ openPage }}" style="align-self:flex-start; margin-left:92px; display:flex; align-items:center; gap:6px; border:none; background:transparent; color:var(--accent-ink); font-size:12px; font-weight:500; cursor:pointer; padding:2px 0;" style-hover="text-decoration: underline"><lc-i n="settings-2" s="13"></lc-i>Configurar página…</button>
+        </div></sc-if>
+      </div>
+      <div style="height:1px; background:var(--line); margin:0 14px;"></div>
+      <div style="padding:0 14px;">
+        <button onClick="{{ sec.type.toggle }}" style="width:100%; height:40px; display:flex; align-items:center; gap:8px; padding:0; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:12.5px;"><span style="color:var(--text-2); display:flex;"><lc-i n="type" s="15"></lc-i></span>Tipografía<div style="flex:1;"></div><span style="color:var(--text-3); display:flex;"><lc-i n="{{ sec.type.chev }}" s="14"></lc-i></span></button>
+        <sc-if value="{{ sec.type.open }}" hint-placeholder-val="{{ true }}"><div style="display:flex; flex-direction:column; gap:7px; padding-bottom:14px;">
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Fuente</span><div style="position:relative;"><select value="{{ v.font }}" onChange="{{ on.font }}" style="appearance:none; width:100%; height:28px; padding:0 26px 0 9px; border:1px solid var(--line); border-radius:6px; background:var(--field); font-size:12.5px; cursor:pointer;"><option>Source Serif 4</option><option>Inter</option><option>Source Sans 3</option><option>Literata</option><option>IBM Plex Sans</option><option>IBM Plex Serif</option><option>Merriweather</option><option>Lora</option></select><span style="position:absolute; right:7px; top:7px; pointer-events:none; color:var(--text-3); display:flex;"><lc-i n="chevron-down" s="14"></lc-i></span></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.font.tip }}" style="color:{{ o.font.color }}; display:flex;"><lc-i n="{{ o.font.icon }}" s="14"></lc-i></span><sc-if value="{{ o.font.isDoc }}"><button onClick="{{ o.font.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Código</span><div style="position:relative;"><select value="{{ v.mono }}" onChange="{{ on.mono }}" style="appearance:none; width:100%; height:28px; padding:0 26px 0 9px; border:1px solid var(--line); border-radius:6px; background:var(--field); font-size:12.5px; cursor:pointer;"><option>JetBrains Mono</option><option>IBM Plex Mono</option></select><span style="position:absolute; right:7px; top:7px; pointer-events:none; color:var(--text-3); display:flex;"><lc-i n="chevron-down" s="14"></lc-i></span></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.mono.tip }}" style="color:{{ o.mono.color }}; display:flex;"><lc-i n="{{ o.mono.icon }}" s="14"></lc-i></span><sc-if value="{{ o.mono.isDoc }}"><button onClick="{{ o.mono.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Tamaño</span><div style="display:flex; align-items:center; gap:6px; height:28px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><span style="color:var(--text-3); display:flex;"><lc-i n="a-large-small" s="13"></lc-i></span><input type="number" step="0.5" value="{{ v.fontSize }}" onChange="{{ on.fontSize }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12px;"><span style="color:var(--text-3); font-size:11.5px;">pt</span></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.fontSize.tip }}" style="color:{{ o.fontSize.color }}; display:flex;"><lc-i n="{{ o.fontSize.icon }}" s="14"></lc-i></span><sc-if value="{{ o.fontSize.isDoc }}"><button onClick="{{ o.fontSize.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Interlineado</span><div style="display:flex; align-items:center; gap:6px; height:28px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><span style="color:var(--text-3); display:flex;"><lc-i n="move-vertical" s="13"></lc-i></span><input type="number" step="0.05" value="{{ v.lineHeight }}" onChange="{{ on.lineHeight }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12px;"><span style="color:var(--text-3); font-size:11.5px;">×</span></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.lineHeight.tip }}" style="color:{{ o.lineHeight.color }}; display:flex;"><lc-i n="{{ o.lineHeight.icon }}" s="14"></lc-i></span><sc-if value="{{ o.lineHeight.isDoc }}"><button onClick="{{ o.lineHeight.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Tras párrafo</span><div style="display:flex; align-items:center; gap:6px; height:28px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><span style="color:var(--text-3); display:flex;"><lc-i n="between-horizontal-start" s="13"></lc-i></span><input type="number" step="0.1" value="{{ v.paraSpacing }}" onChange="{{ on.paraSpacing }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12px;"><span style="color:var(--text-3); font-size:11.5px;">em</span></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.paraSpacing.tip }}" style="color:{{ o.paraSpacing.color }}; display:flex;"><lc-i n="{{ o.paraSpacing.icon }}" s="14"></lc-i></span><sc-if value="{{ o.paraSpacing.isDoc }}"><button onClick="{{ o.paraSpacing.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Alineación</span><div style="display:flex; padding:2px; background:var(--hover); border-radius:7px; gap:2px;"><sc-for list="{{ segs.align }}" as="so" hint-placeholder-count="2"><button onClick="{{ so.onClick }}" title="{{ so.label }}" aria-label="{{ so.label }}" style="flex:1; display:flex; align-items:center; justify-content:center; height:24px; border:none; border-radius:5px; background:{{ so.bg }}; color:{{ so.fg }}; box-shadow:{{ so.sh }}; cursor:pointer;"><lc-i n="{{ so.icon }}" s="14"></lc-i></button></sc-for></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.align.tip }}" style="color:{{ o.align.color }}; display:flex;"><lc-i n="{{ o.align.icon }}" s="14"></lc-i></span><sc-if value="{{ o.align.isDoc }}"><button onClick="{{ o.align.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Idioma</span><div style="position:relative;"><select value="{{ v.lang }}" onChange="{{ on.lang }}" style="appearance:none; width:100%; height:28px; padding:0 26px 0 9px; border:1px solid var(--line); border-radius:6px; background:var(--field); font-size:12.5px; cursor:pointer;"><option value="es-PE">Español (Perú)</option><option value="es-ES">Español (España)</option><option value="es-MX">Español (México)</option><option value="en-US">English (US)</option></select><span style="position:absolute; right:7px; top:7px; pointer-events:none; color:var(--text-3); display:flex;"><lc-i n="chevron-down" s="14"></lc-i></span></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.lang.tip }}" style="color:{{ o.lang.color }}; display:flex;"><lc-i n="{{ o.lang.icon }}" s="14"></lc-i></span><sc-if value="{{ o.lang.isDoc }}"><button onClick="{{ o.lang.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+        </div></sc-if>
+      </div>
+      <div style="height:1px; background:var(--line); margin:0 14px;"></div>
+      <div style="padding:0 14px;">
+        <button onClick="{{ sec.styles.toggle }}" style="width:100%; height:40px; display:flex; align-items:center; gap:8px; padding:0; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:12.5px;"><span style="color:var(--text-2); display:flex;"><lc-i n="brush" s="15"></lc-i></span>Estilos<div style="flex:1;"></div><span style="color:var(--text-3); display:flex;"><lc-i n="{{ sec.styles.chev }}" s="14"></lc-i></span></button>
+        <sc-if value="{{ sec.styles.open }}" hint-placeholder-val="{{ true }}"><div style="display:flex; flex-direction:column; gap:7px; padding-bottom:14px;">
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Preset</span><div style="position:relative;"><select value="{{ v.theme }}" onChange="{{ on.theme }}" style="appearance:none; width:100%; height:28px; padding:0 26px 0 9px; border:1px solid var(--line); border-radius:6px; background:var(--field); font-size:12.5px; cursor:pointer;"><option value="clasico">Clásico</option><option value="moderno">Moderno</option><option value="tecnico">Técnico</option><option value="academico">Académico</option><option value="compacto">Compacto</option></select><span style="position:absolute; right:7px; top:7px; pointer-events:none; color:var(--text-3); display:flex;"><lc-i n="chevron-down" s="14"></lc-i></span></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.theme.tip }}" style="color:{{ o.theme.color }}; display:flex;"><lc-i n="{{ o.theme.icon }}" s="14"></lc-i></span><sc-if value="{{ o.theme.isDoc }}"><button onClick="{{ o.theme.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+          <div style="display:flex; flex-direction:column; border:1px solid var(--line); border-radius:7px; background:var(--field); overflow:hidden;">
+            <sc-for list="{{ styleRows }}" as="sr" hint-placeholder-count="6"><button onClick="{{ sr.onClick }}" style="display:flex; align-items:center; gap:8px; height:30px; padding:0 10px; border:none; border-bottom:1px solid var(--line); background:transparent; cursor:pointer; font-size:12px; text-align:left;" style-hover="background: var(--hover)"><span style="color:var(--text-2); display:flex;"><lc-i n="{{ sr.icon }}" s="14"></lc-i></span><span style="flex:1;">{{ sr.label }}</span><span style="color:var(--text-3); font-size:11.5px; font-variant-numeric:tabular-nums;">{{ sr.summary }}</span></button></sc-for>
+          </div>
+          <button onClick="{{ editStyles }}" style="display:flex; align-items:center; justify-content:center; gap:7px; height:30px; border:1px solid var(--line); border-radius:6px; background:var(--surface-raised); cursor:pointer; font-size:12.5px; font-weight:500;" style-hover="border-color: var(--line-strong)"><lc-i n="brush" s="14"></lc-i>Editar estilos…</button>
+        </div></sc-if>
+      </div>
+      <div style="height:1px; background:var(--line); margin:0 14px;"></div>
+      <div style="padding:0 14px;">
+        <button onClick="{{ sec.images.toggle }}" style="width:100%; height:40px; display:flex; align-items:center; gap:8px; padding:0; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:12.5px;"><span style="color:var(--text-2); display:flex;"><lc-i n="image" s="15"></lc-i></span>Imágenes<div style="flex:1;"></div><span style="color:var(--text-3); display:flex;"><lc-i n="{{ sec.images.chev }}" s="14"></lc-i></span></button>
+        <sc-if value="{{ sec.images.open }}" hint-placeholder-val="{{ true }}"><div style="display:flex; flex-direction:column; gap:7px; padding-bottom:16px;">
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Al pegar</span><div style="display:flex; padding:2px; background:var(--hover); border-radius:7px; gap:2px;"><sc-for list="{{ segs.paste }}" as="so" hint-placeholder-count="3"><button onClick="{{ so.onClick }}" title="{{ so.label }}" style="flex:1; display:flex; align-items:center; justify-content:center; height:24px; border:none; border-radius:5px; background:{{ so.bg }}; color:{{ so.fg }}; box-shadow:{{ so.sh }}; cursor:pointer;"><lc-i n="{{ so.icon }}" s="14"></lc-i></button></sc-for></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.pasteMode.tip }}" style="color:{{ o.pasteMode.color }}; display:flex;"><lc-i n="{{ o.pasteMode.icon }}" s="14"></lc-i></span><sc-if value="{{ o.pasteMode.isDoc }}"><button onClick="{{ o.pasteMode.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+          <div style="margin-left:92px; font-size:11.5px; color:var(--text-3); line-height:1.4;">{{ pasteDesc }}</div>
+          <div style="display:grid; grid-template-columns:84px minmax(0,1fr) 42px; align-items:center; gap:8px;"><span style="color:var(--text-2); font-size:12px;">Ancho máx.</span><div style="display:flex; align-items:center; gap:6px; height:28px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><span style="color:var(--text-3); display:flex;"><lc-i n="move-horizontal" s="13"></lc-i></span><input type="number" value="{{ v.maxWidth }}" onChange="{{ on.maxWidth }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12px;"><span style="color:var(--text-3); font-size:11.5px;">%</span></div><span style="display:flex; align-items:center; gap:4px;"><span title="{{ o.maxWidth.tip }}" style="color:{{ o.maxWidth.color }}; display:flex;"><lc-i n="{{ o.maxWidth.icon }}" s="14"></lc-i></span><sc-if value="{{ o.maxWidth.isDoc }}"><button onClick="{{ o.maxWidth.reset }}" title="Volver al heredado" style="width:20px; height:20px; border:none; border-radius:4px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" style-hover="background: var(--hover); color: var(--text)"><lc-i n="rotate-ccw" s="12"></lc-i></button></sc-if></span></div>
+        </div></sc-if>
+      </div>
+    </div>
+    <div style="flex:none; padding:10px 14px; border-top:1px solid var(--line); display:flex; gap:6px;">
+      <button onClick="{{ pinAll }}" title="Escribe todas las claves en el bloque mdteca:config" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; height:30px; border:1px solid var(--line); border-radius:6px; background:var(--surface-raised); cursor:pointer; font-size:12px;" style-hover="border-color: var(--line-strong)"><lc-i n="pin" s="14"></lc-i>Fijar todo</button>
+      <button onClick="{{ resetAll }}" title="Elimina el bloque de configuración" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; height:30px; border:1px solid var(--line); border-radius:6px; background:var(--surface-raised); cursor:pointer; font-size:12px;" style-hover="border-color: var(--line-strong)"><lc-i n="rotate-ccw" s="14"></lc-i>Restablecer</button>
+    </div>
+  </div>
+</sc-if>
+</div>
+<sc-if value="{{ showChrome }}" hint-placeholder-val="{{ true }}">
+<div style="height:30px; flex:none; display:flex; align-items:center; gap:14px; padding:0 10px 0 14px; background:var(--surface); border-top:1px solid var(--line); font-size:12px; color:var(--text-2); white-space:nowrap;">
+  <span style="display:flex; align-items:center; gap:6px;"><lc-i n="file-text" s="13"></lc-i>Página {{ curPage }} de {{ totalPages }}</span>
+  <span style="display:flex; align-items:center; gap:6px;"><lc-i n="whole-word" s="13"></lc-i>{{ words }} palabras</span>
+  <span style="display:flex; align-items:center; gap:6px;"><lc-i n="languages" s="13"></lc-i>{{ lang }}</span>
+  <div style="flex:1;"></div>
+  <div style="display:flex; padding:2px; background:var(--hover); border-radius:7px; gap:2px;"><sc-for list="{{ segs.edit }}" as="so" hint-placeholder-count="2"><button onClick="{{ so.onClick }}" title="Alternar modo (Ctrl+/)" style="display:flex; align-items:center; gap:5px; height:20px; padding:0 8px; border:none; border-radius:5px; background:{{ so.bg }}; color:{{ so.fg }}; box-shadow:{{ so.sh }}; font-size:11.5px; cursor:pointer;"><lc-i n="{{ so.icon }}" s="13"></lc-i>{{ so.label }}</button></sc-for></div>
+  <div style="display:flex; padding:2px; background:var(--hover); border-radius:7px; gap:2px;"><sc-for list="{{ segs.view }}" as="so" hint-placeholder-count="2"><button onClick="{{ so.onClick }}" title="Alternar vista (Ctrl+Alt+P)" style="display:flex; align-items:center; gap:5px; height:20px; padding:0 8px; border:none; border-radius:5px; background:{{ so.bg }}; color:{{ so.fg }}; box-shadow:{{ so.sh }}; font-size:11.5px; cursor:pointer;"><lc-i n="{{ so.icon }}" s="13"></lc-i>{{ so.label }}</button></sc-for></div>
+  <sc-if value="{{ isCont }}"><span title="Ancho de columna" style="display:flex; align-items:center; gap:6px;"><lc-i n="move-horizontal" s="14"></lc-i><input type="range" min="480" max="1100" step="10" value="{{ contWidth }}" onChange="{{ onCw }}" style="width:90px; accent-color:var(--accent);"><span style="width:44px; font-variant-numeric:tabular-nums;">{{ contWidth }} px</span></span></sc-if>
+  <span style="display:flex; align-items:center; gap:4px;">
+    <button onClick="{{ zout }}" title="Alejar (Ctrl+-)" style="width:22px; height:22px; border:none; border-radius:5px; background:transparent; color:var(--text-2); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="minus" s="13"></lc-i></button>
+    <input type="range" min="50" max="300" step="10" value="{{ zoom }}" onChange="{{ onZoom }}" style="width:100px; accent-color:var(--accent);">
+    <button onClick="{{ zin }}" title="Acercar (Ctrl+=)" style="width:22px; height:22px; border:none; border-radius:5px; background:transparent; color:var(--text-2); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="plus" s="13"></lc-i></button>
+    <button onClick="{{ z100 }}" title="Restablecer a 100 % (Ctrl+Alt+0)" style="min-width:46px; height:22px; border:none; border-radius:5px; background:transparent; cursor:pointer; font-size:12px; font-variant-numeric:tabular-nums;" style-hover="background: var(--hover)">{{ zoom }} %</button>
+  </span>
+</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{ showHome }}">
+<div style="position:absolute; left:0; right:0; top:40px; bottom:0; z-index:30; display:flex; background:var(--surface); border-top:1px solid var(--line);">
+  <sc-if value="{{ isBackstage }}">
+    <div style="width:236px; flex:none; background:var(--panel); border-right:1px solid var(--line); padding:12px 8px; display:flex; flex-direction:column; gap:1px; overflow:auto;">
+      <sc-for list="{{ bsItems }}" as="bi" hint-placeholder-count="12">
+        <sc-if value="{{ bi.isSep }}"><div style="height:1px; background:var(--line); margin:7px 8px;"></div></sc-if>
+        <sc-if value="{{ bi.isItem }}"><button onClick="{{ bi.onClick }}" style="height:34px; display:flex; align-items:center; gap:10px; padding:0 10px; border:none; border-radius:7px; background:{{ bi.bg }}; color:{{ bi.fg }}; cursor:pointer; font-size:13px; font-weight:{{ bi.weight }}; text-align:left;" style-hover="background: var(--hover)"><lc-i n="{{ bi.icon }}" s="17"></lc-i><span style="flex:1;">{{ bi.label }}</span><span style="font-size:11px; color:var(--text-3);">{{ bi.kbd }}</span></button></sc-if>
+      </sc-for>
+    </div>
+  </sc-if>
+  <div style="flex:1; overflow:auto;">
+    <div style="max-width:940px; margin:0 auto; padding:52px 48px 64px; display:flex; flex-direction:column; gap:40px;">
+      <div style="display:flex; align-items:center; gap:16px;">
+        <sc-if value="{{ isStart }}"><div style="width:48px; height:48px; border-radius:12px; background:var(--accent); color:var(--on-accent); display:flex; align-items:center; justify-content:center;"><lc-i n="book-open-text" s="26" w="1.6"></lc-i></div></sc-if>
+        <div><div style="font-size:24px; font-weight:600; letter-spacing:-0.02em;">{{ homeTitle }}</div><div style="color:var(--text-2); margin-top:4px; font-size:13.5px;">Markdown con la sensación de un procesador de textos.</div></div>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px;">
+        <sc-for list="{{ homeActions }}" as="ha" hint-placeholder-count="3"><button onClick="{{ ha.onClick }}" style="display:flex; align-items:flex-start; gap:14px; padding:18px; border:1px solid var(--line); border-radius:10px; background:var(--surface-raised); cursor:pointer; text-align:left; transition:border-color 140ms ease-out;" style-hover="border-color: var(--line-strong)"><span style="width:40px; height:40px; flex:none; border-radius:9px; background:var(--accent-soft); color:var(--accent); display:flex; align-items:center; justify-content:center;"><lc-i n="{{ ha.icon }}" s="20"></lc-i></span><span style="display:flex; flex-direction:column; gap:4px;"><span style="font-size:14px; font-weight:600;">{{ ha.label }}</span><span style="font-size:12px; color:var(--text-2); line-height:1.4;">{{ ha.desc }}</span><span style="font-size:11px; color:var(--text-3); margin-top:2px;">{{ ha.kbd }}</span></span></button></sc-for>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:32px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px; font-size:11.5px; font-weight:600; color:var(--text-3); text-transform:uppercase; letter-spacing:0.06em; padding:0 10px 10px;"><lc-i n="library" s="14"></lc-i>Proyectos recientes</div>
+          <sc-for list="{{ recentProjects }}" as="rp" hint-placeholder-count="3"><button onClick="{{ rp.onClick }}" style="width:100%; display:flex; align-items:center; gap:12px; padding:10px; border:none; border-radius:8px; background:transparent; cursor:pointer; text-align:left;" style-hover="background: var(--hover)"><span style="color:var(--text-2); display:flex;"><lc-i n="library" s="18"></lc-i></span><span style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;"><span style="font-weight:500;">{{ rp.title }}</span><span style="font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--text-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ rp.path }}</span></span><span style="font-size:11.5px; color:var(--text-3);">{{ rp.when }}</span></button></sc-for>
+        </div>
+        <div>
+          <div style="display:flex; align-items:center; gap:8px; font-size:11.5px; font-weight:600; color:var(--text-3); text-transform:uppercase; letter-spacing:0.06em; padding:0 10px 10px;"><lc-i n="file-text" s="14"></lc-i>Archivos recientes</div>
+          <sc-for list="{{ recentFiles }}" as="rf" hint-placeholder-count="4"><button onClick="{{ rf.onClick }}" style="width:100%; display:flex; align-items:center; gap:12px; padding:10px; border:none; border-radius:8px; background:transparent; cursor:pointer; text-align:left;" style-hover="background: var(--hover)"><span style="color:var(--text-2); display:flex;"><lc-i n="file-text" s="18"></lc-i></span><span style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;"><span style="font-weight:500;">{{ rf.title }}</span><span style="font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--text-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ rf.path }}</span></span><span style="font-size:11.5px; color:var(--text-3);">{{ rf.when }}</span></button></sc-for>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:center; gap:8px; height:56px; border:1px dashed var(--line-strong); border-radius:10px; color:var(--text-3); font-size:12.5px;"><lc-i n="file-down" s="16"></lc-i>Arrastra aquí un .md o un .mdteca para abrirlo</div>
+    </div>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{ isFocus }}"><button onClick="{{ exitFocus }}" style="position:absolute; top:12px; right:16px; z-index:20; display:flex; align-items:center; gap:7px; height:28px; padding:0 11px; border:1px solid var(--line); border-radius:14px; background:var(--surface-raised); color:var(--text-2); font-size:12px; cursor:pointer; opacity:0.7;" style-hover="opacity: 1"><lc-i n="minimize" s="14"></lc-i>Salir de concentración<span style="font-size:10.5px; padding:1px 5px; border-radius:4px; background:var(--kbd-bg);">F11</span></button></sc-if>
+<sc-if value="{{ dlgOpen }}">
+<div onClick="{{ closeDialog }}" style="position:fixed; inset:0; z-index:70; background:var(--overlay); display:flex; align-items:center; justify-content:center;">
+  <sc-if value="{{ isPaste }}">
+  <div role="dialog" aria-modal="true" onClick="{{ stop }}" style="width:480px; background:var(--surface-raised); border-radius:12px; box-shadow:var(--shadow-lg); overflow:hidden;">
+    <div style="height:48px; display:flex; align-items:center; gap:9px; padding:0 10px 0 18px;"><span style="color:var(--text-2); display:flex;"><lc-i n="image-plus" s="17"></lc-i></span><span style="font-weight:600; font-size:14px;">Pegar imagen</span><div style="flex:1;"></div><button onClick="{{ closeDialog }}" title="Cancelar (Esc)" style="width:28px; height:28px; border:none; border-radius:6px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="x" s="16"></lc-i></button></div>
+    <div style="padding:4px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+      <div style="display:flex; gap:14px; align-items:center; padding:10px; border-radius:9px; background:var(--panel);">
+        <div style="width:112px; height:60px; flex:none; border-radius:5px; background:repeating-linear-gradient(135deg, var(--ph-a) 0 6px, var(--ph-b) 6px 12px); box-shadow:0 0 0 1px var(--line); display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono', monospace; font-size:9.5px; color:var(--ink-2);">portapapeles</div>
+        <div style="display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--text-2);"><span style="font-weight:500; color:var(--text); font-size:12.5px;">Imagen del portapapeles</span><span style="display:flex; align-items:center; gap:6px;"><lc-i n="file-image" s="13"></lc-i>PNG · 214 KB</span><span style="display:flex; align-items:center; gap:6px;"><lc-i n="ratio" s="13"></lc-i>1280 × 680 px</span></div>
+      </div>
+      <div role="radiogroup" style="display:flex; flex-direction:column; gap:8px;">
+        <div onClick="{{ paste.pickFile }}" role="radio" style="display:flex; gap:12px; padding:12px; border-radius:9px; border:{{ paste.fileBorder }}; background:{{ paste.fileBg }}; cursor:pointer;">
+          <span style="width:34px; height:34px; flex:none; border-radius:8px; background:var(--surface-raised); box-shadow:0 0 0 1px var(--line); color:var(--accent); display:flex; align-items:center; justify-content:center;"><lc-i n="file-image" s="18"></lc-i></span>
+          <div style="flex:1; display:flex; flex-direction:column; gap:7px;">
+            <div style="display:flex; align-items:center; gap:8px;"><span style="font-weight:600;">Guardar como archivo</span><span style="font-size:10.5px; color:var(--text-3); padding:1px 6px; border-radius:4px; background:var(--kbd-bg);">Recomendado · Enter</span></div>
+            <div style="display:flex; align-items:center; gap:6px; height:28px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><span style="color:var(--text-3); display:flex;"><lc-i n="pencil" s="12"></lc-i></span><input value="{{ paste.name }}" onChange="{{ paste.onName }}" style="flex:1; min-width:0; border:none; outline:none; background:transparent; font-family:'JetBrains Mono', monospace; font-size:12px;"></div>
+            <span style="font-size:11.5px; color:var(--text-3);">Junto a manual.md · enlace relativo, diffs de Git limpios</span>
+          </div>
+        </div>
+        <div onClick="{{ paste.pickEmbed }}" role="radio" style="display:flex; gap:12px; padding:12px; border-radius:9px; border:{{ paste.embBorder }}; background:{{ paste.embBg }}; cursor:pointer;">
+          <span style="width:34px; height:34px; flex:none; border-radius:8px; background:var(--surface-raised); box-shadow:0 0 0 1px var(--line); color:var(--text-2); display:flex; align-items:center; justify-content:center;"><lc-i n="code" s="18"></lc-i></span>
+          <div style="flex:1; display:flex; flex-direction:column; gap:4px;"><span style="font-weight:600;">Incrustar en el documento</span><span style="font-size:11.5px; color:var(--text-3);">Base64 dentro del .md · añade ≈ 286 KB al archivo</span></div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button onClick="{{ paste.toggleRemember }}" style="display:flex; align-items:center; gap:8px; border:none; background:transparent; padding:0; cursor:pointer; font-size:12.5px;"><span style="width:16px; height:16px; border-radius:4px; border:{{ paste.chkBorder }}; background:{{ paste.chkBg }}; color:var(--on-accent); display:flex; align-items:center; justify-content:center;"><sc-if value="{{ paste.remember }}"><lc-i n="check" s="12" w="3"></lc-i></sc-if></span>Recordar para este documento</button>
+        <div style="flex:1;"></div>
+        <a href="#" style="font-size:12px; display:flex; align-items:center; gap:5px;"><lc-i n="settings" s="13"></lc-i>Cambiar el predeterminado…</a>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:8px; padding:12px 18px; border-top:1px solid var(--line); background:var(--panel);">
+      <button onClick="{{ closeDialog }}" style="display:flex; align-items:center; gap:6px; height:32px; padding:0 14px; border:1px solid var(--line); border-radius:7px; background:var(--surface-raised); cursor:pointer; font-size:12.5px;" style-hover="border-color: var(--line-strong)"><lc-i n="x" s="14"></lc-i>Cancelar</button>
+      <button onClick="{{ confirmPaste }}" style="display:flex; align-items:center; gap:6px; height:32px; padding:0 14px; border:none; border-radius:7px; background:var(--accent); color:var(--on-accent); cursor:pointer; font-size:12.5px; font-weight:500;"><lc-i n="image-down" s="14"></lc-i>Insertar imagen</button>
+    </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ isPage }}">
+  <div role="dialog" aria-modal="true" onClick="{{ stop }}" style="width:720px; background:var(--surface-raised); border-radius:12px; box-shadow:var(--shadow-lg); overflow:hidden;">
+    <div style="height:48px; display:flex; align-items:center; gap:9px; padding:0 10px 0 18px;"><span style="color:var(--text-2); display:flex;"><lc-i n="file-cog" s="17"></lc-i></span><span style="font-weight:600; font-size:14px;">Configurar página</span><div style="flex:1;"></div><button onClick="{{ closeDialog }}" style="width:28px; height:28px; border:none; border-radius:6px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="x" s="16"></lc-i></button></div>
+    <div style="display:grid; grid-template-columns:minmax(0,1fr) 250px; gap:24px; padding:4px 18px 20px;">
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        <div><div style="font-size:12px; font-weight:600; color:var(--text-2); margin-bottom:8px; display:flex; align-items:center; gap:6px;"><lc-i n="file" s="13"></lc-i>Tamaño de papel</div><div style="display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:6px;"><sc-for list="{{ pd.sizes }}" as="ps" hint-placeholder-count="5"><button onClick="{{ ps.onClick }}" style="display:flex; flex-direction:column; align-items:center; gap:3px; padding:9px 4px; border:{{ ps.border }}; border-radius:8px; background:{{ ps.bg }}; cursor:pointer;"><span style="font-weight:600; font-size:12.5px;">{{ ps.label }}</span><span style="font-size:10.5px; color:var(--text-3);">{{ ps.dim }}</span></button></sc-for></div></div>
+        <div><div style="font-size:12px; font-weight:600; color:var(--text-2); margin-bottom:8px; display:flex; align-items:center; gap:6px;"><lc-i n="rotate-cw-square" s="13"></lc-i>Orientación</div><div style="display:flex; padding:2px; background:var(--hover); border-radius:7px; gap:2px; width:260px;"><sc-for list="{{ pd.orient }}" as="so" hint-placeholder-count="2"><button onClick="{{ so.onClick }}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; height:28px; border:none; border-radius:5px; background:{{ so.bg }}; color:{{ so.fg }}; box-shadow:{{ so.sh }}; font-size:12.5px; cursor:pointer;"><lc-i n="{{ so.icon }}" s="15"></lc-i>{{ so.label }}</button></sc-for></div></div>
+        <div><div style="font-size:12px; font-weight:600; color:var(--text-2); margin-bottom:8px; display:flex; align-items:center; gap:6px;"><lc-i n="square-dashed" s="13"></lc-i>Márgenes</div>
+          <div style="display:flex; gap:6px; margin-bottom:10px;"><sc-for list="{{ pd.presets }}" as="mp" hint-placeholder-count="4"><button onClick="{{ mp.onClick }}" style="height:28px; padding:0 11px; border:{{ mp.border }}; border-radius:14px; background:{{ mp.bg }}; cursor:pointer; font-size:12px;">{{ mp.label }}</button></sc-for></div>
+          <div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:6px;">
+            <label style="display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--text-3);">Superior<span style="display:flex; align-items:center; gap:4px; height:30px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><input type="number" value="{{ pd.v.top }}" onChange="{{ pd.on.top }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12.5px; color:var(--text);">mm</span></label>
+            <label style="display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--text-3);">Inferior<span style="display:flex; align-items:center; gap:4px; height:30px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><input type="number" value="{{ pd.v.bottom }}" onChange="{{ pd.on.bottom }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12.5px; color:var(--text);">mm</span></label>
+            <label style="display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--text-3);">Izquierdo<span style="display:flex; align-items:center; gap:4px; height:30px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><input type="number" value="{{ pd.v.left }}" onChange="{{ pd.on.left }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12.5px; color:var(--text);">mm</span></label>
+            <label style="display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--text-3);">Derecho<span style="display:flex; align-items:center; gap:4px; height:30px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><input type="number" value="{{ pd.v.right }}" onChange="{{ pd.on.right }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12.5px; color:var(--text);">mm</span></label>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:center; background:var(--canvas); border-radius:10px; min-height:290px;">
+        <div style="position:relative; width:{{ pd.pw }}px; height:{{ pd.ph }}px; background:var(--paper); box-shadow:var(--sheet-shadow); transition:width 160ms ease-out, height 160ms ease-out;">
+          <div style="position:absolute; left:{{ pd.ml }}px; right:{{ pd.mr }}px; top:{{ pd.mt }}px; bottom:{{ pd.mb }}px; border:1px dashed var(--accent); background:repeating-linear-gradient(180deg, var(--ink-rule) 0 2px, transparent 2px 7px); opacity:0.9;"></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px; padding:12px 18px; border-top:1px solid var(--line); background:var(--panel);">
+      <span style="font-size:11.5px; color:var(--text-3); display:flex; align-items:center; gap:6px;"><lc-i n="file-text" s="13"></lc-i>Se guarda en el bloque de configuración de manual.md</span>
+      <div style="flex:1;"></div>
+      <button onClick="{{ closeDialog }}" style="display:flex; align-items:center; gap:6px; height:32px; padding:0 14px; border:1px solid var(--line); border-radius:7px; background:var(--surface-raised); cursor:pointer; font-size:12.5px;"><lc-i n="x" s="14"></lc-i>Cancelar</button>
+      <button onClick="{{ applyPage }}" style="display:flex; align-items:center; gap:6px; height:32px; padding:0 14px; border:none; border-radius:7px; background:var(--accent); color:var(--on-accent); cursor:pointer; font-size:12.5px; font-weight:500;"><lc-i n="check" s="14"></lc-i>Aplicar</button>
+    </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ isStyles }}">
+  <div role="dialog" aria-modal="true" onClick="{{ stop }}" style="width:900px; height:580px; display:flex; flex-direction:column; background:var(--surface-raised); border-radius:12px; box-shadow:var(--shadow-lg); overflow:hidden;">
+    <div style="height:48px; flex:none; display:flex; align-items:center; gap:9px; padding:0 10px 0 18px; border-bottom:1px solid var(--line);"><span style="color:var(--text-2); display:flex;"><lc-i n="brush" s="17"></lc-i></span><span style="font-weight:600; font-size:14px;">Editar estilos</span><span style="font-size:12px; color:var(--text-3);">· {{ presetName }}</span><div style="flex:1;"></div><button onClick="{{ closeDialog }}" style="width:28px; height:28px; border:none; border-radius:6px; background:transparent; color:var(--text-3); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="x" s="16"></lc-i></button></div>
+    <div style="flex:1; min-height:0; display:grid; grid-template-columns:190px 270px minmax(0,1fr);">
+      <div style="border-right:1px solid var(--line); padding:10px 8px; display:flex; flex-direction:column; gap:1px; background:var(--panel);"><sc-for list="{{ st.types }}" as="tt" hint-placeholder-count="8"><button onClick="{{ tt.onClick }}" style="height:32px; display:flex; align-items:center; gap:9px; padding:0 10px; border:none; border-radius:6px; background:{{ tt.bg }}; color:{{ tt.fg }}; cursor:pointer; font-size:12.5px; font-weight:{{ tt.weight }}; text-align:left;" style-hover="background: var(--hover)"><lc-i n="{{ tt.icon }}" s="15"></lc-i>{{ tt.label }}</button></sc-for></div>
+      <div style="border-right:1px solid var(--line); padding:16px; display:flex; flex-direction:column; gap:14px; overflow:auto;">
+        <div style="font-weight:600; display:flex; align-items:center; gap:7px;"><lc-i n="{{ st.icon }}" s="16"></lc-i>{{ st.label }}</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <label style="display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--text-3);">Tamaño<span style="display:flex; align-items:center; gap:4px; height:30px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><lc-i n="a-large-small" s="13"></lc-i><input type="number" step="0.05" value="{{ st.v.size }}" onChange="{{ st.on.size }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12.5px; color:var(--text);">em</span></label>
+          <label style="display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--text-3);">Estilo<span style="display:flex; gap:4px; height:30px;"><button onClick="{{ st.on.italic }}" title="Cursiva" style="flex:1; border:1px solid var(--line); border-radius:6px; background:{{ st.italicBg }}; color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center;"><lc-i n="italic" s="15"></lc-i></button><button onClick="{{ st.on.upper }}" title="Mayúsculas" style="flex:1; border:1px solid var(--line); border-radius:6px; background:{{ st.upperBg }}; color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center;"><lc-i n="case-upper" s="16"></lc-i></button></span></label>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--text-3);">Peso<div style="display:flex; padding:2px; background:var(--hover); border-radius:7px; gap:2px;"><sc-for list="{{ st.weights }}" as="so" hint-placeholder-count="4"><button onClick="{{ so.onClick }}" style="flex:1; height:26px; border:none; border-radius:5px; background:{{ so.bg }}; color:{{ so.fg }}; box-shadow:{{ so.sh }}; font-size:12px; cursor:pointer;">{{ so.label }}</button></sc-for></div></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <label style="display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--text-3);">Espacio antes<span style="display:flex; align-items:center; gap:4px; height:30px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><lc-i n="arrow-up-to-line" s="13"></lc-i><input type="number" step="0.1" value="{{ st.v.before }}" onChange="{{ st.on.before }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12.5px; color:var(--text);">em</span></label>
+          <label style="display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--text-3);">Espacio después<span style="display:flex; align-items:center; gap:4px; height:30px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--field);"><lc-i n="arrow-down-to-line" s="13"></lc-i><input type="number" step="0.1" value="{{ st.v.after }}" onChange="{{ st.on.after }}" style="width:100%; min-width:0; border:none; outline:none; background:transparent; font-size:12.5px; color:var(--text);">em</span></label>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px; font-size:11px; color:var(--text-3);">Color<div style="display:flex; gap:8px;"><sc-for list="{{ st.swatches }}" as="sw" hint-placeholder-count="5"><button onClick="{{ sw.onClick }}" title="{{ sw.label }}" style="width:24px; height:24px; border-radius:50%; border:none; background:{{ sw.c }}; box-shadow:{{ sw.ring }}; cursor:pointer;"></button></sc-for></div></div>
+        <div style="font-size:11.5px; color:var(--text-3); line-height:1.5; display:flex; gap:6px;"><lc-i n="info" s="13"></lc-i><span>La fuente es única por documento: se elige en Tipografía, no por estilo.</span></div>
+      </div>
+      <div style="background:var(--canvas); padding:22px; overflow:auto;">
+        <div style="background:var(--paper); box-shadow:var(--sheet-shadow); padding:34px 40px; font-family:{{ st.fam }}; font-size:{{ st.fs }}px; line-height:{{ st.lh }}; color:var(--ink);">
+          <sc-for list="{{ st.preview }}" as="pv" hint-placeholder-count="6"><div style="{{ pv.css }}">{{ pv.t }}</div></sc-for>
+        </div>
+      </div>
+    </div>
+    <div style="flex:none; display:flex; align-items:center; gap:8px; padding:12px 18px; border-top:1px solid var(--line); background:var(--panel);">
+      <button onClick="{{ st.resetOne }}" style="display:flex; align-items:center; gap:6px; height:32px; padding:0 12px; border:none; border-radius:7px; background:transparent; cursor:pointer; font-size:12.5px; color:var(--text-2);" style-hover="background: var(--hover)"><lc-i n="rotate-ccw" s="14"></lc-i>Restablecer este estilo</button>
+      <div style="flex:1;"></div>
+      <button onClick="{{ closeDialog }}" style="display:flex; align-items:center; gap:6px; height:32px; padding:0 14px; border:1px solid var(--line); border-radius:7px; background:var(--surface-raised); cursor:pointer; font-size:12.5px;"><lc-i n="x" s="14"></lc-i>Cancelar</button>
+      <button onClick="{{ st.accept }}" style="display:flex; align-items:center; gap:6px; height:32px; padding:0 14px; border:none; border-radius:7px; background:var(--accent); color:var(--on-accent); cursor:pointer; font-size:12.5px; font-weight:500;"><lc-i n="check" s="14"></lc-i>Aceptar</button>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+<sc-if value="{{ ctxOpen }}">
+<div data-pop="1" role="menu" style="position:fixed; left:{{ ctx.x }}px; top:{{ ctx.y }}px; z-index:90; width:260px; padding:5px; background:var(--surface-raised); border:1px solid var(--line); border-radius:9px; box-shadow:var(--shadow-pop);">
+  <sc-for list="{{ ctxItems }}" as="ci" hint-placeholder-count="10">
+    <sc-if value="{{ ci.isSep }}"><div style="height:1px; background:var(--line); margin:4px 6px;"></div></sc-if>
+    <sc-if value="{{ ci.isItem }}"><button role="menuitem" onClick="{{ ci.onClick }}" style="width:100%; height:30px; display:flex; align-items:center; gap:10px; padding:0 9px; border:none; border-radius:6px; background:transparent; cursor:pointer; font-size:12.5px; font-weight:{{ ci.weight }}; color:var(--text); text-align:left;" style-hover="background: var(--hover)"><span style="color:var(--text-2); display:flex;"><lc-i n="{{ ci.icon }}" s="15"></lc-i></span><span style="flex:1;">{{ ci.label }}</span><span style="font-size:11px; color:var(--text-3);">{{ ci.kbd }}</span><sc-if value="{{ ci.sub }}"><span style="color:var(--text-3); display:flex;"><lc-i n="chevron-right" s="13"></lc-i></span></sc-if></button></sc-if>
+  </sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ fbarOpen }}">
+<div onMouseDown="{{ keepSel }}" style="position:fixed; left:{{ fbar.x }}px; top:{{ fbar.y }}px; transform:translateX(-50%); z-index:85; display:flex; align-items:center; gap:1px; padding:4px; background:var(--surface-raised); border:1px solid var(--line); border-radius:9px; box-shadow:var(--shadow-pop);">
+  <sc-for list="{{ fbarItems }}" as="fi" hint-placeholder-count="8">
+    <sc-if value="{{ fi.isSep }}"><span style="width:1px; height:18px; margin:0 3px; background:var(--line);"></span></sc-if>
+    <sc-if value="{{ fi.isItem }}"><button onClick="{{ fi.onClick }}" title="{{ fi.tip }}" style="height:28px; min-width:28px; padding:0 5px; display:flex; align-items:center; justify-content:center; gap:3px; border:none; border-radius:6px; background:{{ fi.bg }}; color:{{ fi.fg }}; cursor:pointer; font-size:12px;" style-hover="background: var(--hover)"><lc-i n="{{ fi.icon }}" s="16"></lc-i><sc-if value="{{ fi.drop }}"><span style="color:var(--text-3); display:flex;"><lc-i n="chevron-down" s="11"></lc-i></span></sc-if></button></sc-if>
+  </sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ tipOpen }}"><div role="tooltip" style="position:fixed; left:{{ tip.x }}px; top:{{ tip.y }}px; transform:translateX(-50%); z-index:95; display:flex; align-items:center; gap:8px; padding:5px 9px; background:var(--toast-bg); color:var(--toast-fg); border-radius:6px; font-size:11.5px; white-space:nowrap; pointer-events:none;">{{ tip.label }}<sc-if value="{{ tip.hasKbd }}"><span style="opacity:0.65; font-size:11px;">{{ tip.kbd }}</span></sc-if></div></sc-if>
+<sc-if value="{{ toastOpen }}"><div role="status" style="position:absolute; left:50%; bottom:46px; transform:translateX(-50%); z-index:96; display:flex; align-items:center; gap:9px; padding:9px 14px; background:var(--toast-bg); color:var(--toast-fg); border-radius:8px; box-shadow:var(--shadow-pop); font-size:12.5px; white-space:nowrap;"><lc-i n="{{ toast.icon }}" s="15"></lc-i>{{ toast.msg }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;claro&quot;,&quot;oscuro&quot;],&quot;default&quot;:&quot;claro&quot;,&quot;tsType&quot;:&quot;'claro'|'oscuro'&quot;},&quot;paperLight&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;options&quot;:[&quot;#1D6A72&quot;,&quot;#2F5BEA&quot;,&quot;#7A4A2E&quot;,&quot;#4B4F9E&quot;],&quot;default&quot;:&quot;#1D6A72&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = {
+    ready: !!window.MDT, screen: 'editor', mode: 'project', tab: 'inicio', ribbonCollapsed: false,
+    view: 'pages', edit: 'wysiwyg', theme: null, leftOpen: true, leftTab: 'nav', rightOpen: true, ruler: true,
+    focus: false, zoom: 100, contWidth: 760, doc: { paraSpacing: 0.8, pasteMode: 'ask' }, bs: null, hoverPreset: null,
+    exp: {}, unOpen: true, activeChap: 'inst', activeTab: 1, dialog: null, styleSel: 'h1', pd: null, bsBackup: null,
+    paste: { choice: 'file', name: 'manual.003.png', remember: false }, modeMenu: false, infobar: true,
+    tip: null, ctx: null, fbar: null, selWords: 0, linkPop: false, imgSel: false, toast: null, keytips: false,
+    sec: { page: true, type: true, styles: true, images: true }, curPage: 1, navW: 268, rightW: 304,
+    dirty: true, fmt: {}, hoverSheet: false, dragging: null, bsSel: 'inicio'
+  };
+  componentDidMount() {
+    if (!window.MDT) { this._w = setInterval(() => { if (window.MDT) { clearInterval(this._w); this.setState({ ready: true }); } }, 40); }
+    this._key = e => this.onKey(e); this._down = e => this.onGlobalDown(e);
+    window.addEventListener('keydown', this._key); window.addEventListener('mousedown', this._down);
+    this.applyBody();
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this._key); window.removeEventListener('mousedown', this._down); clearInterval(this._w); }
+  componentDidUpdate() { this.applyBody(); }
+  isDark() { return this.state.theme ? this.state.theme === 'dark' : this.props.theme === 'oscuro'; }
+  applyBody() {
+    const b = document.body, dark = this.isDark();
+    b.dataset.theme = dark ? 'dark' : 'light';
+    b.dataset.paper = dark && this.props.paperLight === false ? 'dark' : 'light';
+    const a = this.props.accent;
+    if (a && a !== '#1D6A72') b.style.setProperty('--accent', dark ? `color-mix(in oklch, ${a} 62%, white)` : a); else b.style.removeProperty('--accent');
+  }
+  M() { return window.MDT; }
+  BS() { return this.state.bs || this.M().BS0; }
+  cfg() {
+    const { APP, PROJ, PRESETS } = this.M(), s = this.state, d = s.doc;
+    let c = { ...APP, ...PRESETS[APP.theme] };
+    if (s.mode === 'project') c = { ...c, ...PRESETS[PROJ.theme], ...PROJ };
+    if (d.theme) c = { ...c, ...PRESETS[d.theme] };
+    c = { ...c, ...d };
+    if (s.hoverPreset) c = { ...c, ...PRESETS[s.hoverPreset], theme: s.hoverPreset };
+    return c;
+  }
+  origin(k) {
+    const { PROJ, PRESETS } = this.M(), s = this.state;
+    if (k in s.doc) return 'doc';
+    if (s.doc.theme && k in PRESETS[s.doc.theme]) return 'doc';
+    if (s.mode === 'project' && (k in PROJ || k in PRESETS[PROJ.theme])) return 'proj';
+    return 'app';
+  }
+  setDoc(k, v) { this.setState(s => ({ doc: { ...s.doc, [k]: v }, dirty: true })); }
+  resetDoc(k) { this.setState(s => { const d = { ...s.doc }; delete d[k]; return { doc: d, dirty: true }; }); }
+  applyPreset(k) { const P = this.M().PRESETS[k]; this.setState(s => { const d = { ...s.doc, theme: k }; Object.keys(P).forEach(x => delete d[x]); return { doc: d, hoverPreset: null, dirty: true }; }); this.toast('Preset «' + this.M().PRESET_NAMES[k] + '» aplicado'); }
+  toast(msg, icon) { clearTimeout(this._tt); this.setState({ toast: { msg, icon: icon || 'circle-check' } }); this._tt = setTimeout(() => this.setState({ toast: null }), 2600); }
+  setZoom(z) { this.setState({ zoom: Math.max(50, Math.min(300, Math.round(z / 10) * 10)) }); }
+  sheetH() { const c = this.cfg(), d = this.M().PS[c.size] || this.M().PS.A4; return (c.orientation === 'landscape' ? d[0] : d[1]) * this.M().MM; }
+  onGlobalDown(e) {
+    if (e.target.closest && e.target.closest('[data-pop]')) return;
+    const s = this.state;
+    if (s.ctx || s.modeMenu || s.linkPop || s.imgSel) this.setState({ ctx: null, modeMenu: false, linkPop: false, imgSel: false });
+  }
+  onKey(e) {
+    const k = e.key, ctrl = e.ctrlKey || e.metaKey, s = this.state, lk = (k || '').toLowerCase();
+    if (k === 'Alt') { e.preventDefault(); this.setState({ keytips: !s.keytips }); return; }
+    if (s.keytips && !ctrl) {
+      const map = { a: 'archivo', i: 'inicio', n: 'insertar', d: 'diseno', s: 'disposicion', v: 'vista', p: 'proyecto' };
+      if (map[lk]) this.setState({ tab: map[lk], ribbonCollapsed: false });
+      this.setState({ keytips: false }); e.preventDefault(); return;
+    }
+    if (s.dialog === 'paste' && k === 'Enter') { e.preventDefault(); this.confirmPaste(); return; }
+    if (k === 'F11') { e.preventDefault(); this.setState({ focus: !s.focus }); }
+    else if (k === 'Escape') {
+      if (s.dialog) this.closeDialog(); else if (s.ctx || s.modeMenu || s.fbar || s.linkPop || s.imgSel) this.setState({ ctx: null, modeMenu: false, fbar: null, linkPop: false, imgSel: false });
+      else if (s.tab === 'archivo') this.setState({ tab: 'inicio' }); else if (s.focus) this.setState({ focus: false });
+    }
+    else if (ctrl && k === '/') { e.preventDefault(); this.setState({ edit: s.edit === 'wysiwyg' ? 'text' : 'wysiwyg' }); }
+    else if (ctrl && e.altKey && lk === 'p') { e.preventDefault(); this.setState({ view: s.view === 'pages' ? 'continuous' : 'pages' }); }
+    else if (ctrl && e.altKey && k === '0') { e.preventDefault(); this.setZoom(100); }
+    else if (ctrl && e.shiftKey && lk === 'b') { e.preventDefault(); this.setState({ leftOpen: !s.leftOpen }); }
+    else if (ctrl && e.shiftKey && lk === 'd') { e.preventDefault(); this.setState({ rightOpen: !s.rightOpen }); }
+    else if (ctrl && k === 'F1') { e.preventDefault(); this.setState({ ribbonCollapsed: !s.ribbonCollapsed }); }
+    else if (ctrl && (k === '=' || k === '+')) { e.preventDefault(); this.setZoom(s.zoom + 10); }
+    else if (ctrl && k === '-') { e.preventDefault(); this.setZoom(s.zoom - 10); }
+    else if (ctrl && lk === 's') { e.preventDefault(); this.setState({ dirty: false }); this.toast('Guardado · manual.md'); }
+    else if (ctrl && lk === 'v' && !e.shiftKey && !e.altKey && s.screen === 'editor') { e.preventDefault(); this.openPaste(); }
+  }
+  openPaste() { if (this.cfg().pasteMode === 'ask') this.setState({ dialog: 'paste', paste: { choice: 'file', name: 'manual.003.png', remember: false } }); else this.toast(this.cfg().pasteMode === 'file' ? 'Imagen guardada como manual.003.png' : 'Imagen incrustada (286 KB)', 'image'); }
+  confirmPaste() {
+    const p = this.state.paste;
+    if (p.remember) this.setDoc('pasteMode', p.choice === 'file' ? 'file' : 'base64');
+    this.setState({ dialog: null, dirty: true });
+    this.toast(p.choice === 'file' ? 'Imagen guardada como ' + p.name : 'Imagen incrustada en el documento · 286 KB', 'image');
+  }
+  closeDialog() { const s = this.state; if (s.dialog === 'styles' && s.bsBackup) this.setState({ bs: s.bsBackup }); this.setState({ dialog: null, bsBackup: null }); }
+  openStyles(sel) { this.setState({ dialog: 'styles', styleSel: sel || this.state.styleSel, bsBackup: this.BS(), bs: this.BS() }); }
+  openPage() { const c = this.cfg(); this.setState({ dialog: 'page', pd: { size: c.size, orientation: c.orientation, margins: { ...c.margins } } }); }
+  showTip(e, it) {
+    const r = e.currentTarget.getBoundingClientRect(); clearTimeout(this._tipT);
+    this._tipT = setTimeout(() => this.setState({ tip: { label: it.tip || it.label, kbd: it.kbd || '', hasKbd: !!it.kbd, x: Math.max(80, Math.min(window.innerWidth - 80, r.left + r.width / 2)), y: r.bottom + 6 } }), 420);
+  }
+  hideTip() { clearTimeout(this._tipT); if (this.state.tip) this.setState({ tip: null }); }
+  drag(e, kind) {
+    e.preventDefault(); e.stopPropagation();
+    const sx = e.clientX, s = this.state, c = this.cfg(), z = s.zoom / 100, MM = this.M().MM;
+    const st = { navW: s.navW, rightW: s.rightW, cw: s.contWidth, m: { ...c.margins } };
+    const cl = (v, a, b) => Math.max(a, Math.min(b, v));
+    const move = ev => {
+      const dx = ev.clientX - sx;
+      if (kind === 'nav') this.setState({ navW: cl(st.navW + dx, 220, 440) });
+      else if (kind === 'right') this.setState({ rightW: cl(st.rightW - dx, 280, 440) });
+      else if (kind === 'cwR' || kind === 'cwL') this.setState({ contWidth: cl(Math.round((st.cw + (kind === 'cwR' ? 2 : -2) * dx / z) / 10) * 10, 480, 1100) });
+      else if (kind === 'mL') this.setDoc('margins', { ...st.m, left: cl(Math.round(st.m.left + dx / z / MM), 5, 60) });
+      else if (kind === 'mR') this.setDoc('margins', { ...st.m, right: cl(Math.round(st.m.right - dx / z / MM), 5, 60) });
+    };
+    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); this.setState({ dragging: null }); };
+    this.setState({ dragging: kind }); window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
+  }
+  act(a, it) {
+    const s = this.state, c = this.cfg();
+    const map = {
+      'paste-img': () => this.openPaste(), page: () => this.openPage(), styles: () => this.openStyles(),
+      focus: () => this.setState({ focus: true }), theme: () => this.setState({ theme: this.isDark() ? 'light' : 'dark' }),
+      wys: () => this.setState({ edit: 'wysiwyg' }), txt: () => this.setState({ edit: 'text' }),
+      pages: () => this.setState({ view: 'pages' }), cont: () => this.setState({ view: 'continuous' }),
+      zin: () => this.setZoom(s.zoom + 10), zout: () => this.setZoom(s.zoom - 10), z100: () => this.setZoom(100),
+      ruler: () => this.setState({ ruler: !s.ruler }), outline: () => this.setState({ leftOpen: !(s.leftOpen && s.leftTab === 'outline'), leftTab: 'outline' }),
+      nav: () => this.setState({ leftOpen: !(s.leftOpen && s.leftTab === 'nav'), leftTab: 'nav' }), panel: () => this.setState({ rightOpen: !s.rightOpen }),
+      numbering: () => this.setDoc('numbering', !c.numbering), reset: () => { this.setState({ doc: {}, bs: null }); this.toast('Documento restablecido a valores heredados', 'rotate-ccw'); },
+      'al-left': () => this.setDoc('align', 'left'), 'al-just': () => this.setDoc('align', 'justify'),
+      orient: () => this.setDoc('orientation', c.orientation === 'portrait' ? 'landscape' : 'portrait'),
+      'to-project': () => this.toProject(), 'to-file': () => this.toFile(),
+      'panel-page': () => this.setState({ rightOpen: true, sec: { ...s.sec, page: true } }),
+      'panel-type': () => this.setState({ rightOpen: true, sec: { ...s.sec, type: true } }),
+      'panel-img': () => this.setState({ rightOpen: true, sec: { ...s.sec, images: true } }),
+      save: () => { this.setState({ dirty: false }); this.toast('Guardado · manual.md'); },
+      fmt: () => this.setState({ fmt: { ...s.fmt, [it.f]: !s.fmt[it.f] } })
+    };
+    this.hideTip();
+    if (map[a]) map[a](); else this.toast((it && it.label) + ' · no disponible en el prototipo', 'info');
+  }
+  toProject() { this.setState({ mode: 'project', leftOpen: true, leftTab: 'nav', modeMenu: false, activeTab: 1, screen: 'editor', tab: 'inicio' }); this.toast('Proyecto abierto · Manual del Sistema de Planillas', 'library'); }
+  toFile() { this.setState({ mode: 'file', leftOpen: false, modeMenu: false, activeTab: 0, infobar: true, screen: 'editor', tab: 'inicio' }); this.toast('Editando solo este archivo', 'file-text'); }
+  seg(opts, cur, pick, showLabel) {
+    return opts.map(([val, label, icon]) => ({ label, icon, showLabel: showLabel !== false, onClick: () => pick(val),
+      bg: cur === val ? 'var(--surface-raised)' : 'transparent', fg: cur === val ? 'var(--text)' : 'var(--text-2)',
+      sh: cur === val ? '0 0 0 1px var(--line), 0 1px 2px rgba(0,0,0,0.08)' : 'none' }));
+  }
+  renderVals() {
+    if (!window.MDT) return { ready: false };
+    const M = this.M(), s = this.state, c = this.cfg(), proj = s.mode === 'project', dark = this.isDark(), MM = M.MM, bs = this.BS();
+    const isEditor = s.screen === 'editor', isText = s.edit === 'text', isPages = s.view === 'pages';
+    const showChrome = !s.focus;
+    const fs = c.fontSize * 4 / 3, ps = c.paraSpacing;
+    const d = M.PS[c.size] || M.PS.A4, wmm = c.orientation === 'landscape' ? d[1] : d[0], hmm = c.orientation === 'landscape' ? d[0] : d[1];
+    const W = wmm * MM, H = hmm * MM, mg = c.margins, mp = { t: mg.top * MM, r: mg.right * MM, b: mg.bottom * MM, l: mg.left * MM };
+    const fam = `'${c.font}', Georgia, serif`, monoFam = `'${c.mono}', ui-monospace, monospace`;
+    const bcss = (k, x) => { const b = bs[k]; return { fontSize: b.size + 'em', fontWeight: b.weight, fontStyle: b.italic ? 'italic' : 'normal', textTransform: b.upper ? 'uppercase' : 'none', color: b.color, margin: `${b.before}em 0 ${b.after}em`, ...(x || {}) }; };
+    const fx = n => String(n).replace('.', ',');
+
+    // blocks
+    const runs = rs => rs.map(r => ({ t: r.t, isPlain: r.k === 't', isB: r.k === 'b', isCode: r.k === 'code', isLink: r.k === 'link', isSpell: r.k === 'spell' }));
+    const ctoks = { m: 'var(--ink-3)', t: 'var(--ink)', f: '#9A5B13', s: 'var(--doc-link)' };
+    const mk = b => {
+      const o = { page: b.page, isH: false, isTxt: false, isTable: false, isCodeB: false, isImg: false, isBreak: false, hasBullet: false, isTask: false };
+      if (b.k[0] === 'h') { o.isH = true; o.lvl = b.k; o.text = (c.numbering ? b.num + '  ' : '') + b.t; o.css = bcss(b.k, { lineHeight: 1.25, letterSpacing: b.k === 'h1' ? '-0.015em' : '-0.005em', textAlign: 'left' }); }
+      else if (b.k === 'p') { o.isTxt = true; o.runs = runs(b.runs); o.css = bcss('paragraph', { margin: `0 0 ${ps}em` }); }
+      else if (b.k === 'li') { o.isTxt = true; o.hasBullet = true; o.runs = runs(b.runs); o.css = { display: 'flex', gap: '0.65em', paddingLeft: '0.35em', margin: `0 0 ${b.last ? ps : 0.25}em`, textAlign: 'left' }; o.bulletCss = { color: 'var(--ink-2)', flex: 'none' }; }
+      else if (b.k === 'task') { o.isTxt = true; o.isTask = true; o.done = b.done; o.runs = runs(b.runs); o.css = { display: 'flex', gap: '0.65em', alignItems: 'flex-start', margin: `0 0 ${b.last ? ps : 0.3}em`, textAlign: 'left', color: b.done ? 'var(--ink-2)' : 'var(--ink)' };
+        o.boxCss = { flex: 'none', width: '0.95em', height: '0.95em', marginTop: '0.3em', borderRadius: 3, border: b.done ? 'none' : '1.5px solid var(--ink-3)', background: b.done ? 'var(--doc-link)' : 'transparent', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }; }
+      else if (b.k === 'quote') { o.isTxt = true; o.runs = runs(b.runs); o.css = bcss('blockquote', { padding: '0.15em 0 0.15em 1.1em', borderLeft: '2px solid var(--ink-rule)' }); }
+      else if (b.k === 'table') { o.isTable = true; o.caption = b.caption; o.css = bcss('table', { fontVariantNumeric: 'tabular-nums' });
+        const cell = { padding: '0.5em 0.75em', borderBottom: '1px solid var(--ink-rule)', textAlign: 'left' };
+        o.cells = [...b.head.map(t => ({ t, css: { ...cell, fontWeight: 600, background: 'var(--code-bg)' } })), ...b.rows.flat().map(t => ({ t, css: cell }))]; }
+      else if (b.k === 'code') { o.isCodeB = true; o.lang = b.lang; o.lines = b.lines.map(l => ({ tks: l.map(([t, k]) => ({ t, c: ctoks[k] })) }));
+        o.css = { fontFamily: monoFam, fontSize: bs.code.size + 'em', lineHeight: 1.65, background: 'var(--code-bg)', borderRadius: 6, padding: '0.85em 1em', margin: `${bs.code.before}em 0 ${bs.code.after}em`, position: 'relative', textAlign: 'left', color: 'var(--ink)' }; }
+      else if (b.k === 'img') { o.isImg = true; o.caption = b.caption; o.css = { margin: `0.4em 0 ${ps + 0.4}em`, fontFamily: 'Inter, sans-serif' }; o.outline = s.imgSel ? '2px solid var(--accent)' : 'none'; }
+      else if (b.k === 'break') o.isBreak = true;
+      return o;
+    };
+    const all = M.BLOCKS.map(mk);
+    const fixFirst = arr => arr.map((b, i) => i === 0 && b.css ? { ...b, css: { ...b.css, marginTop: 0 } } : b);
+
+    // markdown source lines
+    const T = (t, k) => ({ t, css: k === 'm' ? { color: 'var(--ink-3)' } : k === 'h' || k === 'b' ? { fontWeight: 650 } : k === 'c' ? { color: 'var(--doc-link)' } : {} });
+    const mdr = rs => rs.flatMap(r => r.k === 'b' ? [T('**', 'm'), T(r.t, 'b'), T('**', 'm')] : r.k === 'code' ? [T('`', 'm'), T(r.t, 'c'), T('`', 'm')] : r.k === 'link' ? [T('[', 'm'), T(r.t), T('](02-requisitos.md)', 'm')] : [T(r.t)]);
+    const lines = [];
+    const L = (tks, page) => lines.push({ tks, page });
+    M.BLOCKS.forEach(b => {
+      const p = b.page;
+      if (b.k[0] === 'h') L([T('#'.repeat(+b.k[1]) + ' ', 'm'), T(b.t, 'h')], p);
+      else if (b.k === 'p') L(mdr(b.runs), p);
+      else if (b.k === 'li') L([T('- ', 'm'), ...mdr(b.runs)], p);
+      else if (b.k === 'task') L([T(b.done ? '- [x] ' : '- [ ] ', 'm'), ...mdr(b.runs)], p);
+      else if (b.k === 'quote') L([T('> ', 'm'), ...mdr(b.runs)], p);
+      else if (b.k === 'img') L([T('![', 'm'), T(b.alt), T('](' + b.src + ')', 'm')], p);
+      else if (b.k === 'break') L([T('<!-- mdteca:pagebreak -->', 'm')], p);
+      else if (b.k === 'code') { L([T('```' + b.lang, 'm')], p); b.lines.forEach(l => L([T(l.map(x => x[0]).join(''), 'c')], p)); L([T('```', 'm')], p); }
+      else if (b.k === 'table') { const rows = [b.head, ...b.rows], w = b.head.map((_, i) => Math.max(...rows.map(r => r[i].length)));
+        const row = r => { const out = [T('| ', 'm')]; r.forEach((x, i) => { out.push(T(x.padEnd(w[i]))); out.push(T(i < r.length - 1 ? ' | ' : ' |', 'm')); }); return out; };
+        L(row(b.head), p); L([T('|' + w.map(n => '-'.repeat(n + 2)).join('|') + '|', 'm')], p); b.rows.forEach(r => L(row(r), p)); }
+      if (!(b.k === 'li' && !b.last) && !(b.k === 'task' && !b.last)) L([T('')], p);
+    });
+
+    const sub = (t, n) => (t || '').replace('{title}', 'Instalación del módulo de pagos').replace('{page}', n).replace('{pages}', 3).replace('{date}', '20/10/2026');
+    const textCss = { fontFamily: monoFam, fontSize: fs * 0.88, lineHeight: 1.65, color: 'var(--ink)', whiteSpace: 'pre-wrap', wordBreak: 'break-word', textAlign: 'left' };
+    const docCss = { fontFamily: fam, fontSize: fs, lineHeight: c.lineHeight, color: 'var(--ink)', textAlign: c.align, hyphens: 'auto' };
+    const hf = { position: 'absolute', left: mp.l, right: mp.r, fontFamily: fam, fontSize: fs * 0.72, color: 'var(--ink-3)', textAlign: 'center', lineHeight: 1.2 };
+    let pages;
+    if (isPages) {
+      pages = [1, 2, 3].map(n => ({
+        css: { width: W, height: H, background: 'var(--paper)', boxShadow: 'var(--sheet-shadow)', position: 'relative', flex: 'none' },
+        bodyCss: { position: 'absolute', left: mp.l, right: mp.r, top: mp.t, bottom: mp.b, overflow: 'hidden', ...(isText ? textCss : docCss) },
+        hasHF: true, header: sub(c.header, n), footer: sub(c.footer, n),
+        headCss: { ...hf, top: Math.max(16, mp.t / 2 - 8) }, footCss: { ...hf, bottom: Math.max(16, mp.b / 2 - 8) },
+        blocks: fixFirst(all.filter(b => b.page === n)), lines: lines.filter(l => l.page === n), isWys: !isText, isText, chip: isText && n === 3, handles: false
+      }));
+    } else {
+      pages = [{ css: { width: s.contWidth + 144, minHeight: 1500, background: 'var(--paper)', boxShadow: 'var(--sheet-shadow)', position: 'relative', flex: 'none', marginTop: 4 },
+        bodyCss: { padding: '64px 72px 120px', ...(isText ? textCss : docCss) }, hasHF: false,
+        blocks: fixFirst(all), lines, isWys: !isText, isText, chip: isText, handles: true }];
+    }
+    const z = s.zoom / 100;
+
+    // ruler
+    const ticks = [];
+    for (let mm = 0; mm <= wmm; mm += 5) { const rel = mm - mg.left, major = Math.round(rel) % 10 === 0, x = mm * MM;
+      ticks.push({ css: { position: 'absolute', left: x, bottom: 0, width: 1, height: major ? 6 : 3, background: 'var(--ink-3)', opacity: 0.6 }, hasLabel: major && rel !== 0, label: Math.abs(Math.round(rel / 10)), lcss: { position: 'absolute', left: x, top: 2, transform: 'translateX(-50%)', fontSize: 9, color: 'var(--ink-3)', fontFamily: 'Inter, sans-serif' } }); }
+    const ruler = { w: W, l: mp.l, r: mp.r, lh: mp.l - 4.5, rh: W - mp.r - 4.5, ticks,
+      showVal: s.dragging === 'mL' || s.dragging === 'mR', val: s.dragging === 'mR' ? 'Margen derecho · ' + mg.right + ' mm' : 'Margen izquierdo · ' + mg.left + ' mm', valX: s.dragging === 'mR' ? W - mp.r : mp.l };
+
+    // ribbon
+    const I = (icon, label, o) => ({ icon, label, ...(o || {}) });
+    const fmtI = (icon, label, f, kbd) => I(icon, label, { act: 'fmt', f, kbd, on: !!s.fmt[f] });
+    const G = {
+      inicio: [
+        { label: 'Portapapeles', big: [I('clipboard-paste', 'Pegar', { kbd: 'Ctrl+V', split: true, act: 'paste-img' })], small: [I('scissors', 'Cortar', { kbd: 'Ctrl+X' }), I('copy', 'Copiar', { kbd: 'Ctrl+C' }), I('clipboard-type', 'Pegar sin formato', { kbd: 'Ctrl+Shift+V' }), I('clipboard-check', 'Pegar como Markdown', { kbd: 'Ctrl+Alt+V' })] },
+        { label: 'Historial', small: [I('undo-2', 'Deshacer', { kbd: 'Ctrl+Z' }), I('redo-2', 'Rehacer', { kbd: 'Ctrl+Y' })] },
+        { label: 'Estilos', gallery: true },
+        { label: 'Formato', small: [fmtI('bold', 'Negrita', 'b', 'Ctrl+B'), fmtI('italic', 'Cursiva', 'i', 'Ctrl+I'), fmtI('strikethrough', 'Tachado', 's', 'Ctrl+Shift+X'), fmtI('code', 'Código en línea', 'c', 'Ctrl+E'), I('link', 'Enlace', { kbd: 'Ctrl+K' }), I('remove-formatting', 'Quitar formato')] },
+        { label: 'Párrafo', small: [fmtI('list', 'Lista con viñetas', 'ul', 'Ctrl+Shift+8'), fmtI('list-ordered', 'Lista numerada', 'ol', 'Ctrl+Shift+7'), fmtI('list-checks', 'Lista de tareas', 'tl', 'Ctrl+Shift+9'), I('indent-decrease', 'Reducir sangría', { kbd: 'Shift+Tab' }), I('indent-increase', 'Aumentar sangría', { kbd: 'Tab' })] },
+        { label: 'Edición', lbl: [I('search', 'Buscar', { kbd: 'Ctrl+F' }), I('replace', 'Reemplazar', { kbd: 'Ctrl+H' })] }
+      ],
+      insertar: [
+        { label: 'Medios', big: [I('image', 'Imagen', { split: true, act: 'paste-img' }), I('table', 'Tabla', { split: true })] },
+        { label: 'Bloques', big: [I('square-code', 'Código', { kbd: 'Ctrl+Alt+C' }), I('quote', 'Cita', { kbd: 'Ctrl+Shift+.' })], small: [I('minus', 'Separador'), I('file-minus', 'Salto de página', { kbd: 'Ctrl+Enter' }), I('list-checks', 'Lista de tareas', { kbd: 'Ctrl+Shift+9' }), I('code-xml', 'HTML')] },
+        { label: 'Referencias', lbl: [I('link', 'Enlace', { kbd: 'Ctrl+K' }), I('footprints', 'Nota al pie'), I('calendar', 'Fecha')] }
+      ],
+      diseno: [
+        { label: 'Estilos del documento', presets: true },
+        { label: 'Tipografía', lbl: [I('type', c.font, { drop: true, tip: 'Fuente del documento', act: 'panel-type' }), I('a-large-small', fx(c.fontSize) + ' pt', { drop: true, tip: 'Tamaño base', act: 'panel-type' }), I('move-vertical', 'Interlineado ' + fx(c.lineHeight), { drop: true, act: 'panel-type' })] },
+        { label: 'Párrafo', small: [I('align-left', 'Alinear a la izquierda', { act: 'al-left', on: c.align === 'left' }), I('align-justify', 'Justificar', { act: 'al-just', on: c.align === 'justify' }), I('between-horizontal-start', 'Espaciado de párrafo', { act: 'panel-type' }), I('list-tree', 'Títulos numerados', { act: 'numbering', on: !!c.numbering })] },
+        { label: 'Estilos', big: [I('brush', 'Editar estilos', { act: 'styles' }), I('rotate-ccw', 'Restablecer', { act: 'reset', tip: 'Restablecer a valores heredados' })] }
+      ],
+      disposicion: [
+        { label: 'Página', big: [I('file', 'Tamaño', { split: true, act: 'page', tip: 'Tamaño de papel · ' + M.PSL[c.size] }), I(c.orientation === 'portrait' ? 'rectangle-vertical' : 'rectangle-horizontal', 'Orientación', { act: 'orient' }), I('square-dashed', 'Márgenes', { split: true, act: 'page' })] },
+        { label: 'Encabezado y pie', big: [I('panel-top', 'Encabezado', { act: 'panel-page' }), I('panel-bottom', 'Pie de página', { act: 'panel-page' })] },
+        { label: 'Vista continua', big: [I('move-horizontal', 'Ancho de columna', { act: 'cont', tip: 'Ancho de columna · ' + s.contWidth + ' px' })] },
+        { label: 'Imágenes', big: [I('image-plus', 'Modo de pegado', { split: true, act: 'panel-img' })] }
+      ],
+      vista: [
+        { label: 'Edición', big: [I('eye', 'WYSIWYG', { act: 'wys', kbd: 'Ctrl+/', on: !isText }), I('file-code-2', 'Texto', { act: 'txt', kbd: 'Ctrl+/', on: isText })] },
+        { label: 'Disposición', big: [I('files', 'Páginas', { act: 'pages', kbd: 'Ctrl+Alt+P', on: isPages }), I('scroll-text', 'Continua', { act: 'cont', kbd: 'Ctrl+Alt+P', on: !isPages })] },
+        { label: 'Zoom', lbl: [I('zoom-in', 'Acercar', { act: 'zin', kbd: 'Ctrl+=' }), I('zoom-out', 'Alejar', { act: 'zout', kbd: 'Ctrl+-' }), I('scan', '100 %', { act: 'z100', kbd: 'Ctrl+Alt+0' })] },
+        { label: 'Mostrar', lbl: [I('ruler', 'Regla', { act: 'ruler', on: s.ruler }), I('list-tree', 'Esquema', { act: 'outline', on: s.leftOpen && s.leftTab === 'outline' }), I('library', 'Navegador', { act: 'nav', kbd: 'Ctrl+Shift+B', on: proj && s.leftOpen && s.leftTab === 'nav' }), I('panel-right', 'Panel Documento', { act: 'panel', kbd: 'Ctrl+Shift+D', on: s.rightOpen })] },
+        { label: 'Ventana', big: [I('maximize', 'Concentración', { act: 'focus', kbd: 'F11' }), I(dark ? 'sun' : 'moon', dark ? 'Tema claro' : 'Tema oscuro', { act: 'theme' })] }
+      ],
+      proyecto: proj ? [
+        { label: 'Crear', big: [I('file-plus-2', 'Nuevo capítulo'), I('book-plus', 'Nuevo libro'), I('folder-tree', 'Nueva colección')] },
+        { label: 'Revisar', lbl: [I('file-search', 'Buscar en proyecto', { kbd: 'Ctrl+Shift+F' }), I('file-question', 'Sin indexar (2)'), I('image-off', 'Imágenes huérfanas')] },
+        { label: 'Exportar', big: [I('book-down', 'Exportar libro')] },
+        { label: 'Proyecto', big: [I('settings-2', 'Ajustes del proyecto'), I('file-text', 'Solo este archivo', { act: 'to-file', tip: 'Editar solo este archivo' })] }
+      ] : [
+        { label: 'Proyecto', big: [I('folder-open', 'Abrir como proyecto', { act: 'to-project' }), I('folder-plus', 'Crear proyecto')] },
+        { label: '', note: true, noteText: 'Este archivo forma parte de «Manual de Planillas». Ábrelo como proyecto para ver sus libros y capítulos.' }
+      ]
+    };
+    const decorate = it => ({ ...it, onClick: () => this.act(it.act, it), onEnter: e => this.showTip(e, it), bg: it.on ? 'var(--accent-soft)' : 'transparent', fg: it.on ? 'var(--accent-ink)' : 'var(--text)' });
+    const groups = (G[s.tab] || []).map(g => ({ ...g, big: (g.big || []).map(decorate), small: (g.small || []).map(decorate), lbl: (g.lbl || []).map(decorate), hasBig: !!(g.big && g.big.length), hasSmall: !!(g.small && g.small.length), hasLbl: !!(g.lbl && g.lbl.length), gallery: !!g.gallery, presets: !!g.presets, note: !!g.note }));
+    const TABS = [['archivo', 'Archivo', 'A'], ['inicio', 'Inicio', 'I'], ['insertar', 'Insertar', 'N'], ['diseno', 'Diseño', 'D'], ['disposicion', 'Disposición', 'S'], ['vista', 'Vista', 'V'], ['proyecto', 'Proyecto', 'P']];
+    const ribbonTabs = TABS.map(([key, label, kt]) => ({ label, kt, onClick: () => this.setState({ tab: key, ribbonCollapsed: s.tab === key && key !== 'archivo' ? !s.ribbonCollapsed : false }),
+      weight: s.tab === key ? 600 : 500, fg: s.tab === key ? 'var(--text)' : 'var(--text-2)', bar: s.tab === key && key !== 'archivo' ? 'var(--accent)' : 'transparent' }));
+    const styleGallery = [['paragraph', 'Normal', 'pilcrow', 'Aa'], ['h1', 'Título 1', 'heading-1', 'Aa'], ['h2', 'Título 2', 'heading-2', 'Aa'], ['h3', 'Título 3', 'heading-3', 'Aa'], ['blockquote', 'Cita', 'quote', 'Aa'], ['code', 'Código', 'square-code', '{ }']].map(([k, label, icon, sample], i) => ({ label, icon, sample,
+      css: { fontFamily: k === 'code' ? monoFam : fam, fontSize: Math.min(22, 14 * bs[k].size), fontWeight: bs[k].weight, fontStyle: bs[k].italic ? 'italic' : 'normal', color: 'var(--ink)', lineHeight: 1 },
+      border: i === 0 ? 'var(--accent)' : 'var(--line)', onClick: () => this.toast('Estilo «' + label + '» aplicado', 'pilcrow'), onEnter: e => this.showTip(e, { label: 'Estilo ' + label, kbd: 'Ctrl+' + (k === 'paragraph' ? '0' : k[0] === 'h' ? k[1] : '') }) }));
+    const presets = Object.keys(M.PRESETS).map(k => ({ label: M.PRESET_NAMES[k], famCss: { fontFamily: `'${M.PRESETS[k].font}', serif`, fontSize: 17, fontWeight: k === 'moderno' || k === 'tecnico' ? 700 : 600, color: 'var(--ink)', lineHeight: 1 },
+      border: (s.doc.theme || c.theme) === k && !s.hoverPreset ? '1.5px solid var(--accent)' : '1px solid var(--line)', onClick: () => this.applyPreset(k), onEnter: () => this.setState({ hoverPreset: k }), onLeave: () => this.setState({ hoverPreset: null }) }));
+
+    // navigator
+    const navRows = [];
+    const cnt = items => items.reduce((n, it) => n + 1 + (it.children ? cnt(it.children) : 0), 0);
+    const tog = id => () => this.setState(st => ({ exp: { ...st.exp, [id]: st.exp[id] === false } }));
+    M.TREE.forEach(col => {
+      const ce = s.exp[col.id] !== false;
+      navRows.push({ isColl: true, isBook: false, isChap: false, title: col.title, icon: col.icon, count: col.books.length, chev: ce ? 'chevron-down' : 'chevron-right', onClick: tog(col.id) });
+      if (!ce) return;
+      col.books.forEach(bk => {
+        const be = s.exp[bk.id] !== false;
+        navRows.push({ isColl: false, isBook: true, isChap: false, title: bk.title, icon: bk.icon, count: cnt(bk.items), chev: be ? 'chevron-down' : 'chevron-right', onClick: tog(bk.id) });
+        if (!be) return;
+        const walk = (items, dep) => items.forEach(it => {
+          const kids = !!it.children, ie = s.exp[it.id] !== false, act = s.activeChap === it.id, miss = it.st === 'missing';
+          navRows.push({ isColl: false, isBook: false, isChap: true, title: it.title, pl: 30 + dep * 16, gl: 23 + dep * 16, hasKids: kids, noKids: !kids, chev: ie ? 'chevron-down' : 'chevron-right', onToggle: tog(it.id),
+            icon: miss ? 'file-x' : 'file-text', bg: act ? 'var(--accent-soft)' : 'transparent', fg: miss ? 'var(--text-3)' : act ? 'var(--accent-ink)' : 'var(--text)', weight: act ? 500 : 400,
+            isOpen: it.st === 'open' || act, isDirty: it.st === 'dirty' && s.dirty, isMissing: miss, deco: miss ? 'line-through' : 'none',
+            onClick: () => miss ? this.toast('Archivo no encontrado · tecnico/operacion/monitoreo.md', 'triangle-alert') : this.setState({ activeChap: it.id }) });
+          if (kids && ie) walk(it.children, dep + 1);
+        });
+        walk(bk.items, 0);
+      });
+    });
+    const outline = M.BLOCKS.filter(b => b.k[0] === 'h').map(b => ({ text: (c.numbering ? b.num + '  ' : '') + b.t, pl: 12 + (+b.k[1] - 1) * 14, weight: b.k === 'h1' ? 600 : 400, fg: b.k === 'h1' ? 'var(--text)' : 'var(--text-2)' }));
+    const leftTabs = (proj ? [['nav', 'Navegador', 'library'], ['outline', 'Esquema', 'list-tree']] : [['outline', 'Esquema', 'list-tree']]).map(([k, label, icon]) => ({ label, icon, onClick: () => this.setState({ leftTab: k }), bg: (proj ? s.leftTab : 'outline') === k ? 'var(--active)' : 'transparent', fg: (proj ? s.leftTab : 'outline') === k ? 'var(--text)' : 'var(--text-2)' }));
+    const tabsData = proj ? [['Introducción', false], ['Instalación del módulo de pagos', s.dirty], ['Primeros pasos', false]] : [['manual.md', s.dirty], ['notas-reunion.md', false]];
+    const docTabs = tabsData.map(([title, dirty], i) => ({ title, dirty, icon: 'file-text', onClick: () => this.setState({ activeTab: i }), bg: s.activeTab === i ? 'var(--canvas)' : 'transparent', fg: s.activeTab === i ? 'var(--text)' : 'var(--text-2)', border: s.activeTab === i ? 'var(--line)' : 'transparent' }));
+
+    // panel Documento
+    const ORIG = { doc: ['file-text', 'Documento', 'var(--accent)'], proj: ['library', 'Proyecto', 'var(--text-2)'], app: ['app-window', 'App', 'var(--text-3)'] };
+    const o = {};
+    ['size', 'orientation', 'margins', 'header', 'footer', 'font', 'mono', 'fontSize', 'lineHeight', 'paraSpacing', 'align', 'lang', 'theme', 'pasteMode', 'maxWidth'].forEach(k => {
+      const g = ORIG[this.origin(k)]; o[k] = { icon: g[0], color: g[2], tip: 'Origen: ' + g[1], isDoc: k in s.doc, reset: () => this.resetDoc(k) };
+    });
+    const num = (k, f) => e => { const v = parseFloat(e.target.value); if (!isNaN(v)) this.setDoc(k, f ? f(v) : v); };
+    const mar = side => e => { const v = parseFloat(e.target.value); if (!isNaN(v)) this.setDoc('margins', { ...c.margins, [side]: v }); };
+    const v = { size: c.size, font: c.font, mono: c.mono, fontSize: c.fontSize, lineHeight: c.lineHeight, paraSpacing: c.paraSpacing, mt: mg.top, mr: mg.right, mb: mg.bottom, ml: mg.left, header: c.header, footer: c.footer, lang: c.lang, maxWidth: c.maxWidth, theme: c.theme };
+    const on = { size: e => this.setDoc('size', e.target.value), font: e => this.setDoc('font', e.target.value), mono: e => this.setDoc('mono', e.target.value), lang: e => this.setDoc('lang', e.target.value),
+      theme: e => this.applyPreset(e.target.value), fontSize: num('fontSize'), lineHeight: num('lineHeight'), paraSpacing: num('paraSpacing'), maxWidth: num('maxWidth'),
+      mt: mar('top'), mr: mar('right'), mb: mar('bottom'), ml: mar('left'), header: e => this.setDoc('header', e.target.value), footer: e => this.setDoc('footer', e.target.value) };
+    const segs = {
+      orient: this.seg([['portrait', 'Vertical', 'rectangle-vertical'], ['landscape', 'Horizontal', 'rectangle-horizontal']], c.orientation, x => this.setDoc('orientation', x), false),
+      align: this.seg([['left', 'Izquierda', 'align-left'], ['justify', 'Justificado', 'align-justify']], c.align, x => this.setDoc('align', x), false),
+      paste: this.seg([['file', 'Archivo', 'file-image'], ['base64', 'Incrustar', 'code'], ['ask', 'Preguntar', 'message-circle-question']], c.pasteMode, x => this.setDoc('pasteMode', x), false),
+      edit: this.seg([['wysiwyg', 'WYSIWYG', 'eye'], ['text', 'Texto', 'file-code-2']], s.edit, x => this.setState({ edit: x })),
+      view: this.seg([['pages', 'Páginas', 'files'], ['continuous', 'Continua', 'scroll-text']], s.view, x => this.setState({ view: x }))
+    };
+    const pasteDesc = { file: 'Guardar como archivo junto al .md', base64: 'Incrustar como base64 en el .md', ask: 'Preguntar cada vez que se pega' }[c.pasteMode];
+    const secT = k => () => this.setState(st => ({ sec: { ...st.sec, [k]: !st.sec[k] } }));
+    const sec = {}; ['page', 'type', 'styles', 'images'].forEach(k => sec[k] = { open: s.sec[k], chev: s.sec[k] ? 'chevron-down' : 'chevron-right', toggle: secT(k) });
+    const styleRows = M.BTYPES.slice(0, 6).map(([k, label, icon]) => ({ label, icon, summary: fx(bs[k].size) + ' em · ' + bs[k].weight + (bs[k].italic ? ' · cursiva' : ''), onClick: () => this.openStyles(k) }));
+
+    const words = M.BLOCKS.reduce((n, b) => n + ((b.t || '') + ' ' + (b.runs || []).map(r => r.t).join('') + ' ' + (b.rows || []).flat().join(' ')).split(/\s+/).filter(Boolean).length, 0);
+
+    return {
+      ready: true, isEditor, isStart: !isEditor, showChrome, isFocus: s.focus, chromeEditor: showChrome && isEditor,
+      modeIcon: proj ? 'library' : 'file-text', modeLabel: proj ? 'Proyecto' : 'Archivo', modeMenu: s.modeMenu,
+      toggleModeMenu: () => this.setState({ modeMenu: !s.modeMenu }),
+      modeOpts: [['file', 'Archivo', 'file-text', 'Edita este .md como documento suelto, sin navegador.'], ['project', 'Proyecto', 'library', 'Abre el índice manual-planillas.mdteca con sus libros y capítulos.']].map(([k, label, icon, desc]) => ({ label, icon, desc, on: s.mode === k, bg: s.mode === k ? 'var(--accent-soft)' : 'transparent', fg: s.mode === k ? 'var(--accent)' : 'var(--text-2)', onClick: () => k === 'project' ? this.toProject() : this.toFile() })),
+      modeAction: proj ? { icon: 'file-output', label: 'Editar solo este archivo', hint: 'Cierra el navegador sin cerrar pestañas', onClick: () => this.toFile() } : { icon: 'folder-search', label: 'Abrir como proyecto', hint: 'Busca un .mdteca en carpetas superiores', onClick: () => this.toProject() },
+      titleName: isEditor ? 'manual.md' : 'MDteca', titleDirty: isEditor && s.dirty, titleProj: isEditor && proj, isDark: dark, themeIcon: dark ? 'sun' : 'moon',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      ribbonTabs, keytips: s.keytips, showRibbon: !s.ribbonCollapsed && s.tab !== 'archivo', ribbonChev: s.ribbonCollapsed ? 'chevron-down' : 'chevron-up',
+      toggleRibbon: () => this.setState({ ribbonCollapsed: !s.ribbonCollapsed }), groups, styleGallery, presets, hideTip: () => this.hideTip(),
+      saveLabel: s.dirty ? 'Cambios sin guardar' : 'Guardado', saveIcon: s.dirty ? 'circle-dot' : 'cloud-check',
+      showInfobar: showChrome && !proj && s.infobar, dismissInfobar: () => this.setState({ infobar: false }), toProject: () => this.toProject(),
+      showLeft: showChrome && s.leftOpen, isNavTab: proj && s.leftTab === 'nav', isOutlineTab: !proj || s.leftTab === 'outline', leftTabs, navRows, outline, navW: s.navW,
+      closeLeft: () => this.setState({ leftOpen: false }), dragNav: e => this.drag(e, 'nav'),
+      unOpen: s.unOpen, unChev: s.unOpen ? 'chevron-down' : 'chevron-right', toggleUn: () => this.setState({ unOpen: !s.unOpen }),
+      unindexed: M.UNINDEXED.map(f => ({ f, add: () => this.toast('Añadir «' + f + '» al libro…', 'book-plus') })),
+      docTabs,
+      zoomF: z, showRuler: isPages && s.ruler, noRuler: !(isPages && s.ruler), ruler, dragML: e => this.drag(e, 'mL'), dragMR: e => this.drag(e, 'mR'),
+      pages, monoFam, handleOp: s.hoverSheet || (s.dragging || '').startsWith('cw') ? 1 : 0, cwDragging: (s.dragging || '').startsWith('cw'), contWidth: s.contWidth,
+      dragCwL: e => this.drag(e, 'cwL'), dragCwR: e => this.drag(e, 'cwR'), sheetEnter: () => this.setState({ hoverSheet: true }), sheetLeave: () => this.setState({ hoverSheet: false }),
+      imgSel: s.imgSel, selectImg: e => { e.stopPropagation(); this.setState({ imgSel: true }); }, linkPopOpen: s.linkPop, toggleLinkPop: () => this.setState({ linkPop: !s.linkPop }),
+      openPanel: () => this.setState({ rightOpen: true }),
+      onScroll: e => { if (!isPages) return; const p = Math.min(3, Math.floor((e.currentTarget.scrollTop / z + 300) / (H + 24)) + 1); if (p !== s.curPage) this.setState({ curPage: p }); },
+      onCanvasDown: () => { if (s.fbar) this.setState({ fbar: null }); },
+      onCanvasUp: () => setTimeout(() => { const sel = window.getSelection(); if (!sel || sel.isCollapsed || !sel.rangeCount) return; const r = sel.getRangeAt(0).getBoundingClientRect(); if (!r.width) return;
+        this.setState({ fbar: { x: r.left + r.width / 2, y: Math.max(8, r.top - 46) }, selWords: sel.toString().trim().split(/\s+/).filter(Boolean).length }); }, 0),
+      onCtx: e => { e.preventDefault(); const spell = !!(e.target.closest && e.target.closest('[data-spell]')); this.setState({ fbar: null, ctx: { x: Math.min(e.clientX, window.innerWidth - 270), y: Math.min(e.clientY, window.innerHeight - (spell ? 520 : 420)), spell } }); },
+      showRight: showChrome && s.rightOpen, rightW: s.rightW, dragRight: e => this.drag(e, 'right'), closeRight: () => this.setState({ rightOpen: false }),
+      o, v, on, segs, sec, styleRows, pasteDesc, presetName: M.PRESET_NAMES[c.theme] || c.theme,
+      pinAll: () => { this.setState({ doc: { ...c, version: undefined } }); this.toast('Todos los valores fijados en el documento', 'pin'); },
+      resetAll: () => this.act('reset'), editStyles: () => this.openStyles(), openPage: () => this.openPage(),
+      curPage: isPages ? s.curPage : 1, totalPages: 3, words: s.fbar ? s.selWords + ' de ' + words : words.toLocaleString('es-PE'), lang: c.lang,
+      isCont: !isPages, zoom: s.zoom, onZoom: e => this.setZoom(+e.target.value), zin: () => this.setZoom(s.zoom + 10), zout: () => this.setZoom(s.zoom - 10), z100: () => this.setZoom(100),
+      onCw: e => this.setState({ contWidth: +e.target.value }),
+      exitFocus: () => this.setState({ focus: false }),
+      ...this.extra(c, fam, fs, bs, monoFam)
+    };
+  }
+  extra(c, fam, fs, bs, monoFam) {
+    const M = this.M(), s = this.state, MM = M.MM, fx = n => String(n).replace('.', ',');
+    const isEditor = s.screen === 'editor';
+    const goStart = () => this.setState({ screen: 'start', tab: 'inicio' });
+    const BI = [['arrow-left', 'Volver al documento', '', () => this.setState({ tab: 'inicio' })], null,
+      ['house', 'Inicio', '', null, 'inicio'], ['file-plus', 'Nuevo documento', 'Ctrl+N'], ['folder-plus', 'Nuevo proyecto', 'Ctrl+Shift+N'], ['folder-open', 'Abrir…', 'Ctrl+O'], ['history', 'Recientes', '', null, 'inicio'], null,
+      ['save', 'Guardar', 'Ctrl+S', () => this.act('save')], ['save-all', 'Guardar como…', 'Ctrl+Shift+S'], ['file-down', 'Exportar PDF', 'Ctrl+Shift+E'], ['file-code', 'Exportar HTML'], ['printer', 'Imprimir', 'Ctrl+P'], null,
+      ['info', 'Propiedades'], ['settings', 'Ajustes'], ['x', 'Cerrar documento', 'Ctrl+W', goStart], ['log-out', 'Salir']];
+    const bsItems = BI.map(b => b ? { isSep: false, isItem: true, icon: b[0], label: b[1], kbd: b[2] || '', bg: b[4] === 'inicio' && b[1] === 'Inicio' ? 'var(--active)' : 'transparent', fg: b[0] === 'arrow-left' ? 'var(--accent-ink)' : 'var(--text)', weight: b[1] === 'Inicio' ? 600 : 400,
+      onClick: b[3] || (() => { this.setState({ tab: 'inicio' }); this.toast(b[1] + ' · no disponible en el prototipo', b[0]); }) } : { isSep: true, isItem: false });
+    const openP = () => this.toProject(), openF = () => this.toFile();
+    const homeActions = [['file-plus', 'Nuevo documento', 'Un .md suelto, sin bloque de configuración.', 'Ctrl+N', openF], ['folder-plus', 'Nuevo proyecto', 'Carpeta con índice .mdteca, libros y capítulos.', 'Ctrl+Shift+N', openP], ['folder-open', 'Abrir…', 'Un archivo .md o un proyecto .mdteca.', 'Ctrl+O', openF]].map(([icon, label, desc, kbd, onClick]) => ({ icon, label, desc, kbd, onClick }));
+
+    // paste dialog
+    const pc = s.paste.choice;
+    const sel = on => on ? '1.5px solid var(--accent)' : '1px solid var(--line)';
+    const paste = { name: s.paste.name, remember: s.paste.remember,
+      fileBorder: sel(pc === 'file'), fileBg: pc === 'file' ? 'var(--accent-soft)' : 'transparent', embBorder: sel(pc === 'embed'), embBg: pc === 'embed' ? 'var(--accent-soft)' : 'transparent',
+      chkBorder: s.paste.remember ? 'none' : '1.5px solid var(--line-strong)', chkBg: s.paste.remember ? 'var(--accent)' : 'transparent',
+      pickFile: () => this.setState({ paste: { ...s.paste, choice: 'file' } }), pickEmbed: () => this.setState({ paste: { ...s.paste, choice: 'embed' } }),
+      onName: e => this.setState({ paste: { ...s.paste, name: e.target.value } }), toggleRemember: () => this.setState({ paste: { ...s.paste, remember: !s.paste.remember } }) };
+
+    // page dialog
+    let pd = {};
+    if (s.pd) {
+      const D = s.pd, set = x => this.setState({ pd: { ...D, ...x } });
+      const dd = M.PS[D.size], w = D.orientation === 'landscape' ? dd[1] : dd[0], h = D.orientation === 'landscape' ? dd[0] : dd[1], k = Math.min(200 / w, 250 / h);
+      const MP = [['Normal', 25, 25], ['Estrecho', 13, 13], ['Ancho', 25, 38], ['Amplio', 30, 30]];
+      pd = { sizes: Object.keys(M.PS).map(key => ({ label: M.PSL[key], dim: Math.round(M.PS[key][0]) + ' × ' + Math.round(M.PS[key][1]), border: sel(D.size === key), bg: D.size === key ? 'var(--accent-soft)' : 'var(--surface-raised)', onClick: () => set({ size: key }) })),
+        orient: this.seg([['portrait', 'Vertical', 'rectangle-vertical'], ['landscape', 'Horizontal', 'rectangle-horizontal']], D.orientation, x => set({ orientation: x })),
+        presets: MP.map(([label, tb, lr]) => { const on = D.margins.top === tb && D.margins.bottom === tb && D.margins.left === lr && D.margins.right === lr; return { label, border: sel(on), bg: on ? 'var(--accent-soft)' : 'transparent', onClick: () => set({ margins: { top: tb, bottom: tb, left: lr, right: lr } }) }; }),
+        v: D.margins, on: {}, pw: w * k, ph: h * k, mt: D.margins.top * k, mb: D.margins.bottom * k, ml: D.margins.left * k, mr: D.margins.right * k };
+      ['top', 'bottom', 'left', 'right'].forEach(side => pd.on[side] = e => { const n = parseFloat(e.target.value); if (!isNaN(n)) set({ margins: { ...D.margins, [side]: n } }); });
+    }
+    const applyPage = () => { const D = s.pd; this.setState(st => ({ doc: { ...st.doc, size: D.size, orientation: D.orientation, margins: D.margins }, dialog: null, dirty: true })); this.toast('Página actualizada · ' + M.PSL[D.size], 'file-cog'); };
+
+    // styles dialog
+    let st = {};
+    if (s.dialog === 'styles') {
+      const k = s.styleSel, cur = bs[k], T = M.BTYPES.find(t => t[0] === k);
+      const upd = x => this.setState(ss => ({ bs: { ...this.BS(), [k]: { ...this.BS()[k], ...x } } }));
+      const n = f => e => { const v = parseFloat(e.target.value); if (!isNaN(v)) upd({ [f]: v }); };
+      const css = key => { const b = bs[key], base = { fontSize: b.size + 'em', fontWeight: b.weight, fontStyle: b.italic ? 'italic' : 'normal', textTransform: b.upper ? 'uppercase' : 'none', color: b.color, margin: `${b.before}em 0 ${b.after}em`, borderRadius: 4, transition: 'background-color 160ms ease-out' };
+        const hl = key === k ? { background: 'color-mix(in srgb, var(--accent) 9%, transparent)', boxShadow: '0 0 0 4px color-mix(in srgb, var(--accent) 9%, transparent)' } : {};
+        if (key === 'code') return { ...base, fontFamily: monoFam, background: 'var(--code-bg)', padding: '0.7em 0.9em', ...hl };
+        if (key === 'blockquote') return { ...base, borderLeft: '2px solid var(--ink-rule)', paddingLeft: '1em', ...hl };
+        if (key === 'table') return { ...base, borderTop: '1px solid var(--ink-rule)', borderBottom: '1px solid var(--ink-rule)', padding: '0.45em 0.6em', fontVariantNumeric: 'tabular-nums', ...hl };
+        if (key === 'link') return { ...base, textDecoration: 'underline', textUnderlineOffset: 2, ...hl };
+        if (key[0] === 'h') return { ...base, lineHeight: 1.25, ...hl };
+        return { ...base, margin: `0 0 ${c.paraSpacing}em`, ...hl };
+      };
+      const PV = [['h1', 'Instalación del módulo'], ['paragraph', 'El módulo de pagos concilia cada planilla con el extracto bancario y genera las boletas en PDF.'], ['h2', 'Requisitos previos'], ['paragraph', 'Verifique la versión de PostgreSQL antes de continuar.'], ['link', 'Ver capítulo 2 · Requisitos'], ['blockquote', 'Cierre el periodo vigente antes de actualizar.'], ['h3', 'Variables de entorno'], ['code', '$ sudo ./instalar.sh --entorno=produccion'], ['table', 'Hasta 500 trabajadores · 2 vCPU · 4 GB']];
+      st = { label: T[1], icon: T[2], v: cur, fam, fs: fs * 0.82, lh: c.lineHeight,
+        types: M.BTYPES.map(([key, label, icon]) => ({ label, icon, bg: key === k ? 'var(--active)' : 'transparent', fg: key === k ? 'var(--text)' : 'var(--text-2)', weight: key === k ? 600 : 400, onClick: () => this.setState({ styleSel: key }) })),
+        on: { size: n('size'), before: n('before'), after: n('after'), italic: () => upd({ italic: !cur.italic }), upper: () => upd({ upper: !cur.upper }) },
+        italicBg: cur.italic ? 'var(--accent-soft)' : 'var(--field)', upperBg: cur.upper ? 'var(--accent-soft)' : 'var(--field)',
+        weights: this.seg([[400, 'Regular'], [500, 'Media'], [600, 'Semi'], [700, 'Negrita']], cur.weight, w => upd({ weight: w })),
+        swatches: M.SWATCHES.map(([cc, label]) => ({ c: cc, label, ring: cur.color === cc ? '0 0 0 2px var(--surface-raised), 0 0 0 4px var(--accent)' : '0 0 0 1px var(--line)', onClick: () => upd({ color: cc }) })),
+        preview: PV.map(([key, t]) => ({ t, css: css(key) })),
+        resetOne: () => upd(M.BS0[k]), accept: () => { this.setState({ dialog: null, bsBackup: null, dirty: true }); this.toast('Estilos guardados en el documento', 'brush'); } };
+    }
+
+    // context menu & floating bar
+    const close = fn => () => { this.setState({ ctx: null }); fn && fn(); };
+    const CI = (icon, label, kbd, o) => ({ isItem: true, isSep: false, icon, label, kbd: kbd || '', weight: 400, sub: false, onClick: close(() => this.toast(label, icon)), ...(o || {}) });
+    const SEP = { isSep: true, isItem: false };
+    const ctxItems = [];
+    if (s.ctx && s.ctx.spell) ctxItems.push(CI('spell-check', 'verifique', '', { weight: 600 }), CI('spell-check', 'verifiqué'), CI('book-plus', 'Añadir al diccionario'), CI('eye-off', 'Ignorar'), SEP);
+    ctxItems.push(CI('scissors', 'Cortar', 'Ctrl+X'), CI('copy', 'Copiar', 'Ctrl+C'), CI('clipboard-paste', 'Pegar', 'Ctrl+V', { onClick: close(() => this.openPaste()) }), CI('clipboard-type', 'Pegar sin formato', 'Ctrl+Shift+V'), CI('clipboard-check', 'Pegar como Markdown', 'Ctrl+Alt+V'), SEP,
+      CI('bold', 'Negrita', 'Ctrl+B'), CI('italic', 'Cursiva', 'Ctrl+I'), CI('link', 'Enlace…', 'Ctrl+K'), SEP, CI('pilcrow', 'Estilo de párrafo', '', { sub: true }), CI('plus', 'Insertar', '', { sub: true }), SEP, CI('text-select', 'Seleccionar todo', 'Ctrl+A'));
+    const FB = (icon, tip, f, drop) => ({ isItem: true, isSep: false, icon, tip, drop: !!drop, bg: f && s.fmt[f] ? 'var(--accent-soft)' : 'transparent', fg: f && s.fmt[f] ? 'var(--accent-ink)' : 'var(--text)', onClick: () => f ? this.setState({ fmt: { ...s.fmt, [f]: !s.fmt[f] } }) : this.toast(tip, icon) });
+    const fbarItems = [FB('pilcrow', 'Estilo de párrafo', null, true), SEP, FB('bold', 'Negrita · Ctrl+B', 'b'), FB('italic', 'Cursiva · Ctrl+I', 'i'), FB('strikethrough', 'Tachado · Ctrl+Shift+X', 's'), FB('code', 'Código en línea · Ctrl+E', 'c'), FB('link', 'Enlace · Ctrl+K'), SEP, FB('quote', 'Cita'), FB('list', 'Lista'), SEP, FB('remove-formatting', 'Quitar formato')];
+
+    return {
+      showHome: !isEditor || s.tab === 'archivo', isBackstage: isEditor && s.tab === 'archivo', homeTitle: isEditor ? 'Inicio' : 'Bienvenido a MDteca', bsItems, homeActions,
+      recentProjects: M.RECENT_PROJECTS.map(r => ({ ...r, onClick: openP })), recentFiles: M.RECENT_FILES.map(r => ({ ...r, onClick: openF })),
+      dlgOpen: !!s.dialog, isPaste: s.dialog === 'paste', isPage: s.dialog === 'page' && !!s.pd, isStyles: s.dialog === 'styles',
+      closeDialog: () => this.closeDialog(), stop: e => e.stopPropagation(), paste, confirmPaste: () => this.confirmPaste(), pd, applyPage, st,
+      ctxOpen: !!s.ctx, ctx: s.ctx || { x: 0, y: 0 }, ctxItems, fbarOpen: !!s.fbar && !s.ctx, fbar: s.fbar || { x: 0, y: 0 }, fbarItems, keepSel: e => e.preventDefault(),
+      tipOpen: !!s.tip, tip: s.tip || {}, toastOpen: !!s.toast, toast: s.toast || {}
+    };
+  }
+}
+</script>
+</body>
+</html>

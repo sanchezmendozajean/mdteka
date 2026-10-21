@@ -1,0 +1,24 @@
+appId: app.mdteca
+productName: MDteca
+electronDist: node_modules/electron/dist
+directories:
+  output: release
+files:
+  - out/**
+  - package.json
+win:
+  target: nsis
+  # Sin firma de código por ahora (ver ADR/CHANGELOG).
+  signAndEditExecutable: false
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+fileAssociations:
+  - ext: mdteca
+    name: Proyecto MDteca
+    description: Proyecto MDteca
+    role: Editor
+  - ext: md
+    name: Documento Markdown
+    description: Documento Markdown
+    role: Editor

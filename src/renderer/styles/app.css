@@ -1,0 +1,163 @@
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+body {
+  overflow: hidden;
+  background: var(--bg-app);
+  color: var(--text);
+  font-family: 'Inter Variable', system-ui, sans-serif;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+* {
+  box-sizing: border-box;
+}
+::selection {
+  background: var(--selection);
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.app {
+  display: grid;
+  grid-template-rows: 40px auto 1fr 28px;
+  height: 100%;
+}
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 140px 0 12px;
+  -webkit-app-region: drag;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-app);
+}
+.titlebar .brand {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ribbon {
+  background: var(--bg-app);
+  border-bottom: 1px solid var(--line);
+}
+.ribbon-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 8px;
+}
+.ribbon-tab {
+  border: 0;
+  background: none;
+  padding: 8px 12px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease);
+}
+.ribbon-tab:hover {
+  background: var(--hover);
+}
+.ribbon-tab[aria-selected='true'] {
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+.ribbon-body {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  color: var(--text-3);
+}
+.workspace {
+  display: flex;
+  min-height: 0;
+}
+.panel {
+  width: 260px;
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  flex: none;
+}
+.panel.left {
+  border-right: 1px solid var(--line);
+}
+.panel.right {
+  border-left: 1px solid var(--line);
+}
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  font-weight: 600;
+}
+.panel-empty {
+  padding: 12px;
+  color: var(--text-3);
+}
+.canvas {
+  flex: 1;
+  background: var(--canvas);
+  display: grid;
+  place-items: center;
+  min-width: 0;
+}
+.welcome {
+  text-align: center;
+  color: var(--text-2);
+}
+.welcome h1 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+.statusbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+  border-top: 1px solid var(--line);
+  background: var(--bg-app);
+  color: var(--text-2);
+}
+.statusbar > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.statusbar .spacer {
+  flex: 1;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius);
+  transition: background var(--dur) var(--ease);
+  -webkit-app-region: no-drag;
+}
+.btn:hover {
+  background: var(--hover);
+}
+.btn:active,
+.btn[aria-pressed='true'] {
+  background: var(--active);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
