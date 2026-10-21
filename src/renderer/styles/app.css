@@ -9,7 +9,7 @@ body {
   background: var(--bg-app);
   color: var(--text);
   font-family: 'Inter Variable', system-ui, sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   -webkit-font-smoothing: antialiased;
 }
 * {
@@ -25,7 +25,7 @@ button {
 
 .app {
   display: grid;
-  grid-template-rows: 40px auto 1fr 28px;
+  grid-template-rows: 44px auto 1fr 32px;
   height: 100%;
 }
 .titlebar {
@@ -549,4 +549,56 @@ kbd {
   min-width: 96px;
   color: var(--text-2);
   font-size: 12px;
+}
+
+/* ---------- Densidad cómoda: texto 1 px menor y más aire ---------- */
+.ribbon-tab {
+  padding: 10px 16px;
+}
+.panel-title {
+  padding: 14px 16px;
+}
+.panel-empty {
+  padding: 8px 16px;
+}
+.btn {
+  padding: 6px 10px;
+}
+.btn-large {
+  gap: 4px;
+  padding: 8px 12px;
+  min-width: 60px;
+}
+.btn-label {
+  font-size: 11px;
+}
+.ribbon-body {
+  min-height: 96px;
+  padding: 8px 16px;
+}
+.ribbon-group-label {
+  font-size: 10px;
+  padding-top: 4px;
+}
+.statusbar {
+  gap: 16px;
+  padding: 0 16px;
+}
+.find-status,
+.field span,
+.modal-hint {
+  font-size: 11px;
+}
+kbd {
+  font-size: 10px;
+}
+
+/* Bienvenida centrada en vertical y horizontal */
+.welcome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  place-self: auto;
 }
