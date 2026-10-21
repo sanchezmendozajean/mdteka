@@ -38,3 +38,18 @@ describe('i18n', () => {
     expect(lookup(en, 'ribbon.file')).toBe('File');
   });
 });
+
+describe('bloque de código → párrafo', () => {
+  it('[ED-22] quitar el bloque de código conserva las líneas como párrafos', async () => {
+    const { EditorState, TextSelection } = await import('prosemirror-state');
+    const { docFromSource, sourceFromDoc } = await import('@renderer/editor/model/doc');
+    const { toggleCodeBlock } = await import('@renderer/editor/wysiwyg/commands');
+    const doc = docFromSource('```\nLínea 1\nLínea 2\nLínea 3\n```\n');
+    let state = EditorState.create({ doc });
+    state = state.apply(state.tr.setSelection(TextSelection.create(state.doc, 3)));
+    let next = state;
+    expect(toggleCodeBlock(state, (tr) => (next = state.apply(tr)))).toBe(true);
+    expect(next.doc.childCount).toBe(3);
+    expect(sourceFromDoc(next.doc)).toBe('Línea 1\n\nLínea 2\n\nLínea 3\n');
+  });
+});

@@ -213,9 +213,29 @@ function retype(type: NodeType, attrs: Record<string, unknown> | null): Command 
     });
     if (selectedTextblocks(state).length === 0) return false;
     if (dispatch) {
-      const tr = state.tr.setBlockType(from, to, type, attrs);
+      const tr = state.tr;
+      if (type !== n['code_block']) {
+        // Un bloque de código admite saltos de línea; el destino no: cada línea pasa a ser un
+        // párrafo (o, en un título, se une con un espacio) en lugar de fundirse sin separador.
+        const codes: [number, PmNode][] = [];
+        state.doc.nodesBetween(from, to, (node, pos) => {
+          if (node.type === n['code_block'] && node.textContent.includes('\n'))
+            codes.push([pos, node]);
+          return false;
+        });
+        for (const [pos, node] of codes.reverse()) {
+          const lines = node.textContent.split('\n');
+          const replacement =
+            type === n['paragraph']
+              ? lines.map((l) => n['paragraph']!.create(null, l ? schema.text(l) : null))
+              : [n['code_block']!.create(node.attrs, schema.text(lines.join(' ')))];
+          tr.replaceWith(pos, pos + node.nodeSize, replacement);
+        }
+      }
+      tr.setBlockType(tr.mapping.map(from, -1), tr.mapping.map(to, 1), type, attrs);
       for (const [pos, gap] of gaps) {
-        if (tr.doc.nodeAt(pos)?.type.spec.attrs?.['gap']) tr.setNodeAttribute(pos, 'gap', gap);
+        const at = tr.mapping.map(pos, -1);
+        if (tr.doc.nodeAt(at)?.type.spec.attrs?.['gap']) tr.setNodeAttribute(at, 'gap', gap);
       }
       dispatch(tr.scrollIntoView());
     }
