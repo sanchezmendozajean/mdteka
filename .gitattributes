@@ -11,4 +11,4 @@
 *.ttf binary
 *.otf binary
 *.pdf binary
-tests/fixtures/roundtrip/*.crlf.md -text
+tests/fixtures/** -text
