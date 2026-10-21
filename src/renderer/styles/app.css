@@ -233,10 +233,10 @@ button {
   display: inline-flex;
 }
 .popover {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  z-index: 50;
+  position: fixed;
+  z-index: 100;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
   background: var(--surface-raised);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
