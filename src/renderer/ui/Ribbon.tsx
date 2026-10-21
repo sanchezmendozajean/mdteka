@@ -1,11 +1,135 @@
 import { useTranslation } from 'react-i18next';
 import { useUi, type RibbonTab } from '../app/store';
+import { useDocs } from '../documents/store';
+import { CommandButton } from './CommandButton';
+import { Group, StylesGallery, TableGrid } from './RibbonParts';
 
 const TABS: RibbonTab[] = ['file', 'home', 'insert', 'design', 'layout', 'view', 'project'];
+
+function FileTab() {
+  const { t } = useTranslation();
+  return (
+    <Group label={t('ribbon.groups.document')}>
+      <CommandButton id="file.new" large />
+      <CommandButton id="file.open" large />
+      <CommandButton id="file.save" large />
+      <CommandButton id="file.saveAs" large />
+      <CommandButton id="file.close" large />
+    </Group>
+  );
+}
+
+function HomeTab() {
+  const { t } = useTranslation();
+  const inTable = useDocs((s) => s.format.inTable && s.format.mode === 'wysiwyg');
+  return (
+    <>
+      <Group label={t('ribbon.groups.clipboard')}>
+        <CommandButton id="clipboard.paste" large />
+        <div className="stack">
+          <CommandButton id="clipboard.cut" />
+          <CommandButton id="clipboard.copy" />
+        </div>
+        <div className="stack">
+          <CommandButton id="clipboard.pastePlain" />
+          <CommandButton id="clipboard.pasteMarkdown" />
+        </div>
+      </Group>
+      <Group label={t('ribbon.groups.history')}>
+        <CommandButton id="edit.undo" />
+        <CommandButton id="edit.redo" />
+      </Group>
+      <Group label={t('ribbon.groups.styles')}>
+        <StylesGallery />
+        <CommandButton id="block.quote" />
+        <CommandButton id="block.codeBlock" />
+      </Group>
+      <Group label={t('ribbon.groups.format')}>
+        <CommandButton id="format.bold" />
+        <CommandButton id="format.italic" />
+        <CommandButton id="format.strike" />
+        <CommandButton id="format.code" />
+        <CommandButton id="format.link" />
+        <CommandButton id="format.clear" />
+      </Group>
+      <Group label={t('ribbon.groups.paragraph')}>
+        <CommandButton id="list.bullet" />
+        <CommandButton id="list.ordered" />
+        <CommandButton id="list.tasks" />
+        <CommandButton id="list.indent" />
+        <CommandButton id="list.outdent" />
+      </Group>
+      {inTable && (
+        <Group label={t('ribbon.groups.table')}>
+          <CommandButton id="table.addRowBefore" />
+          <CommandButton id="table.addRowAfter" />
+          <CommandButton id="table.deleteRow" />
+          <CommandButton id="table.addColBefore" />
+          <CommandButton id="table.addColAfter" />
+          <CommandButton id="table.deleteCol" />
+          <CommandButton id="table.alignLeft" />
+          <CommandButton id="table.alignCenter" />
+          <CommandButton id="table.alignRight" />
+          <CommandButton id="table.delete" />
+        </Group>
+      )}
+    </>
+  );
+}
+
+function InsertTab() {
+  const { t } = useTranslation();
+  return (
+    <>
+      <Group label={t('ribbon.groups.media')}>
+        <CommandButton id="insert.image" large />
+        <TableGrid />
+      </Group>
+      <Group label={t('ribbon.groups.blocks')}>
+        <CommandButton id="block.codeBlock" large />
+        <CommandButton id="block.quote" large />
+        <CommandButton id="insert.separator" large />
+        <CommandButton id="insert.pageBreak" large />
+        <CommandButton id="insert.html" large />
+      </Group>
+      <Group label={t('ribbon.groups.paragraph')}>
+        <CommandButton id="format.link" large />
+        <CommandButton id="insert.footnote" large />
+        <CommandButton id="list.tasks" large />
+        <CommandButton id="insert.date" large />
+      </Group>
+    </>
+  );
+}
+
+function ViewTab() {
+  const { t } = useTranslation();
+  const { navigatorOpen, documentPanelOpen } = useUi();
+  return (
+    <>
+      <Group label={t('ribbon.groups.mode')}>
+        <CommandButton id="view.toggleMode" large />
+      </Group>
+      <Group label={t('ribbon.groups.panels')}>
+        <CommandButton id="view.toggleNavigator" large pressed={navigatorOpen} />
+        <CommandButton id="view.toggleDocumentPanel" large pressed={documentPanelOpen} />
+        <CommandButton id="view.toggleTheme" large />
+      </Group>
+    </>
+  );
+}
+
+const BODIES: Partial<Record<RibbonTab, () => React.JSX.Element>> = {
+  file: FileTab,
+  home: HomeTab,
+  insert: InsertTab,
+  view: ViewTab,
+};
 
 export function Ribbon() {
   const { t } = useTranslation();
   const { ribbonTab, ribbonCollapsed, set } = useUi();
+  const Body = BODIES[ribbonTab];
   return (
     <div className="ribbon">
       <div className="ribbon-tabs" role="tablist">
@@ -15,6 +139,7 @@ export function Ribbon() {
             role="tab"
             className="ribbon-tab"
             aria-selected={ribbonTab === tab}
+            data-testid={`tab-${tab}`}
             onClick={() => set({ ribbonTab: tab, ribbonCollapsed: false })}
           >
             {t(`ribbon.${tab}`)}
@@ -23,7 +148,7 @@ export function Ribbon() {
       </div>
       {!ribbonCollapsed && (
         <div className="ribbon-body" role="toolbar" aria-label={t(`ribbon.${ribbonTab}`)}>
-          {t('ribbon.empty')}
+          {Body ? <Body /> : <span className="ribbon-empty">{t('ribbon.empty')}</span>}
         </div>
       )}
     </div>

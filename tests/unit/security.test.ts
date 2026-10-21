@@ -21,7 +21,11 @@ describe('seguridad (02)', () => {
 
   it('[SEC] los canales IPC validan su respuesta', () => {
     const { response } = ipcContract['app:info'];
-    expect(() => response.parse({ name: 'x', version: '1', platform: 'plan9' })).toThrow();
-    expect(response.parse({ name: 'x', version: '1', platform: 'win32' }).platform).toBe('win32');
+    expect(() =>
+      response.parse({ name: 'x', version: '1', platform: 'plan9', e2e: false }),
+    ).toThrow();
+    expect(
+      response.parse({ name: 'x', version: '1', platform: 'win32', e2e: false }).platform,
+    ).toBe('win32');
   });
 });

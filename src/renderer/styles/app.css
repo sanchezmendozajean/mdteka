@@ -161,3 +161,353 @@ button {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
+
+/* ---------- Cinta: grupos y botones ---------- */
+.title-doc {
+  color: var(--text-2);
+}
+.ribbon-body {
+  height: auto;
+  min-height: 84px;
+  align-items: stretch;
+  gap: 4px;
+  padding: 6px 12px;
+  overflow-x: auto;
+}
+.ribbon-empty {
+  align-self: center;
+  color: var(--text-3);
+}
+.ribbon-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0 8px;
+  border-right: 1px solid var(--line);
+}
+.ribbon-group:last-child {
+  border-right: 0;
+}
+.ribbon-group-items {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+.ribbon-group-label {
+  text-align: center;
+  color: var(--text-3);
+  font-size: 11px;
+  padding-top: 2px;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+  background: none;
+}
+.btn-large {
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  min-width: 56px;
+}
+.btn-label {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.btn-primary:hover {
+  background: color-mix(in srgb, var(--accent) 88%, black);
+}
+
+/* ---------- Desplegables ---------- */
+.popover-root {
+  position: relative;
+  display: inline-flex;
+}
+.popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 50;
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-pop);
+  padding: 6px;
+}
+.gallery-current {
+  min-width: 76px;
+  text-align: left;
+}
+.gallery {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 240px;
+}
+.gallery-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 0;
+  background: none;
+  padding: 6px 8px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: left;
+}
+.gallery-item:hover {
+  background: var(--hover);
+}
+.gallery-item[aria-pressed='true'] {
+  color: var(--accent);
+}
+.gallery-item span {
+  flex: 1;
+}
+.gallery-heading1 span {
+  font-size: 20px;
+  font-weight: 700;
+}
+.gallery-heading2 span {
+  font-size: 17px;
+  font-weight: 600;
+}
+.gallery-heading3 span {
+  font-size: 15px;
+  font-weight: 600;
+}
+kbd {
+  font: 11px var(--doc-mono);
+  background: var(--kbd-bg);
+  border-radius: 4px;
+  padding: 1px 5px;
+  color: var(--text-2);
+}
+.grid-picker {
+  padding: 4px;
+}
+.grid-cells {
+  display: grid;
+  grid-template-columns: repeat(8, 18px);
+  gap: 3px;
+}
+.grid-cell {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--line-strong);
+  background: var(--field);
+  border-radius: 3px;
+  padding: 0;
+  cursor: pointer;
+}
+.grid-cell.on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.grid-caption {
+  text-align: center;
+  padding-top: 6px;
+  color: var(--text-2);
+}
+
+/* ---------- Pestañas de documentos ---------- */
+.doc-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px 8px 0;
+  background: var(--bg-app);
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  flex: none;
+}
+.doc-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 6px 10px;
+  cursor: pointer;
+  border-radius: var(--radius) var(--radius) 0 0;
+  color: var(--text-2);
+  max-width: 220px;
+}
+.doc-tab:hover {
+  background: var(--hover);
+}
+.doc-tab[aria-selected='true'] {
+  background: var(--canvas);
+  color: var(--text);
+  font-weight: 500;
+}
+.doc-tab-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dirty-dot,
+.external-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+}
+.external-dot {
+  background: var(--warn);
+}
+.tab-close {
+  border: 0;
+  background: none;
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0.6;
+}
+.tab-close:hover {
+  background: var(--active);
+  opacity: 1;
+}
+
+/* ---------- Inicio ---------- */
+.welcome {
+  place-self: center;
+}
+.welcome-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* ---------- Barra de estado ---------- */
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: none;
+  padding: 1px 8px;
+  cursor: pointer;
+  color: var(--text-2);
+}
+.seg[aria-pressed='true'] {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+.seg:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---------- Diálogos ---------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+}
+.modal {
+  background: var(--surface-raised);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-pop);
+  padding: 20px 24px;
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 64px);
+  overflow: auto;
+}
+.modal-wide {
+  width: 820px;
+}
+.modal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.modal p {
+  margin: 0 0 16px;
+  color: var(--text-2);
+}
+.modal-pre {
+  white-space: pre-wrap;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+.modal-actions .btn {
+  border: 1px solid var(--line-strong);
+}
+.modal-actions .btn-primary {
+  border-color: var(--accent);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.field span {
+  color: var(--text-2);
+  font-size: 12px;
+}
+.field input {
+  font: inherit;
+  padding: 6px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--field);
+  color: var(--text);
+}
+.field input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.diff {
+  font: 12px/18px var(--doc-mono);
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  max-height: 50vh;
+  overflow: auto;
+  margin: 0 0 8px;
+  padding: 6px 0;
+}
+.diff div {
+  padding: 0 10px;
+  white-space: pre-wrap;
+}
+.diff-mine {
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+}
+.diff-theirs {
+  background: color-mix(in srgb, var(--success) 18%, transparent);
+}
+.modal-hint {
+  font-size: 12px;
+}

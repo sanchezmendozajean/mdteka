@@ -1,6 +1,7 @@
 import '@fontsource-variable/inter';
 import './styles/tokens.css';
 import './styles/app.css';
+import './styles/editor.css';
 import './i18n';
 import './commands/builtin';
 import { StrictMode } from 'react';

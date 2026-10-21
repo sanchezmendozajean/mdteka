@@ -1,0 +1,96 @@
+import DOMPurify from 'dompurify';
+import { baseKeymap, chainCommands } from 'prosemirror-commands';
+import { dropCursor } from 'prosemirror-dropcursor';
+import { gapCursor } from 'prosemirror-gapcursor';
+import { history, redo, undo } from 'prosemirror-history';
+import { keymap } from 'prosemirror-keymap';
+import type { Node as PmNode } from 'prosemirror-model';
+import { liftListItem, sinkListItem, splitListItem } from 'prosemirror-schema-list';
+import { EditorState, type Transaction } from 'prosemirror-state';
+import { goToNextCell, tableEditing } from 'prosemirror-tables';
+import { EditorView } from 'prosemirror-view';
+import { schema } from '../model/schema';
+import { insertHardBreak } from './commands';
+import { highlightPlugin } from './highlight';
+import { nodeViews } from './nodeviews';
+
+const item = schema.nodes['list_item']!;
+
+/**
+ * Plugins del editor visual. IMPORTANTE (ED-15): no hay input rules ni autoformato; lo tecleado
+ * es siempre texto literal. El formato solo llega por comandos (cinta, atajos, menús).
+ */
+function plugins() {
+  return [
+    history(),
+    keymap({
+      'Mod-z': undo,
+      'Mod-y': redo,
+      'Mod-Shift-z': redo,
+      'Shift-Enter': insertHardBreak,
+      Enter: (state, dispatch, view) => {
+        // Una nueva tarea hereda la condición de tarea (sin marcar).
+        const { $from } = state.selection;
+        let checked: unknown = null;
+        for (let d = $from.depth; d > 0; d--) {
+          if ($from.node(d).type === item) {
+            checked = $from.node(d).attrs['checked'];
+            break;
+          }
+        }
+        return splitListItem(item, checked === null ? undefined : { checked: false })(
+          state,
+          dispatch,
+          view,
+        );
+      },
+      Tab: chainCommands(goToNextCell(1), sinkListItem(item), () => true),
+      'Shift-Tab': chainCommands(goToNextCell(-1), liftListItem(item), () => true),
+    }),
+    keymap(baseKeymap),
+    tableEditing(),
+    gapCursor(),
+    dropCursor({ color: 'var(--accent)', width: 2 }),
+    highlightPlugin(),
+  ];
+}
+
+export function createWysiwygState(doc: PmNode): EditorState {
+  return EditorState.create({ doc, schema, plugins: plugins() });
+}
+
+/** Los atributos `style`/`class` del HTML pegado no se conservan: solo la estructura (ED-14). */
+function sanitizePasted(html: string): string {
+  return DOMPurify.sanitize(html, {
+    FORBID_TAGS: ['style', 'script', 'link', 'meta', 'iframe', 'object', 'embed', 'form', 'svg'],
+    FORBID_ATTR: ['class', 'id'],
+  });
+}
+
+export interface WysiwygCallbacks {
+  onTransaction: (tr: Transaction, state: EditorState) => void;
+}
+
+export function createWysiwygView(
+  mount: HTMLElement,
+  state: EditorState,
+  callbacks: WysiwygCallbacks,
+): EditorView {
+  const view: EditorView = new EditorView(mount, {
+    state,
+    nodeViews,
+    attributes: {
+      'data-testid': 'wysiwyg',
+      spellcheck: 'true',
+      role: 'textbox',
+      'aria-multiline': 'true',
+    },
+    transformPastedHTML: sanitizePasted,
+    dispatchTransaction(tr) {
+      const next = view.state.apply(tr);
+      view.updateState(next);
+      callbacks.onTransaction(tr, next);
+    },
+  });
+  return view;
+}
