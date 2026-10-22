@@ -20,6 +20,11 @@ const api: MdtecaApi = {
   },
   edit: { action: (action) => invoke('edit:action', { action }) },
   clipboard: { readText: () => invoke('clipboard:readText') },
+  settings: {
+    get: () => invoke('settings:get'),
+    setDocumentDefaults: (documentDefaults) =>
+      invoke('settings:setDocumentDefaults', { documentDefaults }),
+  },
   shell: { openExternal: (url) => invoke('shell:openExternal', { url }) },
   on(event, callback) {
     if (!(ipcEvents as readonly string[]).includes(event))

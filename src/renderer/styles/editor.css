@@ -422,3 +422,9 @@
 .cm-content {
   overflow-wrap: anywhere;
 }
+
+/* La hoja nunca se pega a los bordes cuando el espacio es justo. */
+.doc-column {
+  width: min(820px, calc(100% - 48px));
+  max-width: none;
+}

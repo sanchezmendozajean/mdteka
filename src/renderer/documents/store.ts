@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { readConfigBlock, type ReadConfig } from '@shared/document-config';
 import type { Eol } from '../editor/model/text-format';
 import { emptyFormatState, type FormatState, type LinkInput } from '../editor/wysiwyg/commands';
 
@@ -15,6 +16,10 @@ export interface DocInfo {
   bom: boolean;
   /** Bloque `<!-- mdteca:config … -->` literal, apartado del cuerpo (04). */
   configRaw: string;
+  /** Bloque tal como está en el archivo en disco (para saber si la configuración cambió). */
+  savedConfigRaw: string;
+  /** Lectura validada de `configRaw` (DOC-03). */
+  config: ReadConfig;
   words: number;
   /** El archivo cambió en disco y hay cambios locales sin resolver. */
   externalChange: boolean;
@@ -42,6 +47,12 @@ export const useDocs = create<DocsState>((set) => ({
   setActive: (activeId) => set({ activeId }),
   setFormat: (format) => set({ format }),
 }));
+
+/** Campos derivados de un bloque de configuración literal. */
+export const configFields = (configRaw: string) => ({
+  configRaw,
+  config: readConfigBlock(configRaw),
+});
 
 export const activeDoc = (): DocInfo | undefined => {
   const { docs, activeId } = useDocs.getState();

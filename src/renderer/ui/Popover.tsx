@@ -65,7 +65,10 @@ export function Popover({ trigger, label, disabled, testId, children }: Props) {
             role="menu"
             ref={menu}
             style={{ top: pos.top, left: pos.left }}
-            onMouseDown={(e) => e.preventDefault()}
+            onMouseDown={(e) => {
+              // Los campos de texto dentro del menú sí deben poder tomar el foco.
+              if (!(e.target instanceof HTMLInputElement)) e.preventDefault();
+            }}
           >
             {children(() => setOpen(false))}
           </div>,

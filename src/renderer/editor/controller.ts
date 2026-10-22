@@ -63,6 +63,12 @@ import {
 import { createWysiwygState, createWysiwygView } from './wysiwyg/view';
 import { schema } from './model/schema';
 
+/** Sucio = el texto o el bloque de configuración difieren de lo guardado en disco. */
+function isDirty(rt: { id: string; source: string; savedSource: string }): boolean {
+  const info = useDocs.getState().docs.find((d) => d.id === rt.id);
+  return rt.source !== rt.savedSource || (info ? info.configRaw !== info.savedConfigRaw : false);
+}
+
 /** Estado de edición de un documento: no es reactivo, vive fuera de React para no estorbar a la tecla. */
 export interface DocRuntime {
   id: string;
@@ -289,7 +295,7 @@ class EditorController {
     } else return;
     rt.stale = false;
     useDocs.getState().update(rt.id, {
-      dirty: rt.source !== rt.savedSource,
+      dirty: isDirty(rt),
       words: countWords(text),
     });
   }

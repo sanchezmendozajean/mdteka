@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { FileText, Library, PanelRight } from 'lucide-react';
+import { FileText, Library } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { findByShortcut } from '../commands/registry';
 import { wireApp } from '../documents/actions';
@@ -7,6 +7,7 @@ import { activeDoc, useDocs } from '../documents/store';
 import { editor } from '../editor/controller';
 import { CommandButton } from '../ui/CommandButton';
 import { Dialogs } from '../ui/Dialogs';
+import { DocumentPanel } from '../ui/DocumentPanel';
 import { DocTabs } from '../ui/DocTabs';
 import { EditorHost } from '../ui/EditorHost';
 import { FindBar } from '../ui/FindBar';
@@ -92,15 +93,7 @@ export function App() {
           </div>
           {!hasDocs && <Welcome />}
         </main>
-        {documentPanelOpen && (
-          <SidePanel
-            side="right"
-            testId="document-panel"
-            title={t('panels.document')}
-            icon={PanelRight}
-            empty={t('panels.emptyDocument')}
-          />
-        )}
+        {documentPanelOpen && <DocumentPanel />}
       </div>
       <StatusBar />
       <Dialogs />

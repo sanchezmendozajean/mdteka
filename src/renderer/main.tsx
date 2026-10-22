@@ -1,4 +1,4 @@
-import '@fontsource-variable/inter';
+import './fonts';
 import './styles/tokens.css';
 import './styles/app.css';
 import './styles/editor.css';

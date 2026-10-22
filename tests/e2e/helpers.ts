@@ -19,7 +19,11 @@ export async function launch(files: Record<string, string | Buffer> = {}): Promi
     return path;
   });
   // VS Code define ELECTRON_RUN_AS_NODE=1, lo que impediría arrancar Electron como app.
-  const env = { ...process.env, MDTECA_E2E: '1' } as Record<string, string>;
+  const env = {
+    ...process.env,
+    MDTECA_E2E: '1',
+    MDTECA_USER_DATA: mkdtempSync(join(realpathSync.native(tmpdir()), 'mdteca-ud-')),
+  } as Record<string, string>;
   delete env['ELECTRON_RUN_AS_NODE'];
   const app = await electron.launch({ args: ['.', ...paths], cwd: process.cwd(), env });
   const page = await app.firstWindow();

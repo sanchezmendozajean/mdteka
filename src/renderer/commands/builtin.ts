@@ -1,5 +1,9 @@
 import {
   AlignCenter,
+  AlignJustify,
+  Brush,
+  ListTree,
+  RotateCcw,
   AlignLeft,
   AlignRight,
   ArrowDownToLine,
@@ -59,7 +63,8 @@ import {
 } from 'lucide-react';
 import { useUi } from '../app/store';
 import { closeDocument, newDocument, openFileDialog, saveDocument } from '../documents/actions';
-import { useDocs } from '../documents/store';
+import { resetConfig, resolveConfig, updateActiveConfig } from '../documents/config';
+import { activeDoc, useDocs } from '../documents/store';
 import { useFind } from '../editor/find-store';
 import { editor, type FormatCommand } from '../editor/controller';
 import type { FormatState } from '../editor/wysiwyg/commands';
@@ -252,4 +257,25 @@ def(
   {
     global: true,
   },
+);
+
+// ----- Diseño (04) ---------------------------------------------------------------------------------
+def('design.alignLeft', AlignLeft, () => updateActiveConfig({ typography: { textAlign: 'left' } }));
+def('design.alignJustify', AlignJustify, () =>
+  updateActiveConfig({ typography: { textAlign: 'justify' } }),
+);
+def('design.numberedHeadings', ListTree, () => {
+  const on = resolveConfig(activeDoc()).styles.h1.numbering === true;
+  const levels = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+  updateActiveConfig({
+    styles: Object.fromEntries(levels.map((k) => [k, { numbering: on ? undefined : true }])),
+  });
+});
+def('design.editStyles', Brush, () =>
+  ui().set({ documentPanelOpen: true, stylesFocus: ui().stylesFocus + 1 }),
+);
+def(
+  'design.reset',
+  RotateCcw,
+  withDoc((id) => resetConfig(id)),
 );

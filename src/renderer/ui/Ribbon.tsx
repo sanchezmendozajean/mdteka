@@ -2,7 +2,15 @@ import { useTranslation } from 'react-i18next';
 import { useUi, type RibbonTab } from '../app/store';
 import { useDocs } from '../documents/store';
 import { CommandButton } from './CommandButton';
+import {
+  FontPicker,
+  LineHeightPicker,
+  PresetGallery,
+  SizePicker,
+  SpacingPicker,
+} from './DesignParts';
 import { Group, StylesGallery, TableGrid } from './RibbonParts';
+import { resolveConfig } from '../documents/config';
 
 const TABS: RibbonTab[] = ['file', 'home', 'insert', 'design', 'layout', 'view', 'project'];
 
@@ -108,6 +116,40 @@ function InsertTab() {
   );
 }
 
+function DesignTab() {
+  const { t } = useTranslation();
+  const doc = useDocs((s) => s.docs.find((d) => d.id === s.activeId));
+  const eff = resolveConfig(doc);
+  const typo = eff.typography;
+  const numbered = eff.styles.h1.numbering === true;
+  return (
+    <>
+      <Group label={t('ribbon.groups.docStyles')}>
+        <PresetGallery />
+      </Group>
+      <Group label={t('ribbon.groups.typography')}>
+        <FontPicker />
+        <div className="stack">
+          <SizePicker />
+          <LineHeightPicker />
+        </div>
+        <div className="stack">
+          <SpacingPicker />
+          <div className="inline-row">
+            <CommandButton id="design.alignLeft" pressed={typo.textAlign === 'left'} />
+            <CommandButton id="design.alignJustify" pressed={typo.textAlign === 'justify'} />
+          </div>
+        </div>
+      </Group>
+      <Group label={t('ribbon.groups.headings')}>
+        <CommandButton id="design.editStyles" large />
+        <CommandButton id="design.numberedHeadings" large pressed={numbered} />
+        <CommandButton id="design.reset" large />
+      </Group>
+    </>
+  );
+}
+
 function ViewTab() {
   const { t } = useTranslation();
   const { navigatorOpen, documentPanelOpen } = useUi();
@@ -129,6 +171,7 @@ const BODIES: Partial<Record<RibbonTab, () => React.JSX.Element>> = {
   file: FileTab,
   home: HomeTab,
   insert: InsertTab,
+  design: DesignTab,
   view: ViewTab,
 };
 

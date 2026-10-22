@@ -12,9 +12,12 @@ import {
   writeTextAtomic,
 } from './files';
 import { isSafeExternalUrl } from './security';
+import { loadSettings, saveDocumentDefaults } from './settings';
 
 const isDev = !app.isPackaged && !!process.env['ELECTRON_RENDERER_URL'];
 const e2e = process.env['MDTECA_E2E'] === '1';
+// Las pruebas E2E usan un userData propio para no tocar los ajustes reales.
+if (process.env['MDTECA_USER_DATA']) app.setPath('userData', process.env['MDTECA_USER_DATA']);
 
 let mainWindow: BrowserWindow | null = null;
 let allowClose = false;
@@ -80,6 +83,10 @@ function registerIpc(): void {
     else wc.pasteAndMatchStyle();
   });
   handle('clipboard:readText', () => clipboard.readText());
+  handle('settings:get', () => loadSettings());
+  handle('settings:setDocumentDefaults', (req: { documentDefaults: Record<string, unknown> }) =>
+    saveDocumentDefaults(req.documentDefaults),
+  );
   handle('shell:openExternal', async (req: { url: string }) => {
     if (isSafeExternalUrl(req.url)) await shell.openExternal(req.url);
   });

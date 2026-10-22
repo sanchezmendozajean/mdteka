@@ -3,7 +3,17 @@ import { editor, type DocRuntime } from '../editor/controller';
 import { emptyDoc } from '../editor/model/doc';
 import { applyFormat, detectFormat, splitConfigBlock, type Eol } from '../editor/model/text-format';
 import { createWysiwygState } from '../editor/wysiwyg/view';
-import { askExternal, askUnsaved, showCompare, showError, useDocs, type DocInfo } from './store';
+import { joinConfig } from '@shared/document-config';
+import { loadSettings } from './config';
+import {
+  askExternal,
+  askUnsaved,
+  configFields,
+  showCompare,
+  showError,
+  useDocs,
+  type DocInfo,
+} from './store';
 
 const api = () => window.mdteca;
 const baseName = (path: string) => path.split(/[\\/]/).pop() ?? path;
@@ -45,7 +55,8 @@ export function newDocument(): string {
       mode: 'wysiwyg',
       eol: '\n',
       bom: false,
-      configRaw: '',
+      ...configFields(''),
+      savedConfigRaw: '',
       words: 0,
       externalChange: false,
     },
@@ -80,7 +91,8 @@ export async function openPaths(paths: string[]): Promise<void> {
           mode: 'wysiwyg',
           eol,
           bom,
-          configRaw,
+          ...configFields(configRaw),
+          savedConfigRaw: configRaw,
           words: 0,
           externalChange: false,
         },
@@ -104,7 +116,8 @@ export async function saveDocument(id: string, saveAs = false): Promise<boolean>
   const rt = editor.runtime(id);
   if (!info || !rt) return false;
   const source = editor.sourceOf(id);
-  if (!saveAs && info.path && source === rt.savedSource) return true;
+  const configChanged = info.configRaw !== info.savedConfigRaw;
+  if (!saveAs && info.path && source === rt.savedSource && !configChanged) return true;
 
   let path = info.path;
   if (!path || saveAs) {
@@ -112,7 +125,11 @@ export async function saveDocument(id: string, saveAs = false): Promise<boolean>
     if (!path) return false;
   }
   try {
-    const content = applyFormat(source + info.configRaw, info.eol, info.bom);
+    const content = applyFormat(
+      joinConfig(source, info.configRaw, info.savedConfigRaw !== ''),
+      info.eol,
+      info.bom,
+    );
     await api().file.write(path, content);
   } catch (error) {
     await showError(`${i18next.t('doc.saveError', { name: info.name })}\n${String(error)}`);
@@ -127,6 +144,7 @@ export async function saveDocument(id: string, saveAs = false): Promise<boolean>
     path,
     name: baseName(path),
     dirty: false,
+    savedConfigRaw: info.configRaw,
     externalChange: false,
   });
   return true;
@@ -177,7 +195,14 @@ function applyExternal(id: string, raw: string): void {
   const { body, configRaw, eol, bom } = parseRaw(raw);
   rt.source = body;
   rt.savedSource = body;
-  useDocs.getState().update(id, { dirty: false, configRaw, eol, bom, externalChange: false });
+  useDocs.getState().update(id, {
+    dirty: false,
+    ...configFields(configRaw),
+    savedConfigRaw: configRaw,
+    eol,
+    bom,
+    externalChange: false,
+  });
   editor.invalidate(id);
 }
 
@@ -193,7 +218,7 @@ export async function handleExternalChange(path: string): Promise<void> {
   }
   const { body, configRaw } = parseRaw(raw);
   editor.flush();
-  if (body === rt.savedSource && configRaw === info.configRaw) return;
+  if (body === rt.savedSource && configRaw === info.savedConfigRaw) return;
   if (!info.dirty) {
     applyExternal(info.id, raw);
     return;
@@ -218,8 +243,10 @@ export function wireApp(): () => void {
     api().on('app:openPaths', (p) => void openPaths(p as string[])),
     api().on('app:beforeClose', () => void closeWindow()),
   ];
-  void api()
-    .app.launchPaths()
+  // Los ajustes se cargan antes de abrir nada para que el primer pintado ya lleve la tipografía final.
+  void loadSettings()
+    .catch(() => undefined)
+    .then(() => api().app.launchPaths())
     .then((paths) => openPaths(paths));
   return () => off.forEach((f) => f());
 }

@@ -33,6 +33,14 @@ export const ipcContract = {
     response: z.undefined(),
   },
   'clipboard:readText': { request: z.undefined(), response: z.string() },
+  'settings:get': {
+    request: z.undefined(),
+    response: z.object({ documentDefaults: z.record(z.string(), z.unknown()) }),
+  },
+  'settings:setDocumentDefaults': {
+    request: z.object({ documentDefaults: z.record(z.string(), z.unknown()) }),
+    response: z.object({ documentDefaults: z.record(z.string(), z.unknown()) }),
+  },
   'shell:openExternal': {
     request: z.object({ url: z.string().max(4096) }),
     response: z.undefined(),
@@ -64,6 +72,12 @@ export interface MdtecaApi {
   };
   edit: { action(action: 'cut' | 'copy' | 'paste' | 'pastePlain'): Promise<void> };
   clipboard: { readText(): Promise<string> };
+  settings: {
+    get(): Promise<IpcResponse<'settings:get'>>;
+    setDocumentDefaults(
+      documentDefaults: Record<string, unknown>,
+    ): Promise<IpcResponse<'settings:setDocumentDefaults'>>;
+  };
   shell: { openExternal(url: string): Promise<void> };
   on(event: IpcEvent, callback: (payload: unknown) => void): () => void;
 }
