@@ -752,3 +752,11 @@ kbd {
 .panel-section h3 {
   font-size: 9px;
 }
+/* Pestañas de la cinta 4 px más abajo y menos aire entre ellas y los botones. */
+.ribbon-tabs {
+  padding-top: 4px;
+}
+.ribbon-body {
+  min-height: 90px;
+  padding-top: 2px;
+}
