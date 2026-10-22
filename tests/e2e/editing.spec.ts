@@ -202,9 +202,17 @@ test.describe('[Fase 1] barra de selección del margen', () => {
     await waitForEditor(page);
     const target = await page.evaluate(() => {
       const p = document.querySelectorAll('.ProseMirror p')[1]!.getBoundingClientRect();
-      const col = document.querySelector('.doc-column')!.getBoundingClientRect();
-      return { x: (col.left + p.left) / 2, y: p.top + p.height / 2 };
+      return { x: p.left - 20, y: p.top + p.height / 2 };
     });
+    const barActive = () =>
+      page.evaluate(() => document.querySelector('.doc-column.margin-select') !== null);
+    await page.mouse.move(target.x, target.y);
+    await expect.poll(barActive).toBe(true);
+    // Pegado al texto (dentro de la separación de 5 px) y en el vacío bajo el contenido: sin barra.
+    await page.mouse.move(target.x + 17, target.y);
+    await expect.poll(barActive).toBe(false);
+    await page.mouse.move(target.x, target.y + 400);
+    await expect.poll(barActive).toBe(false);
     await page.mouse.click(target.x, target.y);
     await expect
       .poll(() => page.evaluate(() => window.getSelection()?.toString()))

@@ -404,13 +404,9 @@
 }
 
 /* Barra de selección del margen izquierdo (como Word): flecha hacia la derecha sobre el margen. */
-.doc-column:has(.wysiwyg-mount:not([hidden])) {
+.doc-column.margin-select {
   cursor:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Cpath d='M17 3 L5 9 L10 11 L12 17 Z' fill='white' stroke='black' stroke-width='1.2' stroke-linejoin='round'/%3E%3C/svg%3E")
       17 3,
     default;
-}
-.doc-column .wysiwyg-mount,
-.doc-column .source-mount {
-  cursor: auto;
 }
