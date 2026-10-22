@@ -72,11 +72,13 @@ function Row({ label, path, children }: RowProps) {
   );
 }
 
+/** Campo numérico con la unidad dentro del cuadro (como Illustrator); ↑/↓ cambian el valor. */
 function NumberInput({
   value,
   min,
   max,
   step,
+  unit,
   onCommit,
   testId,
 }: {
@@ -84,31 +86,41 @@ function NumberInput({
   min: number;
   max: number;
   step: number;
+  unit: string;
   onCommit: (n: number) => void;
   testId: string;
 }) {
   const [draft, setDraft] = useState(String(value));
   useEffect(() => setDraft(String(value)), [value]);
-  const commit = () => {
-    const n = Number(draft.replace(',', '.'));
-    if (!Number.isFinite(n) || draft.trim() === '') return setDraft(String(value));
-    const clamped = Math.min(max, Math.max(min, n));
+  const apply = (text: string) => {
+    const n = Number(text.replace(',', '.'));
+    if (!Number.isFinite(n) || text.trim() === '') return setDraft(String(value));
+    const clamped = Math.round(Math.min(max, Math.max(min, n)) * 1000) / 1000;
     setDraft(String(clamped));
     if (clamped !== value) onCommit(clamped);
   };
   return (
-    <input
-      type="number"
-      className="field-input"
-      value={draft}
-      min={min}
-      max={max}
-      step={step}
-      data-testid={testId}
-      onChange={(e) => setDraft(e.target.value)}
-      onBlur={commit}
-      onKeyDown={(e) => e.key === 'Enter' && commit()}
-    />
+    <span className="unit-input">
+      <input
+        inputMode="decimal"
+        className="field-input"
+        value={draft}
+        data-testid={testId}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={() => apply(draft)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') apply(draft);
+          else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            const n = Number(draft.replace(',', '.'));
+            apply(String((Number.isFinite(n) ? n : value) + (e.key === 'ArrowUp' ? step : -step)));
+          }
+        }}
+      />
+      <span className="unit" aria-hidden="true">
+        {unit}
+      </span>
+    </span>
   );
 }
 
@@ -257,6 +269,7 @@ export function DocumentPanel() {
             max={48}
             step={0.5}
             testId="cfg-size"
+            unit="pt"
             onCommit={(n) => set(['typography', 'size'], n)}
           />
         </Row>
@@ -267,6 +280,7 @@ export function DocumentPanel() {
             max={3}
             step={0.05}
             testId="cfg-lineHeight"
+            unit="×"
             onCommit={(n) => set(['typography', 'lineHeight'], n)}
           />
         </Row>
@@ -277,6 +291,7 @@ export function DocumentPanel() {
             max={4}
             step={0.05}
             testId="cfg-paragraphSpacing"
+            unit="em"
             onCommit={(n) => set(['typography', 'paragraphSpacing'], n)}
           />
         </Row>
@@ -341,6 +356,7 @@ export function DocumentPanel() {
               max={10}
               step={0.05}
               testId="style-size"
+              unit="em"
               onCommit={(n) => set(stylePath('size'), n)}
             />
           </Row>
@@ -380,6 +396,7 @@ export function DocumentPanel() {
                 max={10}
                 step={0.05}
                 testId="style-spacingBefore"
+                unit="em"
                 onCommit={(n) => set(stylePath('spacingBefore'), n)}
               />
             </Row>
@@ -390,6 +407,7 @@ export function DocumentPanel() {
                 max={10}
                 step={0.05}
                 testId="style-spacingAfter"
+                unit="em"
                 onCommit={(n) => set(stylePath('spacingAfter'), n)}
               />
             </Row>

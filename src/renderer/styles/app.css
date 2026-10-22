@@ -763,3 +763,19 @@ kbd {
 .ribbon-tab {
   padding: 6px 16px;
 }
+/* Unidad dentro del campo numérico (como Illustrator). */
+.unit-input {
+  position: relative;
+  display: block;
+}
+.unit-input .field-input {
+  padding-right: 30px;
+}
+.unit-input .unit {
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  pointer-events: none;
+}
