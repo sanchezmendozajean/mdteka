@@ -410,3 +410,15 @@
       17 3,
     default;
 }
+
+/* Una palabra muy larga se parte en la línea en lugar de ensanchar la hoja y empujar los paneles. */
+.canvas,
+.canvas-body,
+.editor-scroll,
+.doc-column {
+  min-width: 0;
+}
+.ProseMirror,
+.cm-content {
+  overflow-wrap: anywhere;
+}

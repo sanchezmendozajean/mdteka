@@ -224,3 +224,14 @@ test.describe('[Fase 1] barra de selección del margen', () => {
     await app.close();
   });
 });
+
+test('[UI-10] una palabra muy larga se parte y no empuja los paneles', async () => {
+  const { app, page } = await launch({ 'l.md': `${'a'.repeat(400)}\n` });
+  await waitForEditor(page);
+  const overflow = await page.evaluate(() => {
+    const panel = document.querySelector('.panel.right')!.getBoundingClientRect();
+    return panel.right - window.innerWidth;
+  });
+  expect(overflow).toBeLessThanOrEqual(0);
+  await app.close();
+});
