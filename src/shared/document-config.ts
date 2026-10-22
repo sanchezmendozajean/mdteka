@@ -259,10 +259,19 @@ export type Resolved = {
     StyleKey,
     Required<Pick<BlockStyle, 'size' | 'weight' | 'spacingBefore' | 'spacingAfter'>> & BlockStyle
   >;
-} & Omit<DocumentConfig, 'typography' | 'styles'>;
+  view: { default: 'pages' | 'continuous'; continuousWidth: number };
+  page: NonNullable<DocumentConfig['page']>;
+} & Omit<DocumentConfig, 'typography' | 'styles' | 'view' | 'page'>;
 
 export const FACTORY: Json = {
   version: 1,
+  page: {
+    size: 'A4',
+    orientation: 'portrait',
+    margins: { top: 25, right: 25, bottom: 25, left: 25 },
+    footer: { text: '{page}', align: 'center' },
+    firstPageDifferent: false,
+  },
   view: { default: 'pages', continuousWidth: 760 },
   typography: {
     font: 'Inter',

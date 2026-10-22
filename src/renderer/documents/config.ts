@@ -103,3 +103,13 @@ export function repairConfig(id: string): void {
   const info = useDocs.getState().docs.find((d) => d.id === id);
   if (info && readConfigBlock(info.configRaw).status === 'invalid') resetConfig(id);
 }
+
+/** Vista, zoom y ancho de columna iniciales de un documento (`view.default` del bloque o heredado). */
+export function viewFields(configRaw: string): Pick<DocInfo, 'view' | 'zoom' | 'columnWidth'> {
+  const eff = effectiveConfig(readConfigBlock(configRaw).config, appDefaults());
+  return {
+    view: eff.view?.default === 'continuous' ? 'continuous' : 'pages',
+    zoom: 1,
+    columnWidth: eff.view?.continuousWidth ?? 760,
+  };
+}

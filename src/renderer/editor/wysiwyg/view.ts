@@ -12,6 +12,7 @@ import { EditorView } from 'prosemirror-view';
 import { schema } from '../model/schema';
 import { insertHardBreak } from './commands';
 import { findPlugin } from './find';
+import { pagePlugin } from '../paginator/plugin';
 import { highlightPlugin } from './highlight';
 import { installMarginSelect } from './margin-select';
 import { nodeViews } from './nodeviews';
@@ -70,6 +71,7 @@ function plugins() {
     dropCursor({ color: 'var(--accent)', width: 2 }),
     highlightPlugin(),
     findPlugin(),
+    pagePlugin(),
   ];
 }
 

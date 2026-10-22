@@ -779,3 +779,10 @@ kbd {
   color: var(--text-3);
   pointer-events: none;
 }
+/* La hoja (794 px en A4) no debe ensanchar la rejilla: el lienzo se desplaza por dentro. */
+.app {
+  grid-template-columns: minmax(0, 1fr);
+}
+.workspace {
+  min-width: 0;
+}

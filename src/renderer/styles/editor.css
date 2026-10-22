@@ -428,3 +428,60 @@
   width: min(820px, calc(100% - 48px));
   max-width: none;
 }
+
+/* ---------- Vistas: páginas y continua (07) ---------- */
+.editor-scroll {
+  overflow-x: auto;
+}
+.doc-column {
+  position: relative;
+}
+.doc-column.view-pages {
+  max-width: none;
+  margin: 24px auto;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+.doc-column.view-continuous {
+  padding-top: 64px;
+}
+.wysiwyg-mount,
+.source-mount {
+  position: relative;
+  z-index: 1;
+}
+.sheets {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.sheet {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  background: var(--paper);
+  box-shadow: var(--sheet-shadow);
+  border-radius: 2px;
+}
+.sheet-bar {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  color: var(--ink-3);
+  font: 11px var(--doc-font, 'Inter Variable', sans-serif);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.page-gap {
+  display: block;
+  user-select: none;
+  pointer-events: none;
+}
+.page-gap-inline {
+  margin: 0 -16px;
+}
+.view-pages .ProseMirror .page-break {
+  opacity: 0.55;
+}

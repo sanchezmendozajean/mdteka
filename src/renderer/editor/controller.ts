@@ -4,6 +4,9 @@ import type { EditorView as PmView } from 'prosemirror-view';
 import { EditorState as CmState } from '@codemirror/state';
 import type { EditorView as CmView } from '@codemirror/view';
 import { askLink, useDocs, type Mode } from '../documents/store';
+import type { PageGeometry } from '@shared/page';
+import { Paginator } from './paginator/paginator';
+import { usePagination } from './pagination-store';
 import { docFromSource, serializeDoc, sourceFromDoc } from './model/doc';
 import {
   insertAtCursor,
@@ -142,6 +145,7 @@ class EditorController {
   private cm: CmView | null = null;
   private scroller: HTMLElement | null = null;
   private pmMount: HTMLElement | null = null;
+  private pager: Paginator | null = null;
   private cmMount: HTMLElement | null = null;
   private activeId: string | null = null;
   private syncTimer: ReturnType<typeof setTimeout> | null = null;
@@ -160,9 +164,16 @@ class EditorController {
         const rt = this.current();
         if (!rt || rt.mode !== 'wysiwyg') return;
         rt.pmState = state;
-        if (tr.docChanged) this.markStale(rt);
+        if (tr.docChanged) {
+          this.markStale(rt);
+          this.pager?.schedule(true);
+        }
         this.scheduleFormat();
       },
+    });
+    this.pager = new Paginator(this.pm, {
+      scroller: () => this.scroller,
+      onLayout: (layout) => usePagination.getState().set({ pages: layout?.pages ?? 0 }),
     });
     this.cm = createSourceView(cmMount, createSourceState(''), {
       onTransaction: (tr) => {
@@ -175,6 +186,11 @@ class EditorController {
     });
     this.showMode(null);
     if (this.activeId) this.activate(this.activeId);
+  }
+
+  /** Activa la vista de páginas con esta geometría (null = vista continua). */
+  setPageLayout(geometry: PageGeometry | null, styleKey: string): void {
+    this.pager?.configure(geometry, styleKey);
   }
 
   unmount(): void {
@@ -261,6 +277,7 @@ class EditorController {
         rt.pmSource = rt.source;
       }
       this.pm?.updateState(rt.pmState);
+      this.pager?.invalidate();
     } else {
       if (!rt.cmState || rt.cmSource !== rt.source) {
         rt.cmState = createSourceState(rt.source);

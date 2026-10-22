@@ -4,6 +4,7 @@ import type { Eol } from '../editor/model/text-format';
 import { emptyFormatState, type FormatState, type LinkInput } from '../editor/wysiwyg/commands';
 
 export type Mode = 'wysiwyg' | 'source';
+export type ViewKind = 'pages' | 'continuous';
 
 /** Metadatos reactivos de un documento abierto (el texto vive en el runtime del controlador). */
 export interface DocInfo {
@@ -12,6 +13,12 @@ export interface DocInfo {
   name: string;
   dirty: boolean;
   mode: Mode;
+  /** Vista de páginas o continua (07). No se escribe en el archivo salvo con «predeterminada». */
+  view: ViewKind;
+  /** Zoom de la vista (VW-30): 0,5–3. */
+  zoom: number;
+  /** Ancho de la columna en la vista continua (px). */
+  columnWidth: number;
   eol: Eol;
   bom: boolean;
   /** Bloque `<!-- mdteca:config … -->` literal, apartado del cuerpo (04). */

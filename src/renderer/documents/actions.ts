@@ -4,7 +4,7 @@ import { emptyDoc } from '../editor/model/doc';
 import { applyFormat, detectFormat, splitConfigBlock, type Eol } from '../editor/model/text-format';
 import { createWysiwygState } from '../editor/wysiwyg/view';
 import { joinConfig } from '@shared/document-config';
-import { loadSettings } from './config';
+import { loadSettings, viewFields } from './config';
 import {
   askExternal,
   askUnsaved,
@@ -53,6 +53,7 @@ export function newDocument(): string {
       name: `${i18next.t('doc.untitled')}${suffix}.md`,
       dirty: false,
       mode: 'wysiwyg',
+      ...viewFields(''),
       eol: '\n',
       bom: false,
       ...configFields(''),
@@ -89,6 +90,7 @@ export async function openPaths(paths: string[]): Promise<void> {
           name: baseName(path),
           dirty: false,
           mode: 'wysiwyg',
+          ...viewFields(configRaw),
           eol,
           bom,
           ...configFields(configRaw),
