@@ -6,7 +6,7 @@ import { history, redo, undo } from 'prosemirror-history';
 import { keymap } from 'prosemirror-keymap';
 import type { Node as PmNode } from 'prosemirror-model';
 import { liftListItem, sinkListItem, splitListItem } from 'prosemirror-schema-list';
-import { EditorState, type Transaction } from 'prosemirror-state';
+import { EditorState, TextSelection, type Transaction } from 'prosemirror-state';
 import { goToNextCell, tableEditing } from 'prosemirror-tables';
 import { EditorView } from 'prosemirror-view';
 import { schema } from '../model/schema';
@@ -44,6 +44,21 @@ function plugins() {
           dispatch,
           view,
         );
+      },
+      // Un bloque de código al final del documento (o contenedor) no deja dónde seguir: flecha
+      // abajo desde su última línea añade un párrafo vacío debajo y entra en él.
+      ArrowDown: (state, dispatch, view) => {
+        const { selection } = state;
+        const { $from } = selection;
+        if (!selection.empty || $from.parent.type !== schema.nodes['code_block']) return false;
+        if (!view?.endOfTextblock('down')) return false;
+        const after = $from.after();
+        if (after !== $from.end($from.depth - 1)) return false;
+        if (dispatch) {
+          const tr = state.tr.insert(after, schema.nodes['paragraph']!.create());
+          dispatch(tr.setSelection(TextSelection.create(tr.doc, after + 1)).scrollIntoView());
+        }
+        return true;
       },
       Tab: chainCommands(goToNextCell(1), sinkListItem(item), () => true),
       'Shift-Tab': chainCommands(goToNextCell(-1), liftListItem(item), () => true),

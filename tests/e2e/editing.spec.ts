@@ -182,3 +182,16 @@ test.describe('[Fase 1] elementos', () => {
     await app.close();
   });
 });
+
+test.describe('[Fase 1] bloque de código', () => {
+  test('[ED-15] flecha abajo al final de un bloque de código final añade un párrafo debajo', async () => {
+    const { app, page } = await launch({ 'c.md': 'hola\n\n```\nuno\ndos\n```\n' });
+    await waitForEditor(page);
+    await page.locator('.ProseMirror pre').click();
+    await navigate(page, `${mod}+End`);
+    await navigate(page, 'ArrowDown');
+    await page.keyboard.type('fuera');
+    expect(await source(page)).toBe('hola\n\n```\nuno\ndos\n```\n\nfuera\n');
+    await app.close();
+  });
+});
