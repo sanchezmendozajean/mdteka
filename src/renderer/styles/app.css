@@ -760,3 +760,6 @@ kbd {
   min-height: 90px;
   padding-top: 2px;
 }
+.ribbon-tab {
+  padding: 6px 16px;
+}
