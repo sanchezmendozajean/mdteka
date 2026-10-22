@@ -745,3 +745,10 @@ kbd {
   gap: 4px;
   color: var(--text-2);
 }
+/* Panel Documento: texto 1 px menor que el resto de la interfaz. */
+.panel.right {
+  font-size: 11px;
+}
+.panel-section h3 {
+  font-size: 10px;
+}
