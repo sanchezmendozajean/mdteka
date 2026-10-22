@@ -195,3 +195,24 @@ test.describe('[Fase 1] bloque de código', () => {
     await app.close();
   });
 });
+
+test.describe('[Fase 1] barra de selección del margen', () => {
+  test('[ED-15] clic en el margen izquierdo selecciona la línea; doble clic, el párrafo', async () => {
+    const { app, page } = await launch({ 'm.md': 'uno dos\n\ntres cuatro\n\ncinco\n' });
+    await waitForEditor(page);
+    const target = await page.evaluate(() => {
+      const p = document.querySelectorAll('.ProseMirror p')[1]!.getBoundingClientRect();
+      const col = document.querySelector('.doc-column')!.getBoundingClientRect();
+      return { x: (col.left + p.left) / 2, y: p.top + p.height / 2 };
+    });
+    await page.mouse.click(target.x, target.y);
+    await expect
+      .poll(() => page.evaluate(() => window.getSelection()?.toString()))
+      .toBe('tres cuatro');
+    await page.mouse.dblclick(target.x, target.y);
+    await expect
+      .poll(() => page.evaluate(() => window.getSelection()?.toString()))
+      .toBe('tres cuatro');
+    await app.close();
+  });
+});

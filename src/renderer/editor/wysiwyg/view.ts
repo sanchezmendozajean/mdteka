@@ -13,6 +13,7 @@ import { schema } from '../model/schema';
 import { insertHardBreak } from './commands';
 import { findPlugin } from './find';
 import { highlightPlugin } from './highlight';
+import { installMarginSelect } from './margin-select';
 import { nodeViews } from './nodeviews';
 
 const item = schema.nodes['list_item']!;
@@ -120,5 +121,6 @@ export function createWysiwygView(
       callbacks.onTransaction(tr, next);
     },
   });
+  if (mount.parentElement) installMarginSelect(view, mount.parentElement);
   return view;
 }
