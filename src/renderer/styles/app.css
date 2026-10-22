@@ -786,3 +786,75 @@ kbd {
 .workspace {
   min-width: 0;
 }
+/* Barra de estado: zoom y ancho de columna */
+.status-slider,
+.status-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.status-slider input,
+.status-zoom input {
+  width: 96px;
+  accent-color: var(--accent);
+}
+.zoom-value {
+  min-width: 38px;
+  text-align: right;
+}
+.panel-inline-btn {
+  margin-top: 10px;
+  border: 1px solid var(--line);
+}
+
+/* ---------- Vista de impresión (PDF e impresión, VW-14) ---------- */
+#print-root {
+  display: none;
+}
+#print-root .print-page {
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  color: var(--ink, #1f1e1c);
+}
+#print-root .print-content {
+  position: absolute;
+  overflow: hidden;
+}
+#print-root .print-flow.ProseMirror {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+#print-root .print-part {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+}
+#print-root .sheet-bar {
+  position: absolute;
+}
+@media print {
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  #root {
+    display: none !important;
+  }
+  #print-root {
+    display: block;
+  }
+  #print-root .print-page {
+    break-after: page;
+    page-break-after: always;
+  }
+  #print-root .print-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+}

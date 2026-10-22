@@ -2,7 +2,13 @@ import type { DocumentConfig } from './document-config';
 
 /** Geometría de página (04, 07). Todo en px CSS (96 por pulgada) salvo que se indique mm. */
 export const PX_PER_MM = 96 / 25.4;
-export const mmToPx = (mm: number): number => mm * PX_PER_MM;
+/**
+ * Chromium coloca los bloques en múltiplos de 1/64 px. Si la geometría de la página no lo es, el
+ * error de cada salto (≈ 0,01 px) se acumula y tras ~80 páginas el texto se desplaza ~1 px.
+ */
+export const snap64 = (px: number): number => Math.round(px * 64) / 64;
+
+export const mmToPx = (mm: number): number => snap64(mm * PX_PER_MM);
 
 /** Separación vertical entre hojas en pantalla (VW-01). */
 export const SHEET_GAP = 24;

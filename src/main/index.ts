@@ -9,10 +9,13 @@ import {
   readText,
   unwatchFile,
   watchFile,
+  writeBytesAtomic,
   writeTextAtomic,
 } from './files';
+import { embedFontFaces } from './fonts';
 import { isSafeExternalUrl } from './security';
 import { loadSettings, saveDocumentDefaults } from './settings';
+import { getViewState, setViewState } from './state';
 
 const isDev = !app.isPackaged && !!process.env['ELECTRON_RENDERER_URL'];
 const e2e = process.env['MDTECA_E2E'] === '1';
@@ -57,10 +60,19 @@ function registerIpc(): void {
     });
     return result.canceled ? [] : result.filePaths.map((p) => grant(p));
   });
-  handle('file:saveDialog', async (req: { defaultName: string }) => {
+  handle('file:saveDialog', async (req: { defaultName: string; kind?: 'md' | 'pdf' | 'html' }) => {
+    // Las pruebas E2E indican la ruta por variable de entorno (el diálogo nativo no es automatizable).
+    const forced = process.env['MDTECA_E2E_SAVE_PATH'];
+    if (e2e && forced) return grant(forced);
+    const kind = req.kind ?? 'md';
+    const filters = {
+      md: [{ name: 'Markdown', extensions: ['md'] }],
+      pdf: [{ name: 'PDF', extensions: ['pdf'] }],
+      html: [{ name: 'HTML', extensions: ['html'] }],
+    }[kind];
     const result = await dialog.showSaveDialog(mainWindow!, {
       defaultPath: req.defaultName,
-      filters: [{ name: 'Markdown', extensions: ['md'] }],
+      filters,
     });
     return result.canceled || !result.filePath ? null : grant(result.filePath);
   });
@@ -83,6 +95,35 @@ function registerIpc(): void {
     else wc.pasteAndMatchStyle();
   });
   handle('clipboard:readText', () => clipboard.readText());
+  handle('export:pdf', async (req: { path: string }) => {
+    const wc = mainWindow?.webContents;
+    if (!wc) return;
+    const data = await wc.printToPDF({
+      printBackground: true,
+      preferCSSPageSize: true,
+      generateDocumentOutline: true,
+      generateTaggedPDF: true,
+    });
+    await writeBytesAtomic(req.path, data);
+  });
+  handle(
+    'export:print',
+    () =>
+      new Promise<void>((resolve) => {
+        const wc = mainWindow?.webContents;
+        if (!wc) return resolve();
+        wc.print({ silent: false, printBackground: true }, () => resolve());
+      }),
+  );
+  handle('export:fonts', (req: { families: string[] }) =>
+    embedFontFaces(join(__dirname, '../renderer/assets'), req.families),
+  );
+  handle('state:getView', (req: { path: string }) => ({
+    zoom: getViewState(req.path)?.zoom ?? null,
+  }));
+  handle('state:setView', (req: { path: string; zoom: number }) => {
+    setViewState(req.path, { zoom: req.zoom });
+  });
   handle('settings:get', () => loadSettings());
   handle('settings:setDocumentDefaults', (req: { documentDefaults: Record<string, unknown> }) =>
     saveDocumentDefaults(req.documentDefaults),

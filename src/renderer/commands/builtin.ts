@@ -1,4 +1,19 @@
 import {
+  FileDown,
+  FileOutput,
+  Printer,
+  Files,
+  Maximize2,
+  MoveHorizontal,
+  PanelTop as PanelTopIcon,
+  Pin,
+  RectangleHorizontal,
+  RectangleVertical,
+  Ruler,
+  ScrollText,
+  Scan,
+  ZoomIn,
+  ZoomOut,
   AlignCenter,
   AlignJustify,
   Brush,
@@ -65,6 +80,8 @@ import { useUi } from '../app/store';
 import { closeDocument, newDocument, openFileDialog, saveDocument } from '../documents/actions';
 import { resetConfig, resolveConfig, updateActiveConfig } from '../documents/config';
 import { activeDoc, useDocs } from '../documents/store';
+import { exportHtml, exportPdf, printDocument } from '../documents/export';
+import { fitZoom, saveViewAsDefault, setView, setZoom, stepZoom } from '../documents/view';
 import { useFind } from '../editor/find-store';
 import { editor, type FormatCommand } from '../editor/controller';
 import type { FormatState } from '../editor/wysiwyg/commands';
@@ -74,6 +91,7 @@ const ui = () => useUi.getState();
 
 interface Options {
   shortcut?: string;
+  aliases?: string[];
   native?: boolean;
   global?: boolean;
   inFields?: boolean;
@@ -278,4 +296,77 @@ def(
   'design.reset',
   RotateCcw,
   withDoc((id) => resetConfig(id)),
+);
+
+// ----- Vistas, zoom y página (07) -----------------------------------------------------------------
+def(
+  'view.pages',
+  Files,
+  withDoc((id) => setView(id, 'pages')),
+);
+def(
+  'view.continuous',
+  ScrollText,
+  withDoc((id) => setView(id, 'continuous')),
+);
+def(
+  'view.zoomIn',
+  ZoomIn,
+  withDoc((id) => stepZoom(id, 1)),
+  { shortcut: 'Ctrl+=', aliases: ['Ctrl+Shift+='] },
+);
+def(
+  'view.zoomOut',
+  ZoomOut,
+  withDoc((id) => stepZoom(id, -1)),
+  { shortcut: 'Ctrl+-' },
+);
+def(
+  'view.zoomReset',
+  Scan,
+  withDoc((id) => setZoom(id, 1)),
+  { shortcut: 'Ctrl+Alt+0' },
+);
+def(
+  'view.fitWidth',
+  MoveHorizontal,
+  withDoc((id) => fitZoom(id, 'width')),
+);
+def(
+  'view.fitPage',
+  Maximize2,
+  withDoc((id) => fitZoom(id, 'page')),
+);
+def('view.ruler', Ruler, () => ui().set({ rulerOpen: !ui().rulerOpen }));
+def(
+  'view.saveDefault',
+  Pin,
+  withDoc((id) => saveViewAsDefault(id)),
+);
+def('layout.portrait', RectangleVertical, () =>
+  updateActiveConfig({ page: { orientation: 'portrait' } }),
+);
+def('layout.landscape', RectangleHorizontal, () =>
+  updateActiveConfig({ page: { orientation: 'landscape' } }),
+);
+def('layout.headerFooter', PanelTopIcon, () =>
+  ui().set({ documentPanelOpen: true, pageFocus: ui().pageFocus + 1 }),
+);
+
+// ----- Exportar e imprimir (VW-40…VW-42) -----------------------------------------------------------
+def(
+  'file.exportPdf',
+  FileDown,
+  withDoc((id) => void exportPdf(id)),
+);
+def(
+  'file.exportHtml',
+  FileOutput,
+  withDoc((id) => void exportHtml(id)),
+);
+def(
+  'file.print',
+  Printer,
+  withDoc((id) => void printDocument(id)),
+  { shortcut: 'Ctrl+P' },
 );

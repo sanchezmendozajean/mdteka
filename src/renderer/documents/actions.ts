@@ -5,6 +5,7 @@ import { applyFormat, detectFormat, splitConfigBlock, type Eol } from '../editor
 import { createWysiwygState } from '../editor/wysiwyg/view';
 import { joinConfig } from '@shared/document-config';
 import { loadSettings, viewFields } from './config';
+import { setZoom } from './view';
 import {
   askExternal,
   askUnsaved,
@@ -84,7 +85,7 @@ export async function openPaths(paths: string[]): Promise<void> {
     try {
       const raw = await api().file.read(path);
       const { body, configRaw, eol, bom } = parseRaw(raw);
-      register(
+      const id = register(
         {
           path,
           name: baseName(path),
@@ -101,6 +102,11 @@ export async function openPaths(paths: string[]): Promise<void> {
         body,
       );
       void api().file.watch(path);
+      // VW-31: el zoom de la última vez que se abrió este archivo.
+      const { zoom } = await api()
+        .state.getView(path)
+        .catch(() => ({ zoom: null }));
+      if (zoom) setZoom(id, zoom);
     } catch (error) {
       await showError(`${i18next.t('doc.openError', { name: baseName(path) })}\n${String(error)}`);
     }

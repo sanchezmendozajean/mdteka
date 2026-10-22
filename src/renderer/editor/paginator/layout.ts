@@ -26,7 +26,22 @@ export type PageBreak =
   | { kind: 'block'; block: number; fill: number }
   | { kind: 'line'; block: number; line: number; fill: number };
 
+/** Trozo de un bloque colocado en una página (para dibujar la página: PDF, impresión). */
+export interface Part {
+  block: number;
+  /** Página (desde 1). */
+  page: number;
+  /** Borde superior del bloque respecto al área de texto; negativo si es una continuación. */
+  top: number;
+  /** Primera línea que se muestra (0 si el bloque empieza aquí). */
+  lineFrom: number;
+  /** Alto visible de este trozo (el resto del bloque, si lo hay, continúa en otra página). */
+  height: number;
+}
+
 export interface Layout {
+  /** Trozos de bloque por página, en orden de documento. */
+  parts: Part[];
   pages: number;
   /** Cortes en orden de documento. `fill` es el hueco entre el último contenido y el pie del área de texto. */
   breaks: PageBreak[];
@@ -56,6 +71,8 @@ export function paginate(blocks: BlockMetrics[], opts: LayoutOptions): Layout {
   const pageOfBlock: number[] = new Array<number>(blocks.length).fill(1);
   /** Fondo del contenido tras colocar cada bloque (para recolocar títulos). */
   const endY: number[] = new Array<number>(blocks.length).fill(0);
+  const parts: Part[] = [];
+  const partStart: number[] = new Array<number>(blocks.length).fill(0);
 
   let page = 1;
   let y = 0; // fondo del último contenido de la página actual
@@ -73,6 +90,7 @@ export function paginate(blocks: BlockMetrics[], opts: LayoutOptions): Layout {
 
   for (let i = 0; i < blocks.length; i++) {
     const b = blocks[i]!;
+    partStart[i] = parts.length;
     if (forceNext) {
       forceNext = false;
       newPage({ kind: 'block', block: i, fill: C - y }, i);
@@ -81,6 +99,7 @@ export function paginate(blocks: BlockMetrics[], opts: LayoutOptions): Layout {
     let top = fresh ? 0 : y + b.gapBefore;
 
     if (top + b.height <= C + EPS) {
+      parts.push({ block: i, page, top, lineFrom: 0, height: b.height });
       y = top + b.height;
       fresh = false;
       endY[i] = y;
@@ -103,6 +122,13 @@ export function paginate(blocks: BlockMetrics[], opts: LayoutOptions): Layout {
         while (k < lines!.length && lines![k]!.bottom - base <= avail + EPS) k++;
         if (k >= lines!.length) {
           // El resto cabe entero en esta página.
+          parts.push({
+            block: i,
+            page,
+            top: start === 0 ? segTop : -base,
+            lineFrom: start,
+            height: start === 0 ? b.height : b.height - base,
+          });
           y = segTop + (b.height - base);
           fresh = false;
           endY[i] = y;
@@ -121,6 +147,13 @@ export function paginate(blocks: BlockMetrics[], opts: LayoutOptions): Layout {
           k = Math.max(k, start + 1);
         }
         const used = segTop + (lines![k - 1]!.bottom - base);
+        parts.push({
+          block: i,
+          page,
+          top: start === 0 ? segTop : -base,
+          lineFrom: start,
+          height: lines![k - 1]!.bottom - (start === 0 ? 0 : base),
+        });
         newPage({ kind: 'line', block: i, line: k, fill: C - used }, i);
         start = k;
         segTop = 0;
@@ -135,6 +168,7 @@ export function paginate(blocks: BlockMetrics[], opts: LayoutOptions): Layout {
       while (p - 1 > firstOnPage && blocks[p - 1]!.keepWithNext) p--;
       if (p < i) {
         // Se deshace lo colocado de p..i-1 y se recoloca en la página nueva.
+        parts.length = partStart[p]!;
         newPage({ kind: 'block', block: p, fill: C - endY[p - 1]! }, p);
         i = p - 1;
         continue;
@@ -143,6 +177,7 @@ export function paginate(blocks: BlockMetrics[], opts: LayoutOptions): Layout {
       pageOfBlock[i] = page;
       top = 0;
       if (top + b.height <= C + EPS) {
+        parts.push({ block: i, page, top: 0, lineFrom: 0, height: b.height });
         y = b.height;
         fresh = false;
         endY[i] = y;
@@ -154,11 +189,20 @@ export function paginate(blocks: BlockMetrics[], opts: LayoutOptions): Layout {
     // 3) Bloque indivisible más alto que una página: desborda ocupando varias.
     // Regiones de texto que recorre: la k-ésima empieza en k × paso.
     const span = Math.max(1, Math.ceil(b.height / pitch - 1e-9));
+    for (let k = 0; k < span; k++) {
+      parts.push({
+        block: i,
+        page: page + k,
+        top: -k * pitch,
+        lineFrom: 0,
+        height: Math.min(C, b.height - k * pitch),
+      });
+    }
     page += span - 1;
     y = b.height - (span - 1) * pitch;
     fresh = false;
     endY[i] = y;
     if (b.breakAfter) forceNext = true;
   }
-  return { pages: page, breaks, pageOfBlock };
+  return { pages: page, breaks, pageOfBlock, parts };
 }

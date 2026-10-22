@@ -7,6 +7,9 @@ import { useDocs } from '../documents/store';
 import { editor } from '../editor/controller';
 import { usePagination } from '../editor/pagination-store';
 import { buildDocCss } from '../editor/typography';
+import { useUi } from '../app/store';
+import { Ruler } from './Ruler';
+import { stepZoom } from '../documents/view';
 
 /** Hojas dibujadas detrás del editor, con encabezado y pie (VW-01, VW-02). */
 function Sheets({ g, pages, title }: { g: PageGeometry; pages: number; title: string }) {
@@ -66,10 +69,59 @@ export function EditorHost() {
     () => (activeId ? buildDocCss(activeId, resolved) : ''),
     [activeId, resolved],
   );
-  const geometry = useMemo(() => pageGeometry(resolved.page), [resolved.page]);
+  const preview = useUi((s) => s.rulerPreview);
+  const rulerOpen = useUi((s) => s.rulerOpen);
+  const geometry = useMemo(() => {
+    const page = preview
+      ? {
+          ...resolved.page,
+          margins: {
+            top: resolved.page.margins?.top ?? 25,
+            bottom: resolved.page.margins?.bottom ?? 25,
+            left: preview.left,
+            right: preview.right,
+          },
+        }
+      : resolved.page;
+    return pageGeometry(page);
+  }, [resolved.page, preview]);
   const paged = doc?.view === 'pages';
   const zoom = doc?.zoom ?? 1;
   const columnWidth = doc?.columnWidth ?? 760;
+
+  // Página visible (barra de estado) y zoom con Ctrl + rueda (VW-30).
+  const live = useRef({ paged, geometry, zoom, pages });
+  live.current = { paged, geometry, zoom, pages };
+  useEffect(() => {
+    const el = scroller.current!;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const { paged: p, geometry: g, zoom: z, pages: n } = live.current;
+      const col = el.querySelector('.doc-column');
+      if (!p || !col || n === 0) return;
+      const y =
+        el.getBoundingClientRect().top + el.clientHeight / 2 - col.getBoundingClientRect().top;
+      const page = Math.floor(y / ((g.height + SHEET_GAP) * z)) + 1;
+      usePagination.getState().set({ current: Math.min(n, Math.max(1, page)) });
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    const onWheel = (e: WheelEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      const id = useDocs.getState().activeId;
+      if (id) stepZoom(id, e.deltaY < 0 ? 1 : -1);
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    el.addEventListener('wheel', onWheel, { passive: false });
+    update();
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      el.removeEventListener('wheel', onWheel);
+    };
+  }, [pages, zoom, paged, geometry]);
 
   useEffect(() => {
     editor.mount(scroller.current!, pm.current!, cm.current!);
@@ -103,12 +155,32 @@ export function EditorHost() {
   return (
     <div className="editor-scroll" ref={scroller} data-testid="editor-scroll" data-view={doc?.view}>
       <style data-testid="doc-style">{css}</style>
+      {paged && rulerOpen && <Ruler g={geometry} zoom={zoom} />}
       <div
         className={`doc-column ${paged ? 'view-pages' : 'view-continuous'}`}
         aria-label={t('editor.label')}
         data-doc-id={activeId ?? undefined}
         lang={resolved.typography.language}
         style={columnStyle}
+        onDoubleClick={(e) => {
+          // VW-02: doble clic sobre el encabezado o el pie abre su configuración.
+          if (!paged || e.target !== e.currentTarget) return;
+          const sheet = [...e.currentTarget.querySelectorAll('.sheet')].find((el) => {
+            const r = el.getBoundingClientRect();
+            return e.clientY >= r.top && e.clientY <= r.bottom;
+          });
+          if (!sheet) return;
+          const r = sheet.getBoundingClientRect();
+          const inMargin =
+            e.clientY - r.top < geometry.margins.top * zoom ||
+            r.bottom - e.clientY < geometry.margins.bottom * zoom;
+          if (inMargin) {
+            useUi.getState().set({
+              documentPanelOpen: true,
+              pageFocus: useUi.getState().pageFocus + 1,
+            });
+          }
+        }}
       >
         {paged && (
           <Sheets

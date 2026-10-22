@@ -18,7 +18,10 @@ export const ipcContract = {
   'app:closeNow': { request: z.undefined(), response: z.undefined() },
   'file:openDialog': { request: z.undefined(), response: z.array(path) },
   'file:saveDialog': {
-    request: z.object({ defaultName: z.string().max(260) }),
+    request: z.object({
+      defaultName: z.string().max(260),
+      kind: z.enum(['md', 'pdf', 'html']).optional(),
+    }),
     response: path.nullable(),
   },
   'file:read': { request: z.object({ path }), response: z.object({ content: z.string() }) },
@@ -33,6 +36,26 @@ export const ipcContract = {
     response: z.undefined(),
   },
   'clipboard:readText': { request: z.undefined(), response: z.string() },
+  /** Genera un PDF de la ventana (la vista de impresión ya está montada) y lo guarda. */
+  'export:pdf': {
+    request: z.object({ path }),
+    response: z.undefined(),
+  },
+  /** Abre el diálogo de impresión del sistema con la vista de impresión montada. */
+  'export:print': { request: z.undefined(), response: z.undefined() },
+  /** CSS `@font-face` con las fuentes empaquetadas pedidas, incrustadas en base64. */
+  'export:fonts': {
+    request: z.object({ families: z.array(z.string().max(120)).max(20) }),
+    response: z.string(),
+  },
+  'state:getView': {
+    request: z.object({ path }),
+    response: z.object({ zoom: z.number().min(0.5).max(3).nullable() }),
+  },
+  'state:setView': {
+    request: z.object({ path, zoom: z.number().min(0.5).max(3) }),
+    response: z.undefined(),
+  },
   'settings:get': {
     request: z.undefined(),
     response: z.object({ documentDefaults: z.record(z.string(), z.unknown()) }),
@@ -64,7 +87,7 @@ export interface MdtecaApi {
   };
   file: {
     openDialog(): Promise<string[]>;
-    saveDialog(defaultName: string): Promise<string | null>;
+    saveDialog(defaultName: string, kind?: 'md' | 'pdf' | 'html'): Promise<string | null>;
     read(path: string): Promise<string>;
     write(path: string, content: string): Promise<void>;
     watch(path: string): Promise<void>;
@@ -72,6 +95,15 @@ export interface MdtecaApi {
   };
   edit: { action(action: 'cut' | 'copy' | 'paste' | 'pastePlain'): Promise<void> };
   clipboard: { readText(): Promise<string> };
+  export: {
+    pdf(path: string): Promise<void>;
+    print(): Promise<void>;
+    fonts(families: string[]): Promise<string>;
+  };
+  state: {
+    getView(path: string): Promise<{ zoom: number | null }>;
+    setView(path: string, zoom: number): Promise<void>;
+  };
   settings: {
     get(): Promise<IpcResponse<'settings:get'>>;
     setDocumentDefaults(

@@ -70,6 +70,14 @@ export async function writeTextAtomic(raw: string, content: string): Promise<voi
   throw lastError;
 }
 
+/** Escritura atómica de bytes (PDF exportado) en una ruta concedida. */
+export async function writeBytesAtomic(raw: string, data: Uint8Array): Promise<void> {
+  const target = assertGranted(raw);
+  const tmp = join(dirname(target), `${basename(target)}.tmp`);
+  await fs.writeFile(tmp, data);
+  await fs.rename(tmp, target);
+}
+
 const watchers = new Map<string, FSWatcher>();
 
 export function watchFile(raw: string, onExternalChange: (path: string) => void): void {

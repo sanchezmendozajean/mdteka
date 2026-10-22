@@ -36,7 +36,7 @@ export interface GapSpec {
   covers?: boolean;
 }
 
-const px = (n: number) => `${Math.round(n * 100) / 100}px`;
+const px = (n: number) => `${Math.round(n * 64) / 64}px`;
 
 function gapDom(spec: GapSpec): HTMLElement {
   const el = document.createElement('div');

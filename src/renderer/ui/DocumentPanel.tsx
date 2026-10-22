@@ -8,7 +8,9 @@ import {
   STYLE_KEYS,
   type StyleKey,
 } from '@shared/document-config';
+import { PAPER_MM } from '@shared/page';
 import { useUi } from '../app/store';
+import { saveViewAsDefault } from '../documents/view';
 import {
   pinAll,
   repairConfig,
@@ -124,6 +126,34 @@ function NumberInput({
   );
 }
 
+/** Campo de texto que confirma al salir o con Enter. */
+function TextInput({
+  value,
+  onCommit,
+  testId,
+  placeholder,
+}: {
+  value: string;
+  onCommit: (v: string) => void;
+  testId: string;
+  placeholder?: string;
+}) {
+  const [draft, setDraft] = useState(value);
+  useEffect(() => setDraft(value), [value]);
+  const commit = () => draft !== value && onCommit(draft);
+  return (
+    <input
+      className="field-input"
+      value={draft}
+      placeholder={placeholder}
+      data-testid={testId}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => e.key === 'Enter' && commit()}
+    />
+  );
+}
+
 /** Campo de fuente: texto libre con sugerencias de las fuentes incluidas. */
 function FontInput({
   value,
@@ -176,6 +206,12 @@ export function DocumentPanel() {
   const stylesFocus = useUi((s) => s.stylesFocus);
   const [styleKey, setStyleKey] = useState<StyleKey>('h1');
   const stylesRef = useRef<HTMLElement>(null);
+  const pageRef = useRef<HTMLElement>(null);
+  const pageFocus = useUi((s) => s.pageFocus);
+
+  useEffect(() => {
+    if (pageFocus > 0) pageRef.current?.scrollIntoView({ block: 'start' });
+  }, [pageFocus]);
 
   useEffect(() => {
     if (stylesFocus > 0) stylesRef.current?.scrollIntoView({ block: 'start' });
@@ -194,6 +230,8 @@ export function DocumentPanel() {
   const cfg = doc.config.config;
   const eff = resolveConfig(doc);
   const typo = eff.typography;
+  const page = eff.page;
+  const margins = page.margins ?? { top: 25, right: 25, bottom: 25, left: 25 };
   const style = eff.styles[styleKey] ?? {};
   const set = (path: string[], value: unknown) => updateConfig(doc.id, nest(path, value));
 
@@ -242,6 +280,107 @@ export function DocumentPanel() {
             </option>
           ))}
         </select>
+      </section>
+
+      <section className="panel-section" ref={pageRef} data-testid="page-section">
+        <h3>{t('docPanel.pageSection')}</h3>
+        <Row label={t('docPanel.paperSize')} path={['page', 'size']}>
+          <select
+            className="field-input"
+            value={typeof page.size === 'string' ? page.size : 'A4'}
+            data-testid="cfg-paper"
+            onChange={(e) => set(['page', 'size'], e.target.value)}
+          >
+            {Object.keys(PAPER_MM).map((k) => (
+              <option key={k} value={k}>
+                {k}
+              </option>
+            ))}
+          </select>
+        </Row>
+        <Row label={t('docPanel.orientation')} path={['page', 'orientation']}>
+          <select
+            className="field-input"
+            value={page.orientation ?? 'portrait'}
+            data-testid="cfg-orientation"
+            onChange={(e) => set(['page', 'orientation'], e.target.value)}
+          >
+            <option value="portrait">{t('docPanel.portrait')}</option>
+            <option value="landscape">{t('docPanel.landscape')}</option>
+          </select>
+        </Row>
+        {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
+          <Row
+            key={side}
+            label={t(`docPanel.margin${side[0]!.toUpperCase()}${side.slice(1)}`)}
+            path={['page', 'margins']}
+          >
+            <NumberInput
+              value={Math.round(margins[side] * 10) / 10}
+              min={0}
+              max={200}
+              step={1}
+              unit="mm"
+              testId={`cfg-margin-${side}`}
+              onCommit={(n) => set(['page', 'margins'], { ...margins, [side]: n })}
+            />
+          </Row>
+        ))}
+        <Row label={t('docPanel.header')} path={['page', 'header', 'text']}>
+          <TextInput
+            value={page.header?.text ?? ''}
+            testId="cfg-header-text"
+            placeholder={t('docPanel.tokensHint')}
+            onCommit={(v) => set(['page', 'header', 'text'], v)}
+          />
+        </Row>
+        <Row label={t('docPanel.headerAlign')} path={['page', 'header', 'align']}>
+          <select
+            className="field-input"
+            value={page.header?.align ?? 'left'}
+            data-testid="cfg-header-align"
+            onChange={(e) => set(['page', 'header', 'align'], e.target.value)}
+          >
+            <option value="left">{t('docPanel.alignLeft')}</option>
+            <option value="center">{t('docPanel.alignCenter')}</option>
+            <option value="right">{t('docPanel.alignRight')}</option>
+          </select>
+        </Row>
+        <Row label={t('docPanel.footer')} path={['page', 'footer', 'text']}>
+          <TextInput
+            value={page.footer?.text ?? ''}
+            testId="cfg-footer-text"
+            placeholder={t('docPanel.tokensHint')}
+            onCommit={(v) => set(['page', 'footer', 'text'], v)}
+          />
+        </Row>
+        <Row label={t('docPanel.footerAlign')} path={['page', 'footer', 'align']}>
+          <select
+            className="field-input"
+            value={page.footer?.align ?? 'center'}
+            data-testid="cfg-footer-align"
+            onChange={(e) => set(['page', 'footer', 'align'], e.target.value)}
+          >
+            <option value="left">{t('docPanel.alignLeft')}</option>
+            <option value="center">{t('docPanel.alignCenter')}</option>
+            <option value="right">{t('docPanel.alignRight')}</option>
+          </select>
+        </Row>
+        <Row label={t('docPanel.firstPageDifferent')} path={['page', 'firstPageDifferent']}>
+          <input
+            type="checkbox"
+            checked={page.firstPageDifferent === true}
+            data-testid="cfg-first-page"
+            onChange={(e) => set(['page', 'firstPageDifferent'], e.target.checked)}
+          />
+        </Row>
+        <button
+          className="btn panel-inline-btn"
+          data-testid="cfg-save-view"
+          onClick={() => saveViewAsDefault(doc.id)}
+        >
+          {t('docPanel.saveView')}
+        </button>
       </section>
 
       <section className="panel-section">

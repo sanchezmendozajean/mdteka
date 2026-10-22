@@ -9,6 +9,8 @@ export interface Command {
   icon: LucideIcon;
   /** Atajo con formato `Ctrl+Shift+B`. */
   shortcut?: string;
+  /** Atajos alternativos (por ejemplo `Ctrl+Shift+=` para «Ctrl +»). */
+  aliases?: string[];
   /** El atajo lo gestiona el navegador o el editor (copiar, pegar, deshacer…): solo se muestra. */
   native?: boolean;
   /** Requiere un documento abierto (por defecto sí, salvo `global`). */
@@ -68,5 +70,7 @@ export function matchesShortcut(e: KeyboardEvent, shortcut: string): boolean {
 }
 
 export function findByShortcut(e: KeyboardEvent): Command | undefined {
-  return listCommands().find((c) => c.shortcut && !c.native && matchesShortcut(e, c.shortcut));
+  return listCommands().find(
+    (c) => !c.native && [c.shortcut, ...(c.aliases ?? [])].some((s) => s && matchesShortcut(e, s)),
+  );
 }

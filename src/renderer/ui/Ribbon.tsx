@@ -9,6 +9,7 @@ import {
   SizePicker,
   SpacingPicker,
 } from './DesignParts';
+import { ColumnWidthPicker, MarginsPicker, PaperSizePicker } from './LayoutParts';
 import { Group, StylesGallery, TableGrid } from './RibbonParts';
 import { resolveConfig } from '../documents/config';
 
@@ -17,13 +18,20 @@ const TABS: RibbonTab[] = ['file', 'home', 'insert', 'design', 'layout', 'view',
 function FileTab() {
   const { t } = useTranslation();
   return (
-    <Group label={t('ribbon.groups.document')}>
-      <CommandButton id="file.new" large />
-      <CommandButton id="file.open" large />
-      <CommandButton id="file.save" large />
-      <CommandButton id="file.saveAs" large />
-      <CommandButton id="file.close" large />
-    </Group>
+    <>
+      <Group label={t('ribbon.groups.document')}>
+        <CommandButton id="file.new" large />
+        <CommandButton id="file.open" large />
+        <CommandButton id="file.save" large />
+        <CommandButton id="file.saveAs" large />
+        <CommandButton id="file.close" large />
+      </Group>
+      <Group label={t('ribbon.groups.export')}>
+        <CommandButton id="file.exportPdf" large />
+        <CommandButton id="file.exportHtml" large />
+        <CommandButton id="file.print" large />
+      </Group>
+    </>
   );
 }
 
@@ -150,13 +158,51 @@ function DesignTab() {
   );
 }
 
+function LayoutTab() {
+  const { t } = useTranslation();
+  const orientation = useDocs((s) => {
+    const d = s.docs.find((x) => x.id === s.activeId);
+    return resolveConfig(d).page.orientation ?? 'portrait';
+  });
+  return (
+    <>
+      <Group label={t('ribbon.groups.pageSetup')}>
+        <PaperSizePicker />
+        <CommandButton id="layout.portrait" large pressed={orientation === 'portrait'} />
+        <CommandButton id="layout.landscape" large pressed={orientation === 'landscape'} />
+        <MarginsPicker />
+      </Group>
+      <Group label={t('ribbon.groups.pageNumbers')}>
+        <CommandButton id="layout.headerFooter" large />
+      </Group>
+      <Group label={t('ribbon.groups.columnGroup')}>
+        <ColumnWidthPicker />
+      </Group>
+    </>
+  );
+}
+
 function ViewTab() {
   const { t } = useTranslation();
-  const { navigatorOpen, documentPanelOpen } = useUi();
+  const { navigatorOpen, documentPanelOpen, rulerOpen } = useUi();
+  const view = useDocs((s) => s.docs.find((d) => d.id === s.activeId)?.view);
   return (
     <>
       <Group label={t('ribbon.groups.mode')}>
         <CommandButton id="view.toggleMode" large />
+      </Group>
+      <Group label={t('ribbon.groups.viewMode')}>
+        <CommandButton id="view.pages" large pressed={view === 'pages'} />
+        <CommandButton id="view.continuous" large pressed={view === 'continuous'} />
+        <CommandButton id="view.ruler" large pressed={rulerOpen} />
+        <CommandButton id="view.saveDefault" large />
+      </Group>
+      <Group label={t('ribbon.groups.zoom')}>
+        <CommandButton id="view.zoomIn" large />
+        <CommandButton id="view.zoomOut" large />
+        <CommandButton id="view.zoomReset" large />
+        <CommandButton id="view.fitWidth" large />
+        <CommandButton id="view.fitPage" large />
       </Group>
       <Group label={t('ribbon.groups.panels')}>
         <CommandButton id="view.toggleNavigator" large pressed={navigatorOpen} />
@@ -172,6 +218,7 @@ const BODIES: Partial<Record<RibbonTab, () => React.JSX.Element>> = {
   home: HomeTab,
   insert: InsertTab,
   design: DesignTab,
+  layout: LayoutTab,
   view: ViewTab,
 };
 

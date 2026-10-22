@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 export interface Launched {
+  userData: string;
   app: ElectronApplication;
   page: Page;
   dir: string;
@@ -11,8 +12,13 @@ export interface Launched {
 }
 
 /** Crea archivos en un directorio temporal y lanza MDteca abriéndolos (como la asociación de archivos). */
-export async function launch(files: Record<string, string | Buffer> = {}): Promise<Launched> {
-  const dir = mkdtempSync(join(realpathSync.native(tmpdir()), 'mdteca-e2e-'));
+export async function launch(
+  files: Record<string, string | Buffer> = {},
+  reuse?: { dir: string; userData: string },
+): Promise<Launched> {
+  const dir = reuse?.dir ?? mkdtempSync(join(realpathSync.native(tmpdir()), 'mdteca-e2e-'));
+  const userData =
+    reuse?.userData ?? mkdtempSync(join(realpathSync.native(tmpdir()), 'mdteca-ud-'));
   const paths = Object.entries(files).map(([name, content]) => {
     const path = join(dir, name);
     writeFileSync(path, content);
@@ -22,13 +28,13 @@ export async function launch(files: Record<string, string | Buffer> = {}): Promi
   const env = {
     ...process.env,
     MDTECA_E2E: '1',
-    MDTECA_USER_DATA: mkdtempSync(join(realpathSync.native(tmpdir()), 'mdteca-ud-')),
+    MDTECA_USER_DATA: userData,
   } as Record<string, string>;
   delete env['ELECTRON_RUN_AS_NODE'];
   const app = await electron.launch({ args: ['.', ...paths], cwd: process.cwd(), env });
   const page = await app.firstWindow();
   await page.waitForSelector('[data-testid="app"]');
-  return { app, page, dir, files: paths };
+  return { app, page, dir, files: paths, userData };
 }
 
 export async function waitForEditor(page: Page): Promise<void> {

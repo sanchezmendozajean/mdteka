@@ -1,5 +1,30 @@
 # Changelog
 
+## [Fase 3] — Vistas y paginación
+
+**Vista de páginas** (`07`)
+- Hojas del tamaño del papel (A4, A5, Letter, Legal, B5, orientación vertical u horizontal) con sombra y 24 px de separación; el área editable respeta los márgenes. Un solo editor: los saltos de página son decoraciones, el documento no cambia [VW-01, VW-10].
+- Motor de paginación puro (`paginator/layout.ts`): corte entre bloques; párrafos y código se cortan por líneas (viudas y huérfanas de 2 líneas, o si mover el bloque dejaría más del 40 % vacío); los títulos no quedan solos al pie; `<!-- mdteca:pagebreak -->` fuerza página; los bloques indivisibles más altos que una página desbordan [VW-12].
+- Medición incremental con caché por nodo: tras editar solo se vuelve a medir el bloque editado. Un documento de ~134 páginas se repagina en menos de 40 ms y escribir no produce tareas largas [VW-11].
+- El cursor no salta: lo que mueve su bloque espera a una pausa al escribir y el desplazamiento se compensa para que conserve su posición en pantalla [VW-13].
+- Encabezado y pie con `{title}`, `{page}`, `{pages}` y `{date}` (pie `{page}` centrado por defecto, «primera página distinta»); doble clic sobre ellos abre su configuración [VW-02].
+- Regla horizontal con marcadores de margen arrastrables y vista previa en vivo; escribe `page.margins` [VW-03].
+- Modo texto también en páginas, con los mismos márgenes y saltos [VW-15, ED-04].
+
+**Vista continua, zoom y barra de estado**
+- Vista continua con ancho de columna configurable (deslizador en la barra de estado), salto manual como línea discontinua con etiqueta y 64 px de margen superior; *Guardar como vista predeterminada* escribe `view.default` y `view.continuousWidth` [VW-20…VW-22].
+- Zoom 50–300 % en pasos de 10 % (botones, deslizador, `Ctrl +`/`Ctrl -`/`Ctrl+Alt+0`, `Ctrl` + rueda), *ajustar a ancho* y *a página*; se recuerda por documento en `userData/state/` [VW-30, VW-31].
+- Barra de estado: «Página N de M», selector Páginas / Continua, ancho de columna y zoom [07].
+- Pestaña **Disposición** (papel, orientación, márgenes con presets, encabezado y pie, ancho de columna) y sección **Página** en el panel Documento.
+
+**Exportación e impresión**
+- *Exportar a PDF* (`printToPDF`, con marcadores a partir de los títulos), *Imprimir* (`Ctrl+P`) y *Exportar a HTML* autocontenido con CSS y fuentes incrustadas [VW-40…VW-42].
+- La vista de impresión usa el mismo motor y los mismos bloques que la pantalla: el número de páginas del PDF coincide con el de la pantalla en el documento largo del corpus (134 páginas) y en un documento con código partido, saltos manuales y listas [VW-14].
+
+**Decisiones**: ADR 007.
+
+**Pendiente**: corte de tablas por filas con encabezado repetido (PUEDE en `07`), regla vertical, imágenes escaladas para caber (Fase 4) y verificar los enlaces internos del PDF con un visor externo.
+
 ## [Fase 2] — Configuración del documento y tipografía
 
 **Bloque `mdteca:config`** (`04`)

@@ -485,3 +485,44 @@
 .view-pages .ProseMirror .page-break {
   opacity: 0.55;
 }
+
+/* Regla horizontal (VW-03) */
+.ruler-row {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  height: 22px;
+  background: var(--canvas);
+  display: block;
+}
+.ruler {
+  position: relative;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--ink-rule);
+}
+.ruler svg {
+  display: block;
+}
+.ruler-handle {
+  position: absolute;
+  top: 10px;
+  width: 0;
+  height: 0;
+  padding: 0;
+  border: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 9px solid var(--accent);
+  background: none;
+  transform: translateX(-5px);
+  cursor: ew-resize;
+}
+.ruler-handle.active {
+  border-top-color: var(--accent-strong, var(--accent));
+}
+
+/* En páginas el canal de pliegues no debe dibujar una franja a través de la separación entre hojas. */
+.view-pages .cm-gutters {
+  background: transparent;
+  border: 0;
+}

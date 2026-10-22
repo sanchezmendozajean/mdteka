@@ -6,6 +6,7 @@ import type { EditorView as CmView } from '@codemirror/view';
 import { askLink, useDocs, type Mode } from '../documents/store';
 import type { PageGeometry } from '@shared/page';
 import { Paginator } from './paginator/paginator';
+import { refreshPages, sourcePageConfig } from './source/pages';
 import { usePagination } from './pagination-store';
 import { docFromSource, serializeDoc, sourceFromDoc } from './model/doc';
 import {
@@ -188,9 +189,19 @@ class EditorController {
     if (this.activeId) this.activate(this.activeId);
   }
 
+  /** Contenedor con scroll del lienzo (para ajustar el zoom a la ventana). */
+  scrollElement(): HTMLElement | null {
+    return this.scroller;
+  }
+
   /** Activa la vista de páginas con esta geometría (null = vista continua). */
   setPageLayout(geometry: PageGeometry | null, styleKey: string): void {
     this.pager?.configure(geometry, styleKey);
+    sourcePageConfig.geometry = geometry;
+    sourcePageConfig.onLayout = (pages) => {
+      if (this.current()?.mode === 'source') usePagination.getState().set({ pages });
+    };
+    this.cm?.dispatch({ effects: refreshPages.of(null) });
   }
 
   unmount(): void {

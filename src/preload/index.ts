@@ -12,7 +12,7 @@ const api: MdtecaApi = {
   },
   file: {
     openDialog: () => invoke('file:openDialog'),
-    saveDialog: (defaultName) => invoke('file:saveDialog', { defaultName }),
+    saveDialog: (defaultName, kind) => invoke('file:saveDialog', { defaultName, kind }),
     read: async (path) => (await invoke<{ content: string }>('file:read', { path })).content,
     write: (path, content) => invoke('file:write', { path, content }),
     watch: (path) => invoke('file:watch', { path }),
@@ -20,6 +20,15 @@ const api: MdtecaApi = {
   },
   edit: { action: (action) => invoke('edit:action', { action }) },
   clipboard: { readText: () => invoke('clipboard:readText') },
+  export: {
+    pdf: (path) => invoke('export:pdf', { path }),
+    print: () => invoke('export:print'),
+    fonts: (families) => invoke('export:fonts', { families }),
+  },
+  state: {
+    getView: (path) => invoke('state:getView', { path }),
+    setView: (path, zoom) => invoke('state:setView', { path, zoom }),
+  },
   settings: {
     get: () => invoke('settings:get'),
     setDocumentDefaults: (documentDefaults) =>

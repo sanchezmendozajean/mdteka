@@ -475,11 +475,14 @@ export function fontStack(name: string, kind: FontKind): string {
 // Edición: aplicar un cambio del usuario al bloque
 // ---------------------------------------------------------------------------------------------
 
+/** Valores compuestos que se escriben y se comparan enteros (no por claves sueltas). */
+const ATOMIC = new Set(['margins', 'size']);
+
 function settle(node: Json, patch: Json, inherited: unknown): void {
   for (const [k, v] of Object.entries(patch)) {
     if (v === undefined) continue;
     const inh = isObject(inherited) ? inherited[k] : undefined;
-    if (isObject(v)) {
+    if (isObject(v) && !ATOMIC.has(k)) {
       const child = node[k];
       if (!isObject(child)) continue;
       settle(child, v, inh);

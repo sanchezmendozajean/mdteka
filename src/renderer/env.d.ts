@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import type { MdtecaApi } from '@shared/ipc';
 
 declare global {

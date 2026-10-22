@@ -84,3 +84,32 @@ describe('[VW-12] motor de paginación', () => {
     expect(paginate(doc, opts)).toEqual(paginate(doc, opts));
   });
 });
+
+describe('[VW-14] trozos por página (los usa el PDF)', () => {
+  it('cada bloque aparece en la página que le corresponde, con su posición', () => {
+    const l = paginate([block(60), block(50), block(20)], opts);
+    expect(l.parts).toEqual([
+      { block: 0, page: 1, top: 0, lineFrom: 0, height: 60 },
+      { block: 1, page: 2, top: 0, lineFrom: 0, height: 50 },
+      { block: 2, page: 2, top: 60, lineFrom: 0, height: 20 },
+    ]);
+  });
+
+  it('un párrafo cortado aparece en dos páginas y la continuación se desplaza hacia arriba', () => {
+    const l = paginate([block(20), para(10)], opts);
+    expect(l.parts).toEqual([
+      { block: 0, page: 1, top: 0, lineFrom: 0, height: 20 },
+      { block: 1, page: 1, top: 30, lineFrom: 0, height: 70 },
+      { block: 1, page: 2, top: -70, lineFrom: 7, height: 30 },
+    ]);
+  });
+
+  it('al mover un título con su bloque no quedan trozos duplicados', () => {
+    const l = paginate([block(60), block(30, { keepWithNext: true }), block(30)], opts);
+    expect(l.parts.map((p) => [p.block, p.page])).toEqual([
+      [0, 1],
+      [1, 2],
+      [2, 2],
+    ]);
+  });
+});

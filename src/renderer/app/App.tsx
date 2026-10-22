@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { findByShortcut } from '../commands/registry';
 import { wireApp } from '../documents/actions';
 import { activeDoc, useDocs } from '../documents/store';
+import { exportPdf, preparePrint } from '../documents/export';
 import { editor } from '../editor/controller';
+import { usePagination } from '../editor/pagination-store';
 import { CommandButton } from '../ui/CommandButton';
 import { Dialogs } from '../ui/Dialogs';
 import { DocumentPanel } from '../ui/DocumentPanel';
@@ -40,7 +42,14 @@ export function App() {
   useEffect(() => {
     const off = wireApp();
     void window.mdteca.app.info().then((info) => {
-      if (info.e2e) (window as unknown as { __mdteca: unknown }).__mdteca = { editor, activeDoc };
+      if (info.e2e)
+        (window as unknown as { __mdteca: unknown }).__mdteca = {
+          editor,
+          activeDoc,
+          exportPdf,
+          preparePrint,
+          pages: () => usePagination.getState().pages,
+        };
     });
     return off;
   }, []);

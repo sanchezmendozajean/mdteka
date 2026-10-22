@@ -4,14 +4,12 @@ import { SHEET_GAP, type PageGeometry } from '@shared/page';
 import { paginate, type BlockMetrics, type Layout, type Line } from './layout';
 import { applyGaps, gapDecorations, type GapSpec } from './plugin';
 
-interface NodeMetrics {
+export interface NodeMetrics {
   height: number;
   mt: number;
   mb: number;
   wasFirst: boolean;
   lines?: Line[];
-  /** Posición horizontal (px de layout) del texto, para localizar el inicio de cada línea. */
-  lineLeft?: number;
 }
 
 export interface PaginatorHooks {
@@ -21,12 +19,19 @@ export interface PaginatorHooks {
   onLayout: (layout: Layout | null) => void;
 }
 
+/** Medidas y reparto de todo el documento (también lo usa la exportación a PDF, VW-14). */
+export interface Analysis {
+  layout: Layout;
+  nodes: PmNode[];
+  positions: number[];
+  metrics: NodeMetrics[];
+  chrome: number;
+  scale: number;
+}
+
 const TYPING_QUIET_MS = 150;
 const TYPING_MAX_WAIT_MS = 1200;
 const MIN_LINES_TO_SPLIT = 4;
-
-const sigOf = (g: GapSpec): string =>
-  `${g.inline ? 'i' : 'b'}${g.pos}:${Math.round(g.height * 10)}`;
 
 /**
  * Paginador incremental de la vista de páginas (07 · VW-10…VW-13). Mide los bloques de primer
@@ -38,7 +43,8 @@ export class Paginator {
   private styleKey = '';
   private cache = new WeakMap<PmNode, NodeMetrics>();
   private lastSig = '';
-  private lastGaps: GapSpec[] = [];
+  private lastTokens: string[] = [];
+  private lastCutNodes: PmNode[] = [];
   private frame = 0;
   private timer: ReturnType<typeof setTimeout> | null = null;
   private lastEdit = 0;
@@ -48,9 +54,10 @@ export class Paginator {
   constructor(
     private view: EditorView,
     private hooks: PaginatorHooks,
+    listenFonts = true,
   ) {
     // Al terminar de cargar una fuente cambian las alturas: se vuelve a medir todo.
-    document.fonts.addEventListener('loadingdone', () => this.invalidate());
+    if (listenFonts) document.fonts.addEventListener('loadingdone', () => this.invalidate());
   }
 
   /** Activa (o desactiva con null) la vista de páginas. `styleKey` cambia con la tipografía. */
@@ -92,8 +99,9 @@ export class Paginator {
   }
 
   private clear(): void {
-    if (this.lastGaps.length) applyGaps(this.view, gapDecorations(this.view.state.doc, []));
-    this.lastGaps = [];
+    if (this.lastTokens.length) applyGaps(this.view, gapDecorations(this.view.state.doc, []));
+    this.lastTokens = [];
+    this.lastCutNodes = [];
     this.lastSig = '';
     this.layout = null;
     this.hooks.onLayout(null);
@@ -150,7 +158,6 @@ export class Paginator {
       top: offset + pt + j * lh,
       bottom: offset + pt + (j + 1) * lh,
     }));
-    m.lineLeft = (boxRect.left - domRect.left) / s + (parseFloat(cs.paddingLeft) || 0);
   }
 
   // -------------------------------------------------------------------------------------------
@@ -166,11 +173,10 @@ export class Paginator {
     }
   }
 
-  run(): void {
-    const g = this.geometry;
-    if (!g) return;
+  /** Mide el documento y reparte los bloques en páginas, sin tocar el DOM. */
+  analyze(g: PageGeometry): Analysis | null {
     const s = this.scale(g);
-    if (s === 0) return; // el editor está oculto (modo texto)
+    if (s === 0) return null; // el editor está oculto
     const { doc } = this.view.state;
 
     const nodes: PmNode[] = [];
@@ -202,6 +208,62 @@ export class Paginator {
 
     const chrome = g.margins.bottom + SHEET_GAP + g.margins.top;
     const layout = paginate(blocks, { contentHeight: g.contentHeight, chrome });
+    return { layout, nodes, positions, metrics, chrome, scale: s };
+  }
+
+  run(): void {
+    const start = performance.now();
+    try {
+      this.runInner();
+    } finally {
+      // Medida visible en las pruebas y en el perfilador (VW-11).
+      performance.measure('mdteca:paginate', { start, end: performance.now() });
+    }
+  }
+
+  private runInner(): void {
+    const g = this.geometry;
+    if (!g) return;
+    // Posición del cursor antes de tocar el DOM: se restituye tras aplicar los saltos (VW-13).
+    const before = this.caretTop();
+    const analysis = this.analyze(g);
+    if (!analysis) return; // el editor está oculto (modo texto)
+    const { layout, nodes, positions, metrics, chrome, scale: s } = analysis;
+    this.layout = layout;
+
+    // Firma del reparto: si no cambió (ni los bloques cortados por líneas), no se toca el DOM.
+    const tokens = layout.breaks.map((b) =>
+      b.kind === 'block'
+        ? `b${b.block}:${Math.round(b.fill * 10)}`
+        : `l${b.block}:${b.line}:${Math.round(b.fill * 10)}`,
+    );
+    const cutNodes = layout.breaks.filter((b) => b.kind === 'line').map((b) => nodes[b.block]!);
+    const sig = tokens.join('|');
+    const same =
+      sig === this.lastSig &&
+      cutNodes.length === this.lastCutNodes.length &&
+      cutNodes.every((n, i) => n === this.lastCutNodes[i]);
+    if (same) {
+      this.hooks.onLayout(layout);
+      return;
+    }
+
+    // VW-13: lo que mueve el bloque del cursor espera a una pausa al escribir.
+    const age = performance.now() - this.lastEdit;
+    if (age < TYPING_QUIET_MS && this.affectsCaret(tokens)) {
+      if (!this.deferredSince) this.deferredSince = performance.now();
+      if (performance.now() - this.deferredSince < TYPING_MAX_WAIT_MS) {
+        this.timer = setTimeout(
+          () => {
+            this.timer = null;
+            this.run();
+          },
+          TYPING_QUIET_MS - age + 5,
+        );
+        return;
+      }
+    }
+    this.deferredSince = 0;
 
     // Huecos entre bloques.
     const gaps: GapSpec[] = [];
@@ -234,13 +296,10 @@ export class Paginator {
         const line = m.lines?.[c.line];
         if (!dom || !line) continue;
         const rect = dom.getBoundingClientRect();
-        const found = this.view.posAtCoords({
-          left: rect.left + ((m.lineLeft ?? 0) + 2) * s,
-          top: rect.top + ((line.top + line.bottom) / 2) * s,
-        });
-        if (!found) continue;
         const start = positions[c.block]! + 1;
-        const pos = Math.min(Math.max(found.pos, start), positions[c.block]! + node.nodeSize - 1);
+        const end = positions[c.block]! + node.nodeSize - 1;
+        const pos = this.lineStart(start, end, rect.top + line.top * s);
+        if (pos === null) continue;
         gaps.push({
           pos,
           height: c.fill + chrome,
@@ -252,33 +311,9 @@ export class Paginator {
     }
 
     gaps.sort((a, b) => a.pos - b.pos);
-    this.layout = layout;
-    const sig = gaps.map(sigOf).join('|');
-    if (sig === this.lastSig) {
-      this.hooks.onLayout(layout);
-      return;
-    }
-
-    // VW-13: lo que mueve el bloque del cursor espera a una pausa al escribir.
-    const age = performance.now() - this.lastEdit;
-    if (age < TYPING_QUIET_MS && this.affectsCaret(gaps)) {
-      if (!this.deferredSince) this.deferredSince = performance.now();
-      if (performance.now() - this.deferredSince < TYPING_MAX_WAIT_MS) {
-        this.timer = setTimeout(
-          () => {
-            this.timer = null;
-            this.run();
-          },
-          TYPING_QUIET_MS - age + 5,
-        );
-        return;
-      }
-    }
-    this.deferredSince = 0;
-
-    const before = this.caretTop();
     this.lastSig = sig;
-    this.lastGaps = gaps;
+    this.lastCutNodes = cutNodes;
+    this.lastTokens = tokens;
     applyGaps(this.view, gapDecorations(this.view.state.doc, gaps));
     this.hooks.onLayout(layout);
     // El cursor conserva su posición en pantalla aunque su bloque cambie de página.
@@ -291,13 +326,40 @@ export class Paginator {
     }
   }
 
-  /** ¿Cambia algún hueco situado antes o en el bloque del cursor? */
-  private affectsCaret(next: GapSpec[]): boolean {
-    const head = this.view.state.selection.head;
-    const old = new Map(this.lastGaps.map((g) => [sigOf(g), g.pos]));
-    const now = new Map(next.map((g) => [sigOf(g), g.pos]));
-    for (const [k, pos] of old) if (!now.has(k) && pos <= head + 1) return true;
-    for (const [k, pos] of now) if (!old.has(k) && pos <= head + 1) return true;
+  /**
+   * Posición del primer carácter de la línea cuyo borde superior está en `top` (px de pantalla).
+   * Búsqueda binaria sobre `coordsAtPos`, que a diferencia de `posAtCoords` también funciona con
+   * líneas fuera de la ventana visible.
+   */
+  private lineStart(from: number, to: number, top: number): number | null {
+    const topAt = (pos: number): number | null => {
+      try {
+        return this.view.coordsAtPos(pos, 1).top;
+      } catch {
+        return null;
+      }
+    };
+    let lo = from;
+    let hi = to;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      const t = topAt(mid);
+      if (t === null) return null;
+      if (t >= top - 2) hi = mid;
+      else lo = mid + 1;
+    }
+    const t = topAt(lo);
+    return t !== null && t >= top - 2 ? lo : null;
+  }
+
+  /** ¿Cambia algún salto situado antes del bloque del cursor, o en él? */
+  private affectsCaret(next: string[]): boolean {
+    const caretBlock = this.view.state.selection.$head.index(0);
+    const index = (t: string) => Number(/^[bl](\d+):/.exec(t)?.[1] ?? Infinity);
+    const old = new Set(this.lastTokens);
+    const now = new Set(next);
+    for (const t of old) if (!now.has(t) && index(t) <= caretBlock) return true;
+    for (const t of now) if (!old.has(t) && index(t) <= caretBlock) return true;
     return false;
   }
 }
