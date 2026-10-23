@@ -56,6 +56,7 @@ export const es = {
   },
   panels: {
     navigator: 'Navegador',
+    hide: 'Esconder panel',
     outline: 'Esquema',
     document: 'Documento',
     emptyNavigator: 'Abre un proyecto para ver sus libros.',

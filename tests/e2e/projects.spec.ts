@@ -654,3 +654,16 @@ test.describe('[Fase 5] exportar el proyecto a PDF', () => {
     await closeApp(l.app);
   });
 });
+
+test('[UI] los paneles Navegador y Documento se esconden desde su encabezado y se vuelven a mostrar', async () => {
+  const l = await launch({});
+  await l.page.getByTestId('hide-navigator').click();
+  await expect(l.page.getByTestId('navigator')).toHaveCount(0);
+  await l.page.locator('[data-command="view.toggleNavigator"]').first().click();
+  await expect(l.page.getByTestId('navigator')).toBeVisible();
+  await l.page.getByTestId('hide-document-panel').click();
+  await expect(l.page.getByTestId('document-panel')).toHaveCount(0);
+  await l.page.locator('[data-command="view.toggleDocumentPanel"]').first().click();
+  await expect(l.page.getByTestId('document-panel')).toBeVisible();
+  await closeApp(l.app);
+});

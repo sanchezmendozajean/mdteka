@@ -1435,3 +1435,16 @@ kbd {
 .panel-resizer:hover {
   background: var(--accent-soft);
 }
+
+.panel-hide {
+  margin-left: auto;
+}
+.panel-resizer {
+  width: 8px;
+  right: -4px;
+  z-index: 20;
+}
+.panel-resizer:hover,
+.panel-resizer:active {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+}

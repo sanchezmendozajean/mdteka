@@ -63,6 +63,7 @@ import { projectIcon } from '../project/icons';
 import { useProject } from '../project/store';
 import { CommandButton } from './CommandButton';
 import { ContextMenu, type MenuItem } from './ContextMenu';
+import { HidePanelButton } from './HidePanelButton';
 import { Icon } from './Icon';
 
 const DRAG_TYPE = 'application/x-mdteca-item';
@@ -764,6 +765,7 @@ export function Navigator() {
       />
       <div className="panel-title">
         <Icon icon={Library} /> {t('panels.navigator')}
+        <HidePanelButton side="left" />
       </div>
       {!project || !ctx ? (
         <EmptyNavigator />

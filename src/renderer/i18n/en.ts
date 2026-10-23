@@ -60,6 +60,7 @@ export const en: Widen<typeof es> = {
   },
   panels: {
     navigator: 'Navigator',
+    hide: 'Hide panel',
     outline: 'Outline',
     document: 'Document',
     emptyNavigator: 'Open a project to see its books.',

@@ -22,6 +22,7 @@ import {
 } from '../documents/config';
 import { useDocs } from '../documents/store';
 import { useProjectDefaults } from '../project/store';
+import { HidePanelButton } from './HidePanelButton';
 import { Icon } from './Icon';
 
 type Json = Record<string, unknown>;
@@ -228,6 +229,7 @@ export function DocumentPanel() {
     <aside className="panel right" data-testid="document-panel" aria-label={t('panels.document')}>
       <div className="panel-title">
         <Icon icon={PanelRight} /> {t('panels.document')}
+        <HidePanelButton side="right" />
       </div>
       {body}
     </aside>
