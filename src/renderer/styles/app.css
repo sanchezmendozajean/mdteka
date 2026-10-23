@@ -223,6 +223,9 @@ button {
   background: var(--accent);
   color: var(--on-accent);
 }
+.btn-primary:disabled {
+  background: var(--accent);
+}
 .btn-primary:hover {
   background: color-mix(in srgb, var(--accent) 88%, black);
 }
