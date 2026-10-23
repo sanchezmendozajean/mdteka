@@ -209,6 +209,7 @@ export const en: Widen<typeof es> = {
   editor: {
     codeLanguage: 'Code block language',
     plainText: 'Plain text',
+    addToDictionary: 'Add “{{word}}” to the dictionary',
     htmlBlock: 'Embedded HTML · edit',
     rawBlock: 'Raw Markdown · edit',
     pageBreak: 'Page break',

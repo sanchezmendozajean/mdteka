@@ -329,6 +329,12 @@ function registerIpc(): void {
     ses.setSpellCheckerLanguages(req.languages.filter((l) => available.includes(l)));
     return { available };
   });
+  handle('spell:replace', (req: { word: string }) => {
+    mainWindow?.webContents.replaceMisspelling(req.word);
+  });
+  handle('spell:addWord', (req: { word: string }) => {
+    session.defaultSession.addWordToSpellCheckerDictionary(req.word);
+  });
   handle('window:setFullScreen', (req: { on: boolean }) => {
     mainWindow?.setFullScreen(req.on);
   });
@@ -376,6 +382,17 @@ function createWindow(): BrowserWindow {
     if (allowClose) return;
     e.preventDefault();
     send('app:beforeClose');
+  });
+  // El menú contextual lo dibuja la interfaz (con íconos); aquí solo se le pasan las sugerencias.
+  win.webContents.on('context-menu', (_e, params) => {
+    send('editor:contextMenu', {
+      x: params.x,
+      y: params.y,
+      misspelledWord: params.misspelledWord,
+      suggestions: params.dictionarySuggestions,
+      hasSelection: params.selectionText.length > 0,
+      isEditable: params.isEditable,
+    });
   });
   win.on('closed', () => {
     mainWindow = null;

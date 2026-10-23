@@ -205,6 +205,7 @@ export const es = {
   editor: {
     codeLanguage: 'Lenguaje del bloque de código',
     plainText: 'Texto plano',
+    addToDictionary: 'Añadir «{{word}}» al diccionario',
     htmlBlock: 'HTML embebido · editar',
     rawBlock: 'Markdown sin formato · editar',
     pageBreak: 'Salto de página',

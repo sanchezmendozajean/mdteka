@@ -71,6 +71,7 @@ import {
   type FindOptions,
 } from './wysiwyg/find';
 import { appSettings } from '../app/settings';
+import { useSelectionUi } from './selection-ui-store';
 import { createWysiwygState, createWysiwygView } from './wysiwyg/view';
 import { schema } from './model/schema';
 
@@ -165,6 +166,7 @@ class EditorController {
 
   mount(scroller: HTMLElement, pmMount: HTMLElement, cmMount: HTMLElement): void {
     this.scroller = scroller;
+    scroller.addEventListener('scroll', () => this.publishSelection(), { passive: true });
     this.pmMount = pmMount;
     this.cmMount = cmMount;
     this.pm = createWysiwygView(pmMount, createWysiwygState(docFromSource('')), {
@@ -179,6 +181,7 @@ class EditorController {
         this.publishImage(state);
         this.scheduleFormat();
         if (tr.docChanged || tr.selectionSet) this.typewriter();
+        this.publishSelection(state);
       },
     });
     window.addEventListener('mdteca-layout', (e) =>
@@ -655,6 +658,26 @@ class EditorController {
       const delta = (caret.top + caret.bottom) / 2 - (box.top + box.height / 2);
       if (Math.abs(delta) >= 2) scroller.scrollTop += delta;
     });
+  }
+
+  /** Publica el rectángulo de la selección de texto para la barra flotante (solo en WYSIWYG). */
+  publishSelection(state: PmState | undefined = this.pm?.state): void {
+    const store = useSelectionUi.getState();
+    const pm = this.pm;
+    if (!pm || !state || this.current()?.mode !== 'wysiwyg') return store.set(null);
+    const sel = state.selection;
+    if (sel.empty || !(sel instanceof TextSelection) || !pm.hasFocus()) return store.set(null);
+    try {
+      const a = pm.coordsAtPos(sel.from);
+      const b = pm.coordsAtPos(sel.to);
+      const left = Math.min(a.left, b.left);
+      const box = { top: Math.min(a.top, b.top), left, width: Math.abs(b.right - a.left) };
+      const cur = store.box;
+      if (!cur || cur.top !== box.top || cur.left !== box.left || cur.width !== box.width)
+        store.set(box);
+    } catch {
+      store.set(null);
+    }
   }
 
   /** Publica la imagen seleccionada (si la hay) para su menú flotante. */

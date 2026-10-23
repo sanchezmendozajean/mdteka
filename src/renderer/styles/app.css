@@ -1648,3 +1648,16 @@ kbd {
   padding: 2px 0;
   text-decoration: underline;
 }
+
+/* ---------- Barra flotante de formato ---------- */
+.floating-toolbar {
+  position: fixed;
+  z-index: 50;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-pop);
+}

@@ -16,7 +16,9 @@ import { Dialogs } from '../ui/Dialogs';
 import { DocumentPanel } from '../ui/DocumentPanel';
 import { DocTabs } from '../ui/DocTabs';
 import { EditorHost } from '../ui/EditorHost';
+import { EditorContextMenu } from '../ui/EditorContextMenu';
 import { FindBar } from '../ui/FindBar';
+import { FloatingToolbar } from '../ui/FloatingToolbar';
 import { ImagePopover } from '../ui/ImagePopover';
 import { Icon } from '../ui/Icon';
 import { Ribbon } from '../ui/Ribbon';
@@ -146,6 +148,8 @@ export function App() {
       </div>
       <StatusBar />
       <ImagePopover />
+      <FloatingToolbar />
+      <EditorContextMenu />
       <Dialogs />
     </div>
   );

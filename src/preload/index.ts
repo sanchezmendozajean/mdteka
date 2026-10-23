@@ -85,6 +85,8 @@ const api: MdtecaApi = {
   spell: {
     configure: async (enabled, languages) =>
       (await invoke<{ available: string[] }>('spell:configure', { enabled, languages })).available,
+    replace: (word) => invoke('spell:replace', { word }),
+    addWord: (word) => invoke('spell:addWord', { word }),
   },
   window: { setFullScreen: (on) => invoke('window:setFullScreen', { on }) },
   appUi: {

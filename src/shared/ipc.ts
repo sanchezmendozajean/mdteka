@@ -225,6 +225,8 @@ export const ipcContract = {
     request: z.object({ enabled: z.boolean(), languages: z.array(z.string().max(16)).max(8) }),
     response: z.object({ available: z.array(z.string()) }),
   },
+  'spell:replace': { request: z.object({ word: z.string().max(200) }), response: z.undefined() },
+  'spell:addWord': { request: z.object({ word: z.string().max(200) }), response: z.undefined() },
   'window:setFullScreen': { request: z.object({ on: z.boolean() }), response: z.undefined() },
   /** Abre «Aplicaciones predeterminadas» de Windows para asociar .md y .mdteca. */
   'app:openDefaultApps': { request: z.undefined(), response: z.undefined() },
@@ -239,7 +241,12 @@ export type IpcRequest<C extends IpcChannel> = z.infer<(typeof ipcContract)[C]['
 export type IpcResponse<C extends IpcChannel> = z.infer<(typeof ipcContract)[C]['response']>;
 
 /** Eventos de main hacia el renderer. */
-export const ipcEvents = ['file:changed', 'app:openPaths', 'app:beforeClose'] as const;
+export const ipcEvents = [
+  'file:changed',
+  'app:openPaths',
+  'app:beforeClose',
+  'editor:contextMenu',
+] as const;
 export type IpcEvent = (typeof ipcEvents)[number];
 
 /** API expuesta en `window.mdteca` por el preload. */
@@ -316,7 +323,11 @@ export interface MdtecaApi {
     list(): Promise<IpcResponse<'recovery:list'>>;
   };
   lastProject: { get(): Promise<string | null>; set(path: string | null): Promise<void> };
-  spell: { configure(enabled: boolean, languages: string[]): Promise<string[]> };
+  spell: {
+    configure(enabled: boolean, languages: string[]): Promise<string[]>;
+    replace(word: string): Promise<void>;
+    addWord(word: string): Promise<void>;
+  };
   window: { setFullScreen(on: boolean): Promise<void> };
   appUi: {
     openDefaultApps(): Promise<void>;
