@@ -267,7 +267,7 @@ test.describe('[Fase 1] formato y archivos', () => {
     await page.locator('.ProseMirror p').click();
     await navigate(page, 'Home');
     await extendSelection(page, 'Shift+ArrowRight', 4); // «Hola»
-    await page.locator('[data-command="format.bold"]').click();
+    await page.locator('.ribbon [data-command="format.bold"]').click();
     await navigate(page, 'End');
     await extendSelection(page, 'Shift+ArrowLeft', 5); // «mundo»
     await page.keyboard.press(`${mod}+i`);

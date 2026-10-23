@@ -8,7 +8,7 @@ test('[Fase 0] la ventana abre con el layout vacío y aislamiento activo', async
   const page = await app.firstWindow();
 
   await expect(page.getByTestId('app')).toBeVisible();
-  await expect(page.getByRole('tab')).toHaveCount(7);
+  await expect(page.locator('.ribbon').getByRole('tab')).toHaveCount(7);
   await expect(page.getByTestId('navigator')).toBeVisible();
   await expect(page.getByTestId('document-panel')).toBeVisible();
   await expect(page.getByTestId('statusbar')).toBeVisible();

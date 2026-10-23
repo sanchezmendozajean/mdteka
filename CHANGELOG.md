@@ -1,5 +1,45 @@
 # Changelog
 
+## [Fase 6] — Pulido
+
+**Ajustes de la app** (`09`)
+
+- Diálogo con secciones **General, Editor, Apariencia, Documento por defecto, Imágenes, Archivos, Atajos y Avanzado** (`Ctrl+,`); cada cambio se guarda al instante en `userData/settings.json`, validado con zod [CFG-02].
+- General: idioma de la interfaz (español / inglés, al instante) y abrir el último proyecto al iniciar.
+- Editor: modo por defecto, barra flotante, corrector e idiomas, autoguardado (desactivado / cada N s / al perder el foco) y modo máquina de escribir.
+- Apariencia: tema claro, oscuro o «seguir al sistema», color de acento (6), densidad cómoda o compacta, hoja clara u oscura en tema oscuro y escala de la interfaz (80–150 %) [UI-12, UI-15].
+- Imágenes: modo de pegado y umbral de aviso de base64. Archivos: fin de línea de los documentos nuevos y acceso a «aplicaciones predeterminadas» de Windows. Avanzado: restablecer ajustes.
+- «Cambiar el predeterminado…» en el diálogo de pegado de imágenes abre Ajustes › Imágenes.
+
+**Atajos y paleta** (`11`)
+
+- Atajos reasignables (tabla con buscador): capturan la combinación, avisan de conflictos, se pueden quitar o restablecer. `Ctrl+Tab` / `Ctrl+Shift+Tab` cambian de pestaña.
+- Paleta de comandos (`Ctrl+Shift+P`) con todos los comandos, su ícono y su atajo.
+- KeyTips con `Alt`: letras sobre las pestañas y teclas sobre los botones.
+
+**Editor**
+
+- Barra flotante de formato al seleccionar texto (se puede desactivar).
+- Menú contextual propio con íconos y sugerencias del corrector (cortar, copiar, pegar, pegar sin formato, formato).
+- Panel **Esquema** (segunda pestaña del panel izquierdo): títulos del documento; clic lleva el cursor allí en WYSIWYG y en modo texto.
+- Modo concentración (`F11`, pantalla completa; `Esc` sale) y modo máquina de escribir.
+
+**Seguridad de los datos** (`02`)
+
+- Autoguardado opcional.
+- Recuperación ante un cierre inesperado: respaldo cada 30 s en `userData/recovery/`; al abrir se ofrece recuperar los documentos (también los sin guardar) con sus cambios sin guardar.
+
+**Apariencia y accesibilidad**
+
+- Tema oscuro completo, con hoja clara por defecto y hoja oscura opcional (tinta, código, enlaces y sintaxis incluidos).
+- Contraste AA en claro y oscuro (`--text-3` más oscuro); nombres accesibles en cinta, pestañas, listas, editores y panel Documento.
+- Los paneles Navegador y Documento tienen botón para esconderse.
+- `npm run audit`: íconos y traducciones de cada comando (UI-01, UI-16) y auditoría de accesibilidad con axe sobre las pantallas principales y los diálogos.
+
+**Decisiones**: ADR 010.
+
+**Pendiente**: actualizaciones automáticas (hay que decidir dónde se publican las versiones y firmar el instalador), íconos propios de `.md` y `.mdteca`, notas al pie, menú del Dock y _jump list_ de recientes, modo máquina de escribir en modo texto, y una ventana por proyecto (PRJ-34, Fase 5).
+
 ## [Fase 5] — Proyectos
 
 **Formato `.mdteca`** (`05`)
