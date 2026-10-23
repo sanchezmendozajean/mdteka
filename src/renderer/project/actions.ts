@@ -128,6 +128,7 @@ export async function openProjectFile(path: string, select?: string): Promise<bo
     suggestion: null,
   });
   void api().file.watch(loaded.path);
+  void api().lastProject.set(loaded.path);
   await refresh();
   // Pestañas de la última sesión de este proyecto (09: estado de sesión en userData).
   const known = new Set(Object.keys(store().info).filter((f) => store().info[f]?.exists));
@@ -147,6 +148,7 @@ export async function openProjectDialog(): Promise<void> {
 export function closeProject(): void {
   const { path } = store();
   if (path) void api().file.unwatch(path);
+  void api().lastProject.set(null);
   store().set({
     project: null,
     path: null,

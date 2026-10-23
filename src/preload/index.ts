@@ -72,6 +72,16 @@ const api: MdtecaApi = {
     setDocumentDefaults: (documentDefaults) =>
       invoke('settings:setDocumentDefaults', { documentDefaults }),
   },
+  recovery: {
+    write: (id, path, name, content) => invoke('recovery:write', { id, path, name, content }),
+    clear: (id) => invoke('recovery:clear', { id }),
+    clearAll: () => invoke('recovery:clearAll'),
+    list: () => invoke('recovery:list'),
+  },
+  lastProject: {
+    get: () => invoke('state:getLastProject'),
+    set: (path) => invoke('state:setLastProject', { path }),
+  },
   spell: {
     configure: async (enabled, languages) =>
       (await invoke<{ available: string[] }>('spell:configure', { enabled, languages })).available,

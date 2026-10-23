@@ -1641,3 +1641,10 @@ kbd {
 .palette-list kbd {
   margin-left: auto;
 }
+
+.btn-link {
+  background: none;
+  color: var(--accent);
+  padding: 2px 0;
+  text-decoration: underline;
+}

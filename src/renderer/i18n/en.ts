@@ -146,6 +146,7 @@ export const en: Widen<typeof es> = {
     saveFirst: 'The document will be saved first',
     remember: 'Remember for this document',
     asDefault: 'Also use as the app default',
+    changeDefault: 'Change the default…',
     more: 'and {{count}} more',
     largeTitle: 'Large image',
     largeBody:
@@ -441,6 +442,12 @@ export const en: Widen<typeof es> = {
     shortcutsNative: 'Handled by the system',
     advancedReset: 'Reset all settings',
     advancedResetBody: 'Back to the factory values. Documents and projects are not touched.',
+  },
+  recovery: {
+    title: 'Recover documents',
+    body: 'MDteca closed unexpectedly and some changes were not saved.',
+    restore: 'Recover {{count}} document(s)',
+    discard: 'Discard the backups',
   },
   palette: {
     title: 'Command palette',

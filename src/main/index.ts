@@ -51,9 +51,17 @@ import {
   searchFiles,
 } from './project';
 import { loadSettings, resetSettings, saveDocumentDefaults, saveSettings } from './settings';
-import { getProjectState, getViewState, setProjectState, setViewState } from './state';
+import {
+  getLastProject,
+  getProjectState,
+  getViewState,
+  setLastProject,
+  setProjectState,
+  setViewState,
+} from './state';
+import { clearAllRecovery, clearRecovery, listRecovery, writeRecovery } from './recovery';
 import { firstH1 } from '@shared/project';
-import { promises as fsp } from 'node:fs';
+import { existsSync, promises as fsp } from 'node:fs';
 
 const isDev = !app.isPackaged && !!process.env['ELECTRON_RENDERER_URL'];
 const e2e = process.env['MDTECA_E2E'] === '1';
@@ -294,6 +302,23 @@ function registerIpc(): void {
       setProjectState(req.path, { expanded: req.expanded, open: req.open, active: req.active });
     },
   );
+  handle(
+    'recovery:write',
+    (req: { id: string; path: string | null; name: string; content: string }) =>
+      writeRecovery({ ...req, savedAt: Date.now() }),
+  );
+  handle('recovery:clear', (req: { id: string }) => clearRecovery(req.id));
+  handle('recovery:clearAll', () => clearAllRecovery());
+  handle('recovery:list', () =>
+    // Rutas que el usuario ya tenía abiertas: se conceden para poder guardar el documento recuperado.
+    listRecovery().map((e) => (e.path ? { ...e, path: grant(e.path) } : e)),
+  );
+  handle('state:getLastProject', () => {
+    const path = getLastProject();
+    if (!path || !existsSync(path)) return null;
+    return grant(path);
+  });
+  handle('state:setLastProject', (req: { path: string | null }) => setLastProject(req.path));
   handle('settings:get', () => loadSettings());
   handle('settings:set', (req: { patch: Record<string, unknown> }) => saveSettings(req.patch));
   handle('settings:reset', () => resetSettings());

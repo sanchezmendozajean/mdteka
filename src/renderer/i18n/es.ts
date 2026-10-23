@@ -142,6 +142,7 @@ export const es = {
     saveFirst: 'Se guardará antes el documento',
     remember: 'Recordar para este documento',
     asDefault: 'Usar también como predeterminado de la app',
+    changeDefault: 'Cambiar el predeterminado…',
     more: 'y {{count}} más',
     largeTitle: 'Imagen grande',
     largeBody:
@@ -438,6 +439,12 @@ export const es = {
     advancedReset: 'Restablecer todos los ajustes',
     advancedResetBody:
       'Se vuelve a los valores de fábrica. No se tocan los documentos ni los proyectos.',
+  },
+  recovery: {
+    title: 'Recuperar documentos',
+    body: 'MDteca se cerró de forma inesperada y quedaron cambios sin guardar.',
+    restore: 'Recuperar {{count}} documento(s)',
+    discard: 'Descartar los respaldos',
   },
   palette: {
     title: 'Paleta de comandos',

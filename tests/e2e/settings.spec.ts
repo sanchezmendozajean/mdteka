@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
-import { readFileSync } from 'node:fs';
+import { execSync } from 'node:child_process';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Settings } from '@shared/settings';
 import { launch, source, waitForEditor, type Launched } from './helpers';
@@ -223,6 +224,157 @@ test.describe('[Fase 6] modo concentración', () => {
     await l.page.keyboard.press('Escape');
     await expect(l.page.locator('.ribbon')).toBeVisible();
     await expect(l.page.getByTestId('navigator')).toBeVisible();
+    await l.app.close();
+  });
+});
+
+/** Muere el proceso sin pasar por el cierre normal (como un fallo o un corte de luz). */
+const crash = async (l: Launched) => {
+  const proc = l.app.process();
+  const exited = new Promise((resolve) => proc.once('exit', resolve));
+  // Se mata todo el árbol: los procesos hijos de Chromium retienen la carpeta de datos.
+  execSync(`taskkill /PID ${proc.pid} /T /F`, { stdio: 'ignore' });
+  await exited;
+  await new Promise((resolve) => setTimeout(resolve, 500));
+};
+
+test.describe('[Fase 6] autoguardado, recuperación y arranque', () => {
+  const typeAtEnd = async (page: Page, text: string) => {
+    await page.locator('.ProseMirror').click();
+    await page.keyboard.press('Control+End');
+    await page.keyboard.type(text);
+  };
+
+  test('[02] autoguardado «cada cierto tiempo» escribe el documento sin preguntar', async () => {
+    const l = await launch({ 'a.md': 'Hola\n' });
+    await waitForEditor(l.page);
+    await openSettings(l.page, 'editor');
+    await l.page.getByTestId('set-autosave').selectOption('interval');
+    await l.page.getByTestId('set-autosave-seconds').fill('5');
+    await l.page.getByTestId('settings-close').click();
+    await typeAtEnd(l.page, ' mundo');
+    await expect(l.page.getByTestId('dirty-dot')).toBeVisible();
+    await expect
+      .poll(() => readFileSync(l.files[0]!, 'utf8'), { timeout: 15000 })
+      .toBe('Hola mundo\n');
+    await expect(l.page.getByTestId('dirty-dot')).toHaveCount(0);
+    await l.app.close();
+  });
+
+  test('[02] autoguardado «al perder el foco»', async () => {
+    const l = await launch({ 'a.md': 'Hola\n' });
+    await waitForEditor(l.page);
+    await openSettings(l.page, 'editor');
+    await l.page.getByTestId('set-autosave').selectOption('blur');
+    await l.page.getByTestId('settings-close').click();
+    await typeAtEnd(l.page, '!');
+    await l.page.evaluate(() => window.dispatchEvent(new Event('blur')));
+    await expect.poll(() => readFileSync(l.files[0]!, 'utf8')).toBe('Hola!\n');
+    await l.app.close();
+  });
+
+  test('[02] recuperación ante un cierre inesperado: se ofrece y deja los cambios sin guardar', async () => {
+    const first = await launch({ 'a.md': 'Hola\n' });
+    await waitForEditor(first.page);
+    await typeAtEnd(first.page, ' perdido');
+    await first.page.evaluate(() =>
+      (
+        window as unknown as { __mdteca: { writeRecoveryNow(): Promise<void> } }
+      ).__mdteca.writeRecoveryNow(),
+    );
+    const recovery = join(first.userData, 'recovery');
+    await expect.poll(() => existsSync(recovery) && readdirSync(recovery).length).toBe(1);
+    // Cierre «inesperado»: el proceso muere sin pasar por el cierre normal.
+    await crash(first);
+    const second = await launch({}, { dir: first.dir, userData: first.userData }, []);
+    await expect(second.page.getByTestId('dialog-choose')).toBeVisible();
+    await second.page.getByTestId('choose-restore').click();
+    await waitForEditor(second.page);
+    expect(await source(second.page)).toBe('Hola perdido\n');
+    await expect(second.page.getByTestId('dirty-dot')).toBeVisible();
+    // El archivo en disco no se tocó.
+    expect(readFileSync(first.files[0]!, 'utf8')).toBe('Hola\n');
+    await second.app.close();
+  });
+
+  test('[02] un documento sin guardar también se recupera', async () => {
+    const first = await launch({});
+    await first.page.keyboard.press('Control+n');
+    await waitForEditor(first.page);
+    await first.page.locator('.ProseMirror').click();
+    await first.page.keyboard.type('Borrador');
+    await first.page.evaluate(() =>
+      (
+        window as unknown as { __mdteca: { writeRecoveryNow(): Promise<void> } }
+      ).__mdteca.writeRecoveryNow(),
+    );
+    await crash(first);
+    const second = await launch({}, { dir: first.dir, userData: first.userData }, []);
+    await second.page.getByTestId('choose-restore').click();
+    await waitForEditor(second.page);
+    expect(await source(second.page)).toBe('Borrador\n');
+    await second.app.close();
+  });
+
+  test('«Descartar los respaldos» y un cierre normal no dejan nada que recuperar', async () => {
+    const first = await launch({ 'a.md': 'Hola\n' });
+    await waitForEditor(first.page);
+    await typeAtEnd(first.page, '!');
+    await first.page.evaluate(() =>
+      (
+        window as unknown as { __mdteca: { writeRecoveryNow(): Promise<void> } }
+      ).__mdteca.writeRecoveryNow(),
+    );
+    // Cierre normal de la ventana, descartando los cambios.
+    await first.app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]!.close());
+    await first.page.getByTestId('dialog-discard').click();
+    await first.app.waitForEvent('close');
+    const second = await launch({}, { dir: first.dir, userData: first.userData }, []);
+    await expect(second.page.getByTestId('welcome')).toBeVisible();
+    await expect(second.page.getByTestId('dialog-choose')).toHaveCount(0);
+    await second.app.close();
+  });
+
+  test('«Abrir el último proyecto» al iniciar', async () => {
+    const project = JSON.stringify({
+      format: 'mdteca-project',
+      version: 1,
+      title: 'Último',
+      collections: [],
+    });
+    const first = await launch({ 'p.mdteca': project });
+    await expect(first.page.getByTestId('nav-header')).toContainText('Último');
+    await openSettings(first.page, 'general');
+    await first.page.getByTestId('set-open-on-start').selectOption('lastProject');
+    await expect.poll(() => saved(first).general?.openOnStart).toBe('lastProject');
+    await first.app.close();
+    const second = await launch({}, { dir: first.dir, userData: first.userData }, []);
+    await expect(second.page.getByTestId('nav-header')).toContainText('Último');
+    await second.app.close();
+  });
+});
+
+test.describe('[Fase 6] modo máquina de escribir', () => {
+  test('mantiene la línea del cursor a media altura del lienzo', async () => {
+    const text = Array.from({ length: 80 }, (_, i) => `Párrafo número ${i + 1}`).join('\n\n');
+    const l = await launch({ 'a.md': `${text}\n` });
+    await waitForEditor(l.page);
+    await openSettings(l.page, 'editor');
+    await l.page.getByTestId('set-typewriter').check();
+    await l.page.getByTestId('settings-close').click();
+    await l.page.locator('.ProseMirror p').nth(40).click();
+    await l.page.keyboard.type('x');
+    const offset = () =>
+      l.page.evaluate(() => {
+        const sel = window.getSelection()!;
+        const r = sel.getRangeAt(0).getBoundingClientRect();
+        const s = document.querySelector('.editor-scroll')!.getBoundingClientRect();
+        return Math.abs((r.top + r.bottom) / 2 - (s.top + s.height / 2));
+      });
+    await expect.poll(offset).toBeLessThan(20);
+    await l.page.keyboard.press('ArrowDown');
+    await l.page.keyboard.press('ArrowDown');
+    await expect.poll(offset).toBeLessThan(20);
     await l.app.close();
   });
 });

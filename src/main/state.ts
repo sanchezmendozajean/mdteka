@@ -62,6 +62,21 @@ export function setProjectState(path: string, state: ProjectState): void {
   renameSync(tmp, projectFile());
 }
 
+const lastFile = () => join(app.getPath('userData'), 'state', 'last.json');
+
+export function getLastProject(): string | null {
+  try {
+    return (JSON.parse(readFileSync(lastFile(), 'utf8')) as { project: string | null }).project;
+  } catch {
+    return null;
+  }
+}
+
+export function setLastProject(path: string | null): void {
+  mkdirSync(dirname(lastFile()), { recursive: true });
+  writeFileSync(lastFile(), JSON.stringify({ project: path }));
+}
+
 export function setViewState(path: string, state: ViewState): void {
   load()[key(path)] = state;
   mkdirSync(dirname(file()), { recursive: true });

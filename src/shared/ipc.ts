@@ -194,6 +194,32 @@ export const ipcContract = {
     request: z.object({ documentDefaults: z.record(z.string(), z.unknown()) }),
     response: SettingsSchema,
   },
+  'recovery:write': {
+    request: z.object({
+      id: z.string().max(80),
+      path: path.nullable(),
+      name: z.string().max(260),
+      content: z.string(),
+    }),
+    response: z.undefined(),
+  },
+  'recovery:clear': { request: z.object({ id: z.string().max(80) }), response: z.undefined() },
+  'recovery:clearAll': { request: z.undefined(), response: z.undefined() },
+  'recovery:list': {
+    request: z.undefined(),
+    response: z.array(
+      z.object({
+        id: z.string(),
+        path: z.string().nullable(),
+        name: z.string(),
+        content: z.string(),
+        savedAt: z.number(),
+      }),
+    ),
+  },
+  /** Último proyecto abierto (Ajustes › Al iniciar). Se concede al leerlo. */
+  'state:getLastProject': { request: z.undefined(), response: path.nullable() },
+  'state:setLastProject': { request: z.object({ path: path.nullable() }), response: z.undefined() },
   /** Idiomas del corrector ortográfico y su estado (Chromium). */
   'spell:configure': {
     request: z.object({ enabled: z.boolean(), languages: z.array(z.string().max(16)).max(8) }),
@@ -283,6 +309,13 @@ export interface MdtecaApi {
       documentDefaults: Record<string, unknown>,
     ): Promise<IpcResponse<'settings:setDocumentDefaults'>>;
   };
+  recovery: {
+    write(id: string, path: string | null, name: string, content: string): Promise<void>;
+    clear(id: string): Promise<void>;
+    clearAll(): Promise<void>;
+    list(): Promise<IpcResponse<'recovery:list'>>;
+  };
+  lastProject: { get(): Promise<string | null>; set(path: string | null): Promise<void> };
   spell: { configure(enabled: boolean, languages: string[]): Promise<string[]> };
   window: { setFullScreen(on: boolean): Promise<void> };
   appUi: {

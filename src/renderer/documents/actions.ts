@@ -1,5 +1,6 @@
 import i18next from 'i18next';
 import { appSettings } from '../app/settings';
+import { checkRecovery } from './background';
 import { editor, type DocRuntime } from '../editor/controller';
 import { emptyDoc } from '../editor/model/doc';
 import { applyFormat, detectFormat, splitConfigBlock, type Eol } from '../editor/model/text-format';
@@ -165,6 +166,43 @@ export async function openPaths(paths: string[]): Promise<void> {
   }
 }
 
+/** Reabre un documento desde su respaldo de recuperación: queda con cambios sin guardar. */
+export async function restoreRecovered(entry: {
+  path: string | null;
+  name: string;
+  content: string;
+}): Promise<void> {
+  const { body, configRaw, eol, bom } = parseRaw(entry.content);
+  let saved = { body: '', configRaw: '' };
+  if (entry.path) {
+    try {
+      const disk = parseRaw(await api().file.read(entry.path));
+      saved = { body: disk.body, configRaw: disk.configRaw };
+    } catch {
+      /* el archivo ya no existe: todo el texto cuenta como cambio */
+    }
+  }
+  const id = register(
+    {
+      path: entry.path,
+      name: entry.name,
+      dirty: true,
+      mode: appSettings().editor.defaultMode,
+      ...viewFields(configRaw, entry.path),
+      eol,
+      bom,
+      ...configFields(configRaw),
+      savedConfigRaw: saved.configRaw,
+      words: 0,
+      externalChange: false,
+    },
+    body,
+  );
+  const rt = editor.runtime(id);
+  if (rt) rt.savedSource = saved.body;
+  if (entry.path) void api().file.watch(entry.path);
+}
+
 export async function openFileDialog(): Promise<void> {
   const paths = await api().file.openDialog();
   if (paths.length) await openPaths(paths);
@@ -230,6 +268,7 @@ export async function closeDocument(id: string, force = false): Promise<boolean>
   if (info?.path) void api().file.unwatch(info.path);
   editor.discard(id);
   useDocs.getState().remove(id);
+  void api().recovery.clear(id);
   if (activeId === id) {
     const rest = useDocs.getState().docs;
     editor.activate(rest[Math.min(index, rest.length - 1)]?.id ?? null);
@@ -243,6 +282,8 @@ export async function closeWindow(): Promise<void> {
   for (const doc of useDocs.getState().docs.filter((d) => d.dirty)) {
     if (!(await resolveUnsaved(doc.id))) return;
   }
+  // Cierre normal: los respaldos ya no hacen falta (solo sirven tras un cierre inesperado).
+  await api().recovery.clearAll();
   await api().app.closeNow();
 }
 
@@ -308,7 +349,15 @@ export function wireApp(): () => void {
   // Los ajustes se cargan antes de abrir nada para que el primer pintado ya lleve la tipografía final.
   void loadSettings()
     .catch(() => undefined)
+    .then(() => checkRecovery())
     .then(() => api().app.launchPaths())
-    .then((paths) => openPaths(paths));
+    .then(async (paths) => {
+      await openPaths(paths);
+      // Ajustes › Al iniciar › «Abrir el último proyecto» (solo si no se pidió abrir otra cosa).
+      if (paths.length === 0 && appSettings().general.openOnStart === 'lastProject') {
+        const last = await api().lastProject.get();
+        if (last) await openPaths([last]);
+      }
+    });
   return () => off.forEach((f) => f());
 }

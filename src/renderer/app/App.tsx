@@ -5,6 +5,7 @@ import { useProject } from '../project/store';
 import { useTranslation } from 'react-i18next';
 import { findByShortcut } from '../commands/registry';
 import { wireApp } from '../documents/actions';
+import { wireBackground, writeRecoveryNow, autosaveNow } from '../documents/background';
 import { wireProject } from '../project/actions';
 import { activeDoc, useDocs } from '../documents/store';
 import { exportPdf, preparePrint } from '../documents/export';
@@ -52,6 +53,7 @@ export function App() {
     const offProject = wireProject();
     const offAppearance = wireAppearance();
     const offFocus = wireFocus();
+    const offBackground = wireBackground();
     const off = wireApp();
     void window.mdteca.app.info().then((info) => {
       if (info.e2e)
@@ -60,6 +62,8 @@ export function App() {
           activeDoc,
           exportPdf,
           preparePrint,
+          writeRecoveryNow,
+          autosaveNow,
           pages: () => usePagination.getState().pages,
         };
     });
@@ -68,6 +72,7 @@ export function App() {
       offProject();
       offAppearance();
       offFocus();
+      offBackground();
     };
   }, []);
 

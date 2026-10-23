@@ -70,6 +70,7 @@ import {
   type FindInfo,
   type FindOptions,
 } from './wysiwyg/find';
+import { appSettings } from '../app/settings';
 import { createWysiwygState, createWysiwygView } from './wysiwyg/view';
 import { schema } from './model/schema';
 
@@ -177,6 +178,7 @@ class EditorController {
         }
         this.publishImage(state);
         this.scheduleFormat();
+        if (tr.docChanged || tr.selectionSet) this.typewriter();
       },
     });
     window.addEventListener('mdteca-layout', (e) =>
@@ -635,6 +637,24 @@ class EditorController {
   imageElement(pos: number): HTMLImageElement | null {
     const dom = this.pm?.nodeDOM(pos) as HTMLElement | null | undefined;
     return dom?.querySelector('img') ?? null;
+  }
+
+  /**
+   * Modo máquina de escribir (03): mantiene la línea del cursor a media altura del lienzo. Solo en
+   * WYSIWYG y con el cursor sin selección; un salto de menos de 2 px no se aplica para no vibrar.
+   */
+  private typewriter(): void {
+    if (!appSettings().editor.typewriter || !this.pm || !this.scroller) return;
+    const pm = this.pm;
+    const scroller = this.scroller;
+    requestAnimationFrame(() => {
+      const sel = pm.state.selection;
+      if (!sel.empty || !pm.hasFocus()) return;
+      const caret = pm.coordsAtPos(sel.head);
+      const box = scroller.getBoundingClientRect();
+      const delta = (caret.top + caret.bottom) / 2 - (box.top + box.height / 2);
+      if (Math.abs(delta) >= 2) scroller.scrollTop += delta;
+    });
   }
 
   /** Publica la imagen seleccionada (si la hay) para su menú flotante. */

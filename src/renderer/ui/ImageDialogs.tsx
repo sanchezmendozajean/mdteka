@@ -1,7 +1,7 @@
 import { Code, FileImage, ImageIcon, TriangleAlert } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { DialogRequest, ImagePasteChoice } from '../documents/store';
+import { showSettings, type DialogRequest, type ImagePasteChoice } from '../documents/store';
 import { Icon } from './Icon';
 import { Modal } from './Modal';
 
@@ -115,6 +115,14 @@ export function ImagePasteDialog({
         />
         {t('images.asDefault')}
       </label>
+      <button
+        type="button"
+        className="btn btn-link"
+        data-testid="image-change-default"
+        onClick={() => void showSettings('images', true)}
+      >
+        {t('images.changeDefault')}
+      </button>
       <div className="modal-actions">
         <button className="btn" onClick={() => finish(null)}>
           {t('dialogs.cancel')}

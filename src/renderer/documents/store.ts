@@ -216,8 +216,8 @@ export const showProjectSettings = () =>
   ask<void>((resolve) => ({ kind: 'projectSettings', resolve }));
 export const showQuickOpen = () => ask<void>((resolve) => ({ kind: 'quickOpen', resolve }));
 export const showPalette = () => ask<void>((resolve) => ({ kind: 'palette', resolve }));
-export const showSettings = (section?: SettingsSection) =>
-  ask<void>((resolve) => ({ kind: 'settings', section, resolve }));
+export const showSettings = (section?: SettingsSection, nested = false) =>
+  ask<void>((resolve) => ({ kind: 'settings', section, resolve }), nested);
 export const askIcon = (current: string | undefined) =>
   ask<string | null>((resolve) => ({ kind: 'iconPicker', current, resolve }));
 
