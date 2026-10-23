@@ -126,7 +126,13 @@ const nodes: Record<string, NodeSpec> = {
     group: 'inline',
     atom: true,
     draggable: true,
-    attrs: { src: {}, alt: { default: '' }, title: { default: null }, width: { default: null } },
+    attrs: {
+      src: {},
+      alt: { default: '' },
+      title: { default: null },
+      width: { default: null },
+      caption: { default: false },
+    },
     parseDOM: [
       {
         tag: 'img[src]',

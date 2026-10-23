@@ -9,7 +9,15 @@ export interface ImgAttrs {
   alt: string;
   title: string | null;
   width: number | null;
+  /** Pie de foto visible: el título se muestra bajo la imagen (marcador `CAPTION_MARK`). */
+  caption: boolean;
 }
+
+/**
+ * Marcador que sigue a la imagen para mostrar su título como pie de foto. Es un comentario HTML:
+ * otros visores de Markdown lo ocultan y solo muestran el título como tooltip.
+ */
+export const CAPTION_MARK = '<!-- mdteca:caption -->';
 
 const ATTR = /([a-zA-Z-]+)\s*=\s*("([^"]*)"|'([^']*)')/g;
 const KNOWN = new Set(['src', 'alt', 'title', 'width']);
@@ -25,7 +33,10 @@ const encode = (s: string) =>
 
 /** Lee `<img src="…" alt="…" title="…" width="…">`; null si no es exactamente eso. */
 export function parseImgTag(html: string): ImgAttrs | null {
-  const m = /^<img\s+([^<>]*?)\s*\/?>$/i.exec(html.trim());
+  const trimmed = html.trim();
+  const caption = trimmed.endsWith(CAPTION_MARK);
+  const tag = caption ? trimmed.slice(0, -CAPTION_MARK.length) : trimmed;
+  const m = /^<img\s+([^<>]*?)\s*\/?>$/i.exec(tag);
   if (!m) return null;
   const found: Record<string, string> = {};
   let rest = m[1]!;
@@ -43,11 +54,12 @@ export function parseImgTag(html: string): ImgAttrs | null {
     alt: found['alt'] ?? '',
     title: found['title'] ?? null,
     width,
+    caption,
   };
 }
 
-/** Etiqueta `<img>` canónica: src, alt, title (si hay), width. */
-export function imgTag(a: ImgAttrs): string {
+/** Etiqueta `<img>` canónica: src, alt, title (si hay), width. El marcador se añade aparte. */
+export function imgTag(a: Omit<ImgAttrs, 'caption'>): string {
   const parts = [`src="${encode(a.src)}"`, `alt="${encode(a.alt)}"`];
   if (a.title) parts.push(`title="${encode(a.title)}"`);
   if (a.width) parts.push(`width="${Math.round(a.width)}"`);

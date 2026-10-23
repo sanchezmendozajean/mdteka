@@ -1,4 +1,4 @@
-import { imgTag } from './image-html';
+import { CAPTION_MARK, imgTag } from './image-html';
 import type { Mark, Node as PmNode } from 'prosemirror-model';
 import type { PhrasingContent, RootContent, TableCell, TableRow } from 'mdast';
 import { escapeText } from './escape';
@@ -81,7 +81,7 @@ export function inlineToMdast(parent: PmNode, opts: InlineOptions = {}): Phrasin
   return buildPhrasing(runs);
 }
 
-function runToLeaf(run: Run): PhrasingContent | null {
+function runToLeaf(run: Run): PhrasingContent | PhrasingContent[] | null {
   const node = run.node;
   switch (node.type.name) {
     case 'text':
@@ -93,22 +93,33 @@ function runToLeaf(run: Run): PhrasingContent | null {
       return { type: 'break' };
     case 'image':
       // Con tamaño guardado se escribe como HTML en línea (06).
-      if (node.attrs['width']) {
-        return literal(
-          imgTag({
-            src: node.attrs['src'] as string,
+      {
+        const title = (node.attrs['title'] as string | null) ?? null;
+        // El pie de foto visible solo existe si hay título.
+        const mark = node.attrs['caption'] && title ? [literal(CAPTION_MARK)] : [];
+        if (node.attrs['width']) {
+          return [
+            literal(
+              imgTag({
+                src: node.attrs['src'] as string,
+                alt: node.attrs['alt'] as string,
+                title,
+                width: node.attrs['width'] as number,
+              }),
+            ),
+            ...mark,
+          ];
+        }
+        return [
+          {
+            type: 'image',
+            url: node.attrs['src'] as string,
             alt: node.attrs['alt'] as string,
-            title: (node.attrs['title'] as string | null) ?? null,
-            width: node.attrs['width'] as number,
-          }),
-        );
+            title,
+          },
+          ...mark,
+        ];
       }
-      return {
-        type: 'image',
-        url: node.attrs['src'] as string,
-        alt: node.attrs['alt'] as string,
-        title: (node.attrs['title'] as string | null) ?? null,
-      };
     case 'raw_inline':
       return literal(node.attrs['value'] as string);
     default:
@@ -169,7 +180,7 @@ function buildPhrasing(runs: Run[]): PhrasingContent[] {
       });
     }
     const leaf = runToLeaf(run);
-    if (leaf) top().push(leaf);
+    if (leaf) top().push(...(Array.isArray(leaf) ? leaf : [leaf]));
   }
   while (stack.length) {
     const done = stack.pop()!;

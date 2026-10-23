@@ -43,6 +43,7 @@ export class ImageView implements NodeView {
   dom: HTMLElement;
   private img: HTMLImageElement;
   private handle: HTMLElement;
+  private caption: HTMLElement;
   private node: PmNode;
 
   constructor(
@@ -67,17 +68,29 @@ export class ImageView implements NodeView {
     this.handle.className = 'image-handle';
     this.handle.contentEditable = 'false';
     this.handle.addEventListener('pointerdown', (e) => this.startResize(e));
-    this.dom.append(this.img, this.handle);
+    // `box` envuelve imagen y tirador para que el tirador quede en la imagen y no en el pie.
+    const box = document.createElement('span');
+    box.className = 'image-box';
+    box.append(this.img, this.handle);
+    this.caption = document.createElement('span');
+    this.caption.className = 'image-caption';
+    this.caption.contentEditable = 'false';
+    this.dom.append(box, this.caption);
     this.render();
   }
 
   private render(): void {
-    const { src, alt, title, width } = this.node.attrs as {
+    const { src, alt, title, width, caption } = this.node.attrs as {
       src: string;
       alt: string;
       title: string | null;
       width: number | null;
+      caption: boolean;
     };
+    // Pie de foto visible (solo con título): el título deja de ser un tooltip.
+    const showCaption = caption && !!title;
+    this.dom.classList.toggle('image-captioned', showCaption);
+    this.caption.textContent = showCaption ? title : '';
     const url = resolveImageUrl(src);
     if (url) {
       if (this.img.getAttribute('src') !== url) this.img.src = url;
@@ -88,15 +101,18 @@ export class ImageView implements NodeView {
     }
     this.img.dataset['src'] = src;
     this.img.alt = alt || '';
-    this.img.title = title ?? (url ? '' : src);
+    this.img.title = showCaption ? '' : (title ?? (url ? '' : src));
     this.img.style.width = width ? `${width}px` : '';
     this.dom.dataset['label'] = alt || src.split('/').pop() || i18next.t('editor.image');
   }
 
   update(node: PmNode): boolean {
     if (node.type !== this.node.type) return false;
+    const captionChanged = node.attrs['caption'] !== this.node.attrs['caption'];
     this.node = node;
     this.render();
+    // El pie cambia la altura del bloque: se vuelve a medir para repaginar.
+    if (captionChanged) window.dispatchEvent(new CustomEvent('mdteca-layout', { detail: this.dom }));
     return true;
   }
 

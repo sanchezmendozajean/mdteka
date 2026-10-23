@@ -17,6 +17,8 @@
 - En modo texto las data URL largas se pliegan (`…·48 KB`) sin cambiar el texto.
 - Las imágenes se escalan para caber en la página y entran en el reparto de páginas y en el PDF; el HTML exportado las incrusta o las copia a una carpeta.
 
+- **Título visible** (a voluntad): la casilla «Visible en el documento» del menú de la imagen muestra el título como pie de foto bajo la imagen (también en PDF y HTML). Se guarda como un comentario pegado a la imagen, `![alt](foto.png "Título")<!-- mdteca:caption -->`; otros visores de Markdown lo ocultan y solo muestran el tooltip. Requiere título.
+
 **Decisiones**: ADR 008.
 
 **Pendiente**: renombrar o mover un documento con sus imágenes (IMG-20, con los proyectos de la Fase 5), la limpieza de imágenes huérfanas (Fase 5) y «Cambiar el predeterminado…» como enlace a los ajustes de la app (Fase 6).

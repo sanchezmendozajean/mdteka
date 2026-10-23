@@ -1,4 +1,4 @@
-import { parseImgTag } from './image-html';
+import { CAPTION_MARK, parseImgTag } from './image-html';
 import type { Mark, Node as PmNode } from 'prosemirror-model';
 import type { PhrasingContent, RootContent } from 'mdast';
 import { schema } from './schema';
@@ -88,7 +88,15 @@ function mark(name: string, attrs?: Record<string, unknown>): Mark {
 
 function inlineToPm(nodes: PhrasingContent[], ctx: Ctx, marks: readonly Mark[]): PmNode[] {
   const out: PmNode[] = [];
-  for (const node of nodes) {
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i]!;
+    // Un comentario `mdteca:caption` pegado a una imagen la marca con pie de foto visible.
+    const captioned = () => {
+      const next = nodes[i + 1];
+      if (next?.type !== 'html' || next.value.trim() !== CAPTION_MARK) return false;
+      i++;
+      return true;
+    };
     switch (node.type) {
       case 'text':
         if (node.value) out.push(schema.text(node.value, marks));
@@ -122,7 +130,13 @@ function inlineToPm(nodes: PhrasingContent[], ctx: Ctx, marks: readonly Mark[]):
       case 'image':
         out.push(
           schema.nodes['image']!.create(
-            { src: node.url, alt: node.alt ?? '', title: node.title ?? null, width: null },
+            {
+              src: node.url,
+              alt: node.alt ?? '',
+              title: node.title ?? null,
+              width: null,
+              caption: captioned(),
+            },
             null,
             marks,
           ),
@@ -131,6 +145,7 @@ function inlineToPm(nodes: PhrasingContent[], ctx: Ctx, marks: readonly Mark[]):
       case 'html': {
         // `<img src="…" width="…">`: imagen con tamaño guardado (06).
         const img = parseImgTag(node.value);
+        if (img && !img.caption) img.caption = captioned();
         out.push(
           img
             ? schema.nodes['image']!.create(img, null, marks)

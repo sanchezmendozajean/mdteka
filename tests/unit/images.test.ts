@@ -35,7 +35,7 @@ describe('[IMG-02] nombres de imagen', () => {
 describe('[IMG] imagen con tamaño guardado', () => {
   it('lee y escribe <img> con src, alt, title y width', () => {
     const a = parseImgTag('<img src="a b.png" alt="Una &quot;foto&quot;" title="t" width="400">');
-    expect(a).toEqual({ src: 'a b.png', alt: 'Una "foto"', title: 't', width: 400 });
+    expect(a).toEqual({ src: 'a b.png', alt: 'Una "foto"', title: 't', width: 400, caption: false });
     expect(imgTag(a!)).toBe('<img src="a b.png" alt="Una &quot;foto&quot;" title="t" width="400">');
   });
 
@@ -86,5 +86,52 @@ describe('[IMG] <img> sola en su línea', () => {
     expect(doc.child(1).child(0).type.name).toBe('image');
     expect(doc.child(1).child(0).attrs['width']).toBe(700);
     expect(sourceFromDoc(doc)).toBe(src);
+  });
+});
+
+describe('[IMG] título visible como pie de foto (marcador mdteca:caption)', () => {
+  const imageOf = (src: string) => {
+    let found: Record<string, unknown> | null = null;
+    docFromSource(src).descendants((n) => {
+      if (n.type.name === 'image') found = n.attrs;
+    });
+    return found;
+  };
+
+  it('el comentario pegado a la imagen activa el pie y el documento se guarda idéntico', () => {
+    for (const src of [
+      '![a](m.001.png "Figura 1")<!-- mdteca:caption -->\n',
+      'Antes ![a](m.001.png "Figura 1")<!-- mdteca:caption --> después\n',
+      '<img src="m.001.png" alt="a" title="Figura 1" width="300"><!-- mdteca:caption -->\n',
+    ]) {
+      expect(imageOf(src)).toMatchObject({ title: 'Figura 1', caption: true });
+      expect(sourceFromDoc(docFromSource(src))).toBe(src);
+    }
+  });
+
+  it('sin el comentario no hay pie de foto', () => {
+    expect(imageOf('![a](m.001.png "Figura 1")\n')).toMatchObject({ caption: false });
+  });
+
+  it('activar el pie escribe el marcador tras la imagen, también con tamaño guardado', () => {
+    const doc = docFromSource('![a](m.001.png "Figura 1")\n');
+    const para = doc.child(0);
+    const withCaption = (extra: Record<string, unknown>) => {
+      const img = para.child(0).type.create({ ...para.child(0).attrs, caption: true, ...extra });
+      return sourceFromDoc(doc.type.create(doc.attrs, [para.type.create(null, [img])]));
+    };
+    expect(withCaption({})).toBe('![a](m.001.png "Figura 1")<!-- mdteca:caption -->\n');
+    expect(withCaption({ width: 300 })).toBe(
+      '<img src="m.001.png" alt="a" title="Figura 1" width="300"><!-- mdteca:caption -->\n',
+    );
+  });
+
+  it('sin título no se escribe el marcador', () => {
+    const doc = docFromSource('![a](m.001.png)\n');
+    const para = doc.child(0);
+    const img = para.child(0).type.create({ ...para.child(0).attrs, caption: true });
+    expect(sourceFromDoc(doc.type.create(doc.attrs, [para.type.create(null, [img])]))).toBe(
+      '![a](m.001.png)\n',
+    );
   });
 });

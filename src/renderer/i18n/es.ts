@@ -150,6 +150,7 @@ export const es = {
     menu: 'Imagen',
     alt: 'Texto alternativo',
     titleField: 'Título',
+    captionVisible: 'Visible en el documento',
     replace: 'Reemplazar imagen…',
     toFile: 'Convertir a archivo',
     toBase64: 'Incrustar en el documento (base64)',

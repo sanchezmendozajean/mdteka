@@ -41,6 +41,13 @@
 11. **Rutas aún sin conceder.** `grant` canonicaliza la carpeta de un archivo que todavía no existe
     (Guardar como), para que la ruta concedida coincida con la que tendrá después (nombres cortos
     8.3 en Windows).
+12. **Título visible como pie de foto (extensión de 06).** Por defecto el título es solo el tooltip
+    estándar. Para mostrarlo se escribe `<!-- mdteca:caption -->` inmediatamente después de la
+    imagen (`![a](f.png "T")<!-- mdteca:caption -->`, o tras la etiqueta `<img … width>`). Es un
+    comentario HTML: no lo muestra ningún otro renderizador y sigue la convención de
+    `mdteca:config` y `mdteca:pagebreak`. Descartadas: listas de atributos `{.caption}` (otros visores
+    muestran el texto), prefijos en el título (ensucian el tooltip) y una clave en el bloque de
+    configuración (no se ligaría a la imagen). Sin título no se escribe el marcador.
 
 ## Desviaciones menores
 

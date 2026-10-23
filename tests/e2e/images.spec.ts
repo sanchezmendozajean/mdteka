@@ -282,6 +282,25 @@ test.describe('[Fase 4] edición de una imagen', () => {
     await app.close();
   });
 
+  test('[IMG] «Visible en el documento» muestra el título como pie y escribe el marcador', async () => {
+    const { app, page } = await open();
+    await page.locator('.ProseMirror .image-wrap').click();
+    // Sin título la casilla no se puede marcar.
+    await expect(page.getByTestId('image-caption')).toBeDisabled();
+    await page.getByTestId('image-title').fill('Figura 1');
+    await page.getByTestId('image-title').press('Enter');
+    await expect(page.locator('.ProseMirror .image-caption')).toHaveText('');
+    await page.getByTestId('image-caption').check();
+    await expect(page.locator('.ProseMirror .image-caption')).toHaveText('Figura 1');
+    await expect
+      .poll(() => source(page))
+      .toContain('![](a.001.png "Figura 1")<!-- mdteca:caption -->');
+    await page.getByTestId('image-caption').uncheck();
+    await expect(page.locator('.ProseMirror .image-caption')).toBeHidden();
+    await expect.poll(() => source(page)).not.toContain('mdteca:caption');
+    await app.close();
+  });
+
   test('[IMG] convertir a base64 y de vuelta a archivo', async () => {
     const { app, page, dir } = await open();
     await page.locator('.ProseMirror .image-wrap').click();

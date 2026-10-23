@@ -535,6 +535,27 @@
   line-height: 0;
   vertical-align: top;
 }
+.ProseMirror .image-box {
+  position: relative;
+  display: block;
+}
+.ProseMirror .image-caption {
+  display: none;
+}
+.ProseMirror .image-captioned {
+  line-height: normal;
+}
+.ProseMirror .image-captioned .image-caption {
+  display: block;
+  /* ancho 0 + min-width 100%: el pie no ensancha la imagen y se ajusta a ella */
+  width: 0;
+  min-width: 100%;
+  padding-top: 6px;
+  text-align: center;
+  font-size: 0.9em;
+  font-style: italic;
+  color: var(--ink-3);
+}
 .ProseMirror .image-wrap img {
   display: block;
   max-width: 100%;

@@ -646,6 +646,7 @@ class EditorController {
       alt: string;
       title: string;
       width: number | null;
+      caption: boolean;
     } | null = null;
     if (sel instanceof NodeSelection && sel.node.type.name === 'image') {
       const a = sel.node.attrs as {
@@ -653,8 +654,9 @@ class EditorController {
         alt: string;
         title: string | null;
         width: number | null;
+        caption: boolean;
       };
-      next = { pos: sel.from, src: a.src, alt: a.alt, title: a.title ?? '', width: a.width };
+      next = { pos: sel.from, src: a.src, alt: a.alt, title: a.title ?? '', width: a.width, caption: a.caption };
     }
     const cur = useImageUi.getState().selected;
     if (JSON.stringify(cur) === JSON.stringify(next)) return;

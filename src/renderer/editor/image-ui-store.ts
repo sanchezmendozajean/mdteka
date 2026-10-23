@@ -7,6 +7,7 @@ export interface SelectedImage {
   alt: string;
   title: string;
   width: number | null;
+  caption: boolean;
 }
 
 interface ImageUiState {

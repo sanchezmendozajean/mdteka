@@ -154,6 +154,7 @@ export const en: Widen<typeof es> = {
     menu: 'Image',
     alt: 'Alternative text',
     titleField: 'Title',
+    captionVisible: 'Visible in the document',
     replace: 'Replace image…',
     toFile: 'Convert to a file',
     toBase64: 'Embed in the document (base64)',

@@ -139,6 +139,16 @@ export function ImagePopover() {
         testId="image-title"
         onCommit={(title) => editor.updateImage(sel.pos, { title: title || null })}
       />
+      <label className="check image-caption-check">
+        <input
+          type="checkbox"
+          data-testid="image-caption"
+          checked={sel.caption && sel.title !== ''}
+          disabled={sel.title === ''}
+          onChange={(e) => editor.updateImage(sel.pos, { caption: e.target.checked })}
+        />
+        <span>{t('images.captionVisible')}</span>
+      </label>
       <div className="image-actions">
         <Action
           icon={ImageUp}
