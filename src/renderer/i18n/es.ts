@@ -447,6 +447,18 @@ export const es = {
     restore: 'Recuperar {{count}} documento(s)',
     discard: 'Descartar los respaldos',
   },
+  // Etiquetas cortas de los botones grandes de la cinta (el tooltip lleva el nombre completo).
+  ribbonShort: {
+    view_toggleMode: 'WYSIWYG / Texto',
+    view_saveDefault: 'Vista predeterminada',
+    view_toggleNavigator: 'Navegador',
+    view_toggleDocumentPanel: 'Panel Documento',
+    view_ruler: 'Regla',
+    project_cleanImages: 'Imágenes sin usar',
+    project_exportPdf: 'Exportar a PDF',
+    project_editFile: 'Solo este archivo',
+    project_quickOpen: 'Ir a archivo',
+  },
   palette: {
     title: 'Paleta de comandos',
     placeholder: 'Escribe un comando…',

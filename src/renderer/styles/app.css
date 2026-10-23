@@ -1789,3 +1789,34 @@ kbd {
 :root[data-theme='dark'] {
   color-scheme: dark;
 }
+
+/* Botones grandes de la cinta: la etiqueta puede ocupar hasta dos líneas */
+.btn-large {
+  max-width: 108px;
+}
+.btn-large .btn-label {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  max-width: 96px;
+  overflow: hidden;
+  white-space: normal;
+  line-height: 1.2;
+  text-align: center;
+}
+.btn-large {
+  flex: none;
+}
+.ribbon-group {
+  flex: none;
+}
+.btn-large {
+  width: 84px;
+  max-width: 84px;
+  min-width: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.btn-large .btn-label {
+  max-width: 76px;
+}

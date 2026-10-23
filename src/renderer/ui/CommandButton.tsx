@@ -34,11 +34,18 @@ export function CommandButton({ id, large, label, pressed }: Props) {
   if (!cmd) return null;
   const name = t(cmd.labelKey);
   const isActive = pressed ?? active;
+  const visibleLabel = large
+    ? t(`ribbonShort.${id.replace('.', '_')}`, { defaultValue: name })
+    : name;
+  // El nombre accesible debe contener el texto visible (WCAG 2.5.3).
+  const accessibleName = name.toLowerCase().includes(visibleLabel.toLowerCase())
+    ? name
+    : `${visibleLabel}: ${name}`;
   return (
     <button
       className={`btn${large ? ' btn-large' : ''}`}
       title={shortcut ? `${name} (${formatShortcut(shortcut)})` : name}
-      aria-label={name}
+      aria-label={accessibleName}
       aria-pressed={isActive}
       data-command={id}
       disabled={!enabled}
@@ -47,7 +54,7 @@ export function CommandButton({ id, large, label, pressed }: Props) {
       onClick={cmd.run}
     >
       <Icon icon={cmd.icon} size={large ? 24 : 18} />
-      {(large || label) && <span className="btn-label">{name}</span>}
+      {(large || label) && <span className="btn-label">{visibleLabel}</span>}
     </button>
   );
 }

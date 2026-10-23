@@ -450,6 +450,17 @@ export const en: Widen<typeof es> = {
     restore: 'Recover {{count}} document(s)',
     discard: 'Discard the backups',
   },
+  ribbonShort: {
+    view_toggleMode: 'WYSIWYG / Text',
+    view_saveDefault: 'Default view',
+    view_toggleNavigator: 'Navigator',
+    view_toggleDocumentPanel: 'Document panel',
+    view_ruler: 'Ruler',
+    project_cleanImages: 'Unused images',
+    project_exportPdf: 'Export to PDF',
+    project_editFile: 'Only this file',
+    project_quickOpen: 'Go to file',
+  },
   palette: {
     title: 'Command palette',
     placeholder: 'Type a command…',
