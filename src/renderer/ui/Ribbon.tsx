@@ -10,7 +10,7 @@ import {
   SpacingPicker,
 } from './DesignParts';
 import { ColumnWidthPicker, MarginsPicker, PaperSizePicker } from './LayoutParts';
-import { Group, StylesGallery, TableGrid } from './RibbonParts';
+import { Group, ImageMenu, StylesGallery, TableGrid } from './RibbonParts';
 import { resolveConfig } from '../documents/config';
 
 const TABS: RibbonTab[] = ['file', 'home', 'insert', 'design', 'layout', 'view', 'project'];
@@ -104,7 +104,7 @@ function InsertTab() {
   return (
     <>
       <Group label={t('ribbon.groups.media')}>
-        <CommandButton id="insert.image" large />
+        <ImageMenu />
         <TableGrid />
       </Group>
       <Group label={t('ribbon.groups.blocks')}>

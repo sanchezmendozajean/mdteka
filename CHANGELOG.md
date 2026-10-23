@@ -1,5 +1,26 @@
 # Changelog
 
+## [Fase 4] — Imágenes
+
+**Pegado** (`06`)
+- Modos `base64`, `file` y `ask` (valor de fábrica), heredables, en `images.pasteMode` [IMG-01…03].
+- **Archivo**: `<doc>.<NNN>.<ext>` junto al documento (`manual.001.png`, `002`…), siempre el siguiente libre (no se reutilizan huecos), escritura atómica y enlace relativo codificado. Un documento sin guardar se guarda antes [IMG-02].
+- **Base64**: advertencia a partir de 300 KB con *Guardar como archivo* / *Incrustar igual* [IMG-01].
+- **Preguntar**: diálogo con miniatura, dimensiones y peso, nombre editable, *Recordar para este documento* (escribe `images.pasteMode` en el bloque), «también predeterminado de la app», `Enter` = archivo y `Esc` cancela [IMG-03].
+- Arrastrar y soltar: mismo modo; un archivo ya dentro de la carpeta del documento solo se enlaza [IMG-10]. También en modo texto, donde inserta el Markdown.
+- *Insertar › Imagen*: desde un archivo, una dirección (https) o el portapapeles [IMG-11].
+
+**Edición en WYSIWYG**
+- Las imágenes locales se muestran por el protocolo `mdteca-asset://`, limitado a las carpetas de los documentos abiertos y solo para imágenes; las remotas se muestran sin descargarse [IMG-12].
+- Clic selecciona la imagen y abre su menú: texto alternativo, título, reemplazar, convertir a archivo o a base64, guardar localmente una remota, abrir carpeta y quitar (no borra el archivo).
+- Redimensionado con tirador: solo se escribe `<img src="…" width="N">` si se confirma con *Guardar tamaño*; *Quitar tamaño* vuelve a la sintaxis Markdown.
+- En modo texto las data URL largas se pliegan (`…·48 KB`) sin cambiar el texto.
+- Las imágenes se escalan para caber en la página y entran en el reparto de páginas y en el PDF; el HTML exportado las incrusta o las copia a una carpeta.
+
+**Decisiones**: ADR 008.
+
+**Pendiente**: renombrar o mover un documento con sus imágenes (IMG-20, con los proyectos de la Fase 5), la limpieza de imágenes huérfanas (Fase 5) y «Cambiar el predeterminado…» como enlace a los ajustes de la app (Fase 6).
+
 ## [Fase 3] — Vistas y paginación
 
 **Vista de páginas** (`07`)

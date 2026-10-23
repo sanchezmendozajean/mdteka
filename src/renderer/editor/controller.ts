@@ -1,5 +1,5 @@
 import { redoDepth, undoDepth, undo as pmUndo, redo as pmRedo } from 'prosemirror-history';
-import { EditorState as PmState, Selection, TextSelection } from 'prosemirror-state';
+import { EditorState as PmState, NodeSelection, Selection, TextSelection } from 'prosemirror-state';
 import type { EditorView as PmView } from 'prosemirror-view';
 import { EditorState as CmState } from '@codemirror/state';
 import type { EditorView as CmView } from '@codemirror/view';
@@ -7,7 +7,9 @@ import { askLink, useDocs, type Mode } from '../documents/store';
 import type { PageGeometry } from '@shared/page';
 import { Paginator } from './paginator/paginator';
 import { refreshPages, sourcePageConfig } from './source/pages';
+import { useImageUi } from './image-ui-store';
 import { usePagination } from './pagination-store';
+import { imageContext } from './wysiwyg/image-view';
 import { docFromSource, serializeDoc, sourceFromDoc } from './model/doc';
 import {
   insertAtCursor,
@@ -36,6 +38,10 @@ import {
   insertHardBreak,
   insertHorizontalRule,
   insertHtmlBlock,
+  insertImages as pmInsertImages,
+  removeImage,
+  setImageAttrs,
+  type ImageSpec,
   insertPageBreak,
   insertTable,
   insertText,
@@ -169,9 +175,13 @@ class EditorController {
           this.markStale(rt);
           this.pager?.schedule(true);
         }
+        this.publishImage(state);
         this.scheduleFormat();
       },
     });
+    window.addEventListener('mdteca-layout', (e) =>
+      this.pager?.invalidateAt((e as CustomEvent<Element>).detail),
+    );
     this.pager = new Paginator(this.pm, {
       scroller: () => this.scroller,
       onLayout: (layout) => usePagination.getState().set({ pages: layout?.pages ?? 0 }),
@@ -242,6 +252,7 @@ class EditorController {
       return;
     }
     this.showMode(rt.mode);
+    this.syncDocPath();
     this.load(rt);
     useDocs.getState().update(rt.id, { words: countWords(rt.source) });
     this.restoreScroll(rt.scrollRatio);
@@ -580,6 +591,74 @@ class EditorController {
       default:
         return false;
     }
+  }
+
+  /** Ruta del documento activo para resolver las imágenes relativas (06). */
+  syncDocPath(): void {
+    imageContext.docPath =
+      useDocs.getState().docs.find((d) => d.id === this.activeId)?.path ?? null;
+  }
+
+  /** Inserta imágenes en el cursor (o en `pos`), en cualquiera de los dos modos. */
+  insertImages(specs: ImageSpec[], pos?: number): boolean {
+    const rt = this.current();
+    if (!rt || specs.length === 0) return false;
+    let done = false;
+    if (rt.mode === 'wysiwyg' && this.pm) {
+      done = pmInsertImages(specs, pos)(this.pm.state, this.pm.dispatch, this.pm);
+    } else if (this.cm) {
+      if (pos !== undefined) this.cm.dispatch({ selection: { anchor: pos } });
+      const md = specs.map((s) => `![${s.alt}](${s.src})`);
+      if (md.length === 1) {
+        this.cm.dispatch(this.cm.state.replaceSelection(md[0]!));
+        done = true;
+      } else done = insertBlockText(this.cm, md.join('\n\n') + '\n');
+    }
+    this.focus();
+    return done;
+  }
+
+  /** Cambia atributos de la imagen en `pos` (texto alternativo, título, tamaño, origen). */
+  updateImage(pos: number, patch: Record<string, unknown>): boolean {
+    if (!this.pm) return false;
+    return setImageAttrs(pos, patch)(this.pm.state, this.pm.dispatch, this.pm);
+  }
+
+  deleteImage(pos: number): boolean {
+    if (!this.pm) return false;
+    const done = removeImage(pos)(this.pm.state, this.pm.dispatch, this.pm);
+    this.focus();
+    return done;
+  }
+
+  /** Elemento <img> de la imagen que empieza en `pos`. */
+  imageElement(pos: number): HTMLImageElement | null {
+    const dom = this.pm?.nodeDOM(pos) as HTMLElement | null | undefined;
+    return dom?.querySelector('img') ?? null;
+  }
+
+  /** Publica la imagen seleccionada (si la hay) para su menú flotante. */
+  private publishImage(state: PmState): void {
+    const sel = state.selection;
+    let next: {
+      pos: number;
+      src: string;
+      alt: string;
+      title: string;
+      width: number | null;
+    } | null = null;
+    if (sel instanceof NodeSelection && sel.node.type.name === 'image') {
+      const a = sel.node.attrs as {
+        src: string;
+        alt: string;
+        title: string | null;
+        width: number | null;
+      };
+      next = { pos: sel.from, src: a.src, alt: a.alt, title: a.title ?? '', width: a.width };
+    }
+    const cur = useImageUi.getState().selected;
+    if (JSON.stringify(cur) === JSON.stringify(next)) return;
+    useImageUi.getState().set(next ? { selected: next } : { selected: null, draftWidth: null });
   }
 
   insertTable(rows: number, cols: number): boolean {

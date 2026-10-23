@@ -1,3 +1,4 @@
+import { pageGeometry } from '@shared/page';
 import {
   fontKind,
   fontStack,
@@ -88,6 +89,8 @@ export function buildDocCss(id: string, cfg: Resolved): string {
       rule(`.ProseMirror ${k}::before`, `content:${number} " ";font-weight:inherit;opacity:.7`);
     }
   });
+  // Una imagen nunca es más alta que el área de texto de la página: se escala para caber (VW-12).
+  rule('.ProseMirror img', `max-height:${pageGeometry(cfg.page).contentHeight}px`);
   rule('.ProseMirror > :first-child', 'margin-top:0');
   return out.join('\n');
 }

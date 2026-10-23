@@ -83,7 +83,34 @@ export type DialogRequest =
       resolve: (r: 'reload' | 'keep' | 'compare') => void;
     }
   | { kind: 'compare'; name: string; mine: string; theirs: string; resolve: () => void }
+  | {
+      kind: 'imagePaste';
+      info: {
+        count: number;
+        preview: string | null;
+        width: number | null;
+        height: number | null;
+        bytes: number;
+        /** Nombre que recibiría el archivo, o null si el documento aún no está guardado. */
+        name: string | null;
+      };
+      resolve: (r: ImagePasteChoice | null) => void;
+    }
+  | { kind: 'imageLarge'; kb: number; resolve: (r: 'file' | 'embed' | null) => void }
+  | { kind: 'imageUrl'; resolve: (r: string | null) => void }
+  | { kind: 'exportImages'; count: number; resolve: (r: 'embed' | 'folder' | null) => void }
   | { kind: 'error'; message: string; resolve: () => void };
+
+/** Respuesta del diálogo de pegado de imagen (IMG-03). */
+export interface ImagePasteChoice {
+  mode: 'file' | 'base64';
+  /** Nombre elegido (sin ruta) para el archivo. */
+  name?: string;
+  /** Escribe `images.pasteMode` en el bloque del documento. */
+  remember: boolean;
+  /** Lo guarda también como predeterminado de la app. */
+  asDefault: boolean;
+}
 
 interface DialogsState {
   current: DialogRequest | null;
@@ -116,3 +143,11 @@ export const showCompare = (name: string, mine: string, theirs: string) =>
   ask<void>((resolve) => ({ kind: 'compare', name, mine, theirs, resolve }));
 export const showError = (message: string) =>
   ask<void>((resolve) => ({ kind: 'error', message, resolve }));
+
+export const askImagePaste = (info: Extract<DialogRequest, { kind: 'imagePaste' }>['info']) =>
+  ask<ImagePasteChoice | null>((resolve) => ({ kind: 'imagePaste', info, resolve }));
+export const askImageLarge = (kb: number) =>
+  ask<'file' | 'embed' | null>((resolve) => ({ kind: 'imageLarge', kb, resolve }));
+export const askImageUrl = () => ask<string | null>((resolve) => ({ kind: 'imageUrl', resolve }));
+export const askExportImages = (count: number) =>
+  ask<'embed' | 'folder' | null>((resolve) => ({ kind: 'exportImages', count, resolve }));

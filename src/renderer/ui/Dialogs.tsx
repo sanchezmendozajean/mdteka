@@ -1,53 +1,16 @@
 import { Link2, TriangleAlert, Unlink, X } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { lineDiff } from '../documents/diff';
 import { useDialogs } from '../documents/store';
 import { Icon } from './Icon';
-import type { LucideIcon } from 'lucide-react';
-
-function Modal({
-  title,
-  icon,
-  onCancel,
-  wide,
-  children,
-  testId,
-}: {
-  title: string;
-  icon: LucideIcon;
-  onCancel: () => void;
-  wide?: boolean;
-  children: ReactNode;
-  testId: string;
-}) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onCancel();
-      }
-    };
-    window.addEventListener('keydown', onKey, true);
-    return () => window.removeEventListener('keydown', onKey, true);
-  }, [onCancel]);
-  return (
-    <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onCancel()}>
-      <div
-        className={`modal${wide ? ' modal-wide' : ''}`}
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        data-testid={testId}
-      >
-        <h2 className="modal-title">
-          <Icon icon={icon} /> {title}
-        </h2>
-        {children}
-      </div>
-    </div>
-  );
-}
+import {
+  ExportImagesDialog,
+  ImageLargeDialog,
+  ImagePasteDialog,
+  ImageUrlDialog,
+} from './ImageDialogs';
+import { Modal } from './Modal';
 
 export function Dialogs() {
   const { t } = useTranslation();
@@ -193,6 +156,14 @@ export function Dialogs() {
           </div>
         </Modal>
       );
+    case 'imagePaste':
+      return <ImagePasteDialog req={current} finish={(r) => done(current.resolve, r)} />;
+    case 'imageLarge':
+      return <ImageLargeDialog req={current} finish={(r) => done(current.resolve, r)} />;
+    case 'imageUrl':
+      return <ImageUrlDialog finish={(r) => done(current.resolve, r)} />;
+    case 'exportImages':
+      return <ExportImagesDialog req={current} finish={(r) => done(current.resolve, r)} />;
     case 'link':
       return (
         <Modal

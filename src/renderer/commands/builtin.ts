@@ -81,6 +81,11 @@ import { closeDocument, newDocument, openFileDialog, saveDocument } from '../doc
 import { resetConfig, resolveConfig, updateActiveConfig } from '../documents/config';
 import { activeDoc, useDocs } from '../documents/store';
 import { exportHtml, exportPdf, printDocument } from '../documents/export';
+import {
+  insertImageFromClipboard,
+  insertImageFromDisk,
+  insertImageFromUrl,
+} from '../documents/images';
 import { fitZoom, saveViewAsDefault, setView, setZoom, stepZoom } from '../documents/view';
 import { useFind } from '../editor/find-store';
 import { editor, type FormatCommand } from '../editor/controller';
@@ -234,7 +239,9 @@ fmt('insert.pageBreak', FileMinus, 'pageBreak', { shortcut: 'Ctrl+Enter' });
 fmt('insert.html', CodeXml, 'html');
 fmt('insert.date', Calendar, 'date');
 // Llegan en la Fase 4 (imágenes) y posteriores (notas al pie): quedan registrados pero no disponibles.
-def('insert.image', Image, () => undefined, { when: () => false });
+def('insert.image', Image, () => void insertImageFromDisk());
+def('insert.imageUrl', Link, () => void insertImageFromUrl());
+def('insert.imageClipboard', ClipboardPaste, () => void insertImageFromClipboard());
 def('insert.footnote', Footprints, () => undefined, { when: () => false });
 
 // ----- Tablas (contextuales) ------------------------------------------------------------------------------

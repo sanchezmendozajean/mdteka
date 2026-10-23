@@ -13,6 +13,7 @@ import { schema } from '../model/schema';
 import { insertHardBreak } from './commands';
 import { findPlugin } from './find';
 import { pagePlugin } from '../paginator/plugin';
+import { imageFilesFrom, imageHooks } from '../image-hooks';
 import { highlightPlugin } from './highlight';
 import { installMarginSelect } from './margin-select';
 import { nodeViews } from './nodeviews';
@@ -106,6 +107,22 @@ export function createWysiwygView(
       'aria-multiline': 'true',
     },
     transformPastedHTML: sanitizePasted,
+    // Imágenes pegadas o arrastradas (06): el flujo decide si se incrustan o se guardan como archivo.
+    handlePaste(_v, event) {
+      const files = imageFilesFrom(event.clipboardData?.files);
+      if (files.length === 0 || !imageHooks.onFiles) return false;
+      event.preventDefault();
+      imageHooks.onFiles(files, null);
+      return true;
+    },
+    handleDrop(v, event, _slice, moved) {
+      const files = imageFilesFrom((event as DragEvent).dataTransfer?.files);
+      if (moved || files.length === 0 || !imageHooks.onFiles) return false;
+      event.preventDefault();
+      const at = v.posAtCoords({ left: event.clientX, top: event.clientY });
+      imageHooks.onFiles(files, at?.pos ?? null);
+      return true;
+    },
     // Ctrl/Cmd + clic abre el enlace (solo http, https y mailto: lo valida el proceso principal).
     handleClick(v, pos, event) {
       if (!(event.ctrlKey || event.metaKey)) return false;

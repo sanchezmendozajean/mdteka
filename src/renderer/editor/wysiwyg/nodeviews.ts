@@ -2,6 +2,7 @@ import DOMPurify from 'dompurify';
 import i18next from 'i18next';
 import type { Node as PmNode } from 'prosemirror-model';
 import type { EditorView, NodeView } from 'prosemirror-view';
+import { ImageView } from './image-view';
 
 type GetPos = () => number | undefined;
 
@@ -244,33 +245,6 @@ class PageBreakView implements NodeView {
   }
 }
 
-const REMOTE_OR_DATA = /^(https?:|data:image\/)/i;
-
-class ImageView implements NodeView {
-  dom: HTMLElement;
-  constructor(node: PmNode) {
-    const src = node.attrs['src'] as string;
-    const alt = (node.attrs['alt'] as string) || '';
-    if (REMOTE_OR_DATA.test(src)) {
-      const img = document.createElement('img');
-      img.src = src;
-      img.alt = alt;
-      if (node.attrs['title']) img.title = node.attrs['title'] as string;
-      this.dom = img;
-    } else {
-      // Las imágenes locales se resuelven con `mdteca-asset://` en la Fase 4.
-      const span = document.createElement('span');
-      span.className = 'image-placeholder';
-      span.textContent = alt || src.split('/').pop() || i18next.t('editor.image');
-      span.title = src;
-      this.dom = span;
-    }
-  }
-  ignoreMutation(): boolean {
-    return true;
-  }
-}
-
 class RawInlineView implements NodeView {
   dom: HTMLElement;
   constructor(node: PmNode) {
@@ -293,6 +267,6 @@ export const nodeViews = {
   raw_block: (node: PmNode, view: EditorView, getPos: GetPos) =>
     new RawBlockView(node, view, getPos),
   page_break: () => new PageBreakView(),
-  image: (node: PmNode) => new ImageView(node),
+  image: (node: PmNode, view: EditorView) => new ImageView(node, view),
   raw_inline: (node: PmNode) => new RawInlineView(node),
 };

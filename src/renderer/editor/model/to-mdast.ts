@@ -1,3 +1,4 @@
+import { imgTag } from './image-html';
 import type { Mark, Node as PmNode } from 'prosemirror-model';
 import type { PhrasingContent, RootContent, TableCell, TableRow } from 'mdast';
 import { escapeText } from './escape';
@@ -91,6 +92,17 @@ function runToLeaf(run: Run): PhrasingContent | null {
     case 'hard_break':
       return { type: 'break' };
     case 'image':
+      // Con tamaño guardado se escribe como HTML en línea (06).
+      if (node.attrs['width']) {
+        return literal(
+          imgTag({
+            src: node.attrs['src'] as string,
+            alt: node.attrs['alt'] as string,
+            title: (node.attrs['title'] as string | null) ?? null,
+            width: node.attrs['width'] as number,
+          }),
+        );
+      }
       return {
         type: 'image',
         url: node.attrs['src'] as string,

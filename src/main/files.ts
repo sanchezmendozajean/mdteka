@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { promises as fs, realpathSync } from 'node:fs';
-import { basename, dirname, isAbsolute, join, normalize, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, normalize, resolve, sep } from 'node:path';
 import chokidar, { type FSWatcher } from 'chokidar';
 
 /**
@@ -24,17 +24,36 @@ function canonical(raw: string): string {
   try {
     return realpathSync.native(p);
   } catch {
-    return p;
+    // El archivo aún no existe (Guardar como): se canonicaliza su carpeta para que la ruta
+    // concedida coincida con la que tendrá una vez escrito (nombres cortos 8.3, etc.).
+    try {
+      return join(realpathSync.native(dirname(p)), basename(p));
+    } catch {
+      return p;
+    }
   }
 }
+
+/** Carpetas de los documentos abiertos: lo único que sirve `mdteca-asset://` (02). */
+const docDirs = new Set<string>();
 
 export function grant(raw: string): string {
   const p = canonical(raw);
   grants.add(key(p));
+  if (/\.(md|markdown|mdown|txt)$/i.test(p)) docDirs.add(key(dirname(p)));
   return p;
 }
 
-function assertGranted(raw: string): string {
+/** ¿Está la ruta (ya canónica) dentro de la carpeta de algún documento abierto? */
+export function isInDocDir(p: string): boolean {
+  const k = key(p);
+  for (const dir of docDirs) {
+    if (k === dir || k.startsWith(dir.endsWith(sep) ? dir : dir + sep)) return true;
+  }
+  return false;
+}
+
+export function assertGranted(raw: string): string {
   const p = canonical(raw);
   if (!grants.has(key(p))) throw new Error('Ruta no autorizada');
   return p;

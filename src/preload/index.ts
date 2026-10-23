@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
 import { ipcEvents, type IpcChannel, type MdtecaApi } from '@shared/ipc';
 
 const invoke = <T>(channel: IpcChannel, payload?: unknown) =>
@@ -28,6 +28,20 @@ const api: MdtecaApi = {
   state: {
     getView: (path) => invoke('state:getView', { path }),
     setView: (path, zoom) => invoke('state:setView', { path, zoom }),
+  },
+  image: {
+    save: (docPath, data, ext, name) => invoke('image:save', { docPath, data, ext, name }),
+    nextName: (docPath, ext) => invoke('image:nextName', { docPath, ext }),
+    importFile: (docPath, srcPath) => invoke('image:import', { docPath, srcPath }),
+    pick: () => invoke('image:pick'),
+    readFile: (path) => invoke('image:readFile', { path }),
+    download: (docPath, url) => invoke('image:download', { docPath, url }),
+    read: (docPath, rel) => invoke('image:read', { docPath, rel }),
+    clipboard: () => invoke('image:clipboard'),
+    showInFolder: (docPath, rel) => invoke('image:showInFolder', { docPath, rel }),
+    copyForExport: (docPath, htmlPath, names) =>
+      invoke('export:images', { docPath, htmlPath, names }),
+    pathOf: (file) => webUtils.getPathForFile(file),
   },
   settings: {
     get: () => invoke('settings:get'),

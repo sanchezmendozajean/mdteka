@@ -526,3 +526,64 @@
   background: transparent;
   border: 0;
 }
+
+/* ---------- Imágenes (06) ---------- */
+.ProseMirror .image-wrap {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+  vertical-align: top;
+}
+.ProseMirror .image-wrap img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.ProseMirror .image-wrap.image-selected {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.ProseMirror .image-handle {
+  display: none;
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  border: 2px solid var(--paper);
+  border-radius: 2px;
+  cursor: nwse-resize;
+}
+.ProseMirror .image-selected .image-handle {
+  display: block;
+}
+.ProseMirror .image-broken,
+.ProseMirror .image-unresolved {
+  min-width: 96px;
+  min-height: 48px;
+  line-height: 20px;
+  border: 1px dashed var(--ink-rule);
+  border-radius: 3px;
+  color: var(--ink-3);
+  font-size: 12px;
+}
+.ProseMirror .image-broken img,
+.ProseMirror .image-unresolved img {
+  display: none;
+}
+.ProseMirror .image-broken::before,
+.ProseMirror .image-unresolved::before {
+  content: attr(data-label);
+  display: block;
+  padding: 14px 10px;
+}
+.cm-data-fold {
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--code-bg);
+  color: var(--ink-3);
+  font-size: 0.9em;
+}

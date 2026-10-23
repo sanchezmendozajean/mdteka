@@ -80,7 +80,8 @@ export function sameContent(a: PmNode, b: PmNode): boolean {
   if (a.type !== b.type) return false;
   if (a.isText) return a.text === b.text && a.sameMarkup(b);
   for (const key of Object.keys(a.attrs)) {
-    if (IGNORED_ATTRS.has(key)) continue;
+    // `src` es el atributo de preservación de fuente de los bloques, pero en una imagen es su origen.
+    if (IGNORED_ATTRS.has(key) && !(key === 'src' && a.type.name === 'image')) continue;
     if (JSON.stringify(a.attrs[key]) !== JSON.stringify(b.attrs[key])) return false;
   }
   if (!Mark.sameSet(a.marks, b.marks) || a.childCount !== b.childCount) return false;

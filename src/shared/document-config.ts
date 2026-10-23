@@ -261,7 +261,8 @@ export type Resolved = {
   >;
   view: { default: 'pages' | 'continuous'; continuousWidth: number };
   page: NonNullable<DocumentConfig['page']>;
-} & Omit<DocumentConfig, 'typography' | 'styles' | 'view' | 'page'>;
+  images: { pasteMode: 'base64' | 'file' | 'ask'; maxWidth?: number };
+} & Omit<DocumentConfig, 'typography' | 'styles' | 'view' | 'page' | 'images'>;
 
 export const FACTORY: Json = {
   version: 1,

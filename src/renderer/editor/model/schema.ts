@@ -126,7 +126,7 @@ const nodes: Record<string, NodeSpec> = {
     group: 'inline',
     atom: true,
     draggable: true,
-    attrs: { src: {}, alt: { default: '' }, title: { default: null } },
+    attrs: { src: {}, alt: { default: '' }, title: { default: null }, width: { default: null } },
     parseDOM: [
       {
         tag: 'img[src]',
@@ -136,6 +136,7 @@ const nodes: Record<string, NodeSpec> = {
             src: el.getAttribute('src'),
             alt: el.getAttribute('alt') ?? '',
             title: el.getAttribute('title'),
+            width: Number(el.getAttribute('width')) || null,
           };
         },
       },
@@ -143,7 +144,12 @@ const nodes: Record<string, NodeSpec> = {
     toDOM: (node) =>
       [
         'img',
-        { src: node.attrs['src'], alt: node.attrs['alt'], title: node.attrs['title'] },
+        {
+          src: node.attrs['src'],
+          alt: node.attrs['alt'],
+          title: node.attrs['title'],
+          width: node.attrs['width'],
+        },
       ] as DOMOutputSpec,
   },
   /** Inline que Markdown conoce pero MDteca no edita (HTML en línea, referencias…): se conserva literal. */

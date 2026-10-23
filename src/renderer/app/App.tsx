@@ -13,6 +13,7 @@ import { DocumentPanel } from '../ui/DocumentPanel';
 import { DocTabs } from '../ui/DocTabs';
 import { EditorHost } from '../ui/EditorHost';
 import { FindBar } from '../ui/FindBar';
+import { ImagePopover } from '../ui/ImagePopover';
 import { Icon } from '../ui/Icon';
 import { Ribbon } from '../ui/Ribbon';
 import { SidePanel } from '../ui/SidePanel';
@@ -105,6 +106,7 @@ export function App() {
         {documentPanelOpen && <DocumentPanel />}
       </div>
       <StatusBar />
+      <ImagePopover />
       <Dialogs />
     </div>
   );

@@ -1,10 +1,21 @@
-import { app, BrowserWindow, clipboard, dialog, ipcMain, session, shell } from 'electron';
-import { join } from 'node:path';
+import {
+  app,
+  BrowserWindow,
+  clipboard,
+  dialog,
+  ipcMain,
+  net,
+  protocol,
+  session,
+  shell,
+} from 'electron';
+import { dirname, join } from 'node:path';
 import { ipcContract, type IpcChannel, type IpcEvent } from '@shared/ipc';
 import { buildCsp } from './csp';
 import {
   closeAllWatchers,
   grant,
+  isInDocDir,
   pathsFromArgv,
   readText,
   unwatchFile,
@@ -13,6 +24,17 @@ import {
   writeTextAtomic,
 } from './files';
 import { embedFontFaces } from './fonts';
+import {
+  assetResponse,
+  copyImagesFor,
+  downloadImage,
+  IMAGE_TYPES,
+  importImage,
+  readImageFile,
+  nextImageName,
+  readImage,
+  saveImage,
+} from './images';
 import { isSafeExternalUrl } from './security';
 import { loadSettings, saveDocumentDefaults } from './settings';
 import { getViewState, setViewState } from './state';
@@ -124,6 +146,50 @@ function registerIpc(): void {
   handle('state:setView', (req: { path: string; zoom: number }) => {
     setViewState(req.path, { zoom: req.zoom });
   });
+  handle(
+    'image:save',
+    async (req: { docPath: string; data: string; ext: string; name?: string }) => ({
+      name: await saveImage(req.docPath, req.data, req.ext, req.name),
+    }),
+  );
+  handle('image:nextName', async (req: { docPath: string; ext: string }) => ({
+    name: await nextImageName(grant(req.docPath), req.ext),
+  }));
+  handle('image:import', async (req: { docPath: string; srcPath: string }) => ({
+    rel: await importImage(req.docPath, req.srcPath),
+  }));
+  handle('image:pick', async () => {
+    const result = await dialog.showOpenDialog(mainWindow!, {
+      properties: ['openFile', 'multiSelections'],
+      filters: [{ name: 'Imágenes', extensions: Object.keys(IMAGE_TYPES) }],
+    });
+    return result.canceled ? [] : result.filePaths;
+  });
+  handle('image:readFile', async (req: { path: string }) => readImageFile(req.path));
+  handle('image:download', async (req: { docPath: string; url: string }) => ({
+    name: await downloadImage(req.docPath, req.url, (u) => net.fetch(u)),
+  }));
+  handle('image:read', async (req: { docPath: string; rel: string }) =>
+    readImage(req.docPath, req.rel),
+  );
+  handle('image:clipboard', async () => {
+    // API asíncrona del portapapeles (Electron ≥ 40): la imagen llega como Blob.
+    for (const item of await clipboard.read()) {
+      const type = item.types.find((t) => t.startsWith('image/'));
+      if (!type) continue;
+      const blob = (await item.getType(type)) as Blob;
+      const ext = Object.entries(IMAGE_TYPES).find(([, mime]) => mime === type)?.[0] ?? 'png';
+      return { data: Buffer.from(await blob.arrayBuffer()).toString('base64'), ext };
+    }
+    return { data: null, ext: 'png' };
+  });
+  handle('image:showInFolder', (req: { docPath: string; rel: string }) => {
+    const full = join(dirname(grant(req.docPath)), req.rel);
+    if (isInDocDir(full)) shell.showItemInFolder(full);
+  });
+  handle('export:images', async (req: { docPath: string; htmlPath: string; names: string[] }) => ({
+    folder: await copyImagesFor(req.docPath, req.htmlPath, req.names),
+  }));
   handle('settings:get', () => loadSettings());
   handle('settings:setDocumentDefaults', (req: { documentDefaults: Record<string, unknown> }) =>
     saveDocumentDefaults(req.documentDefaults),
@@ -175,6 +241,11 @@ function createWindow(): BrowserWindow {
   return win;
 }
 
+// El esquema debe registrarse antes de que la app esté lista.
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'mdteca-asset', privileges: { standard: true, secure: true, supportFetchAPI: true } },
+]);
+
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
@@ -200,6 +271,7 @@ if (!app.requestSingleInstanceLock()) {
       });
     });
     session.defaultSession.setPermissionRequestHandler((_wc, _perm, cb) => cb(false));
+    protocol.handle('mdteca-asset', (request) => assetResponse(request.url));
     registerIpc();
     mainWindow = createWindow();
     app.on('activate', () => {

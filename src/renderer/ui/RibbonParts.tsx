@@ -1,4 +1,4 @@
-import { ChevronDown, Table } from 'lucide-react';
+import { ChevronDown, Image as ImageGlyph, Table } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getCommand } from '../commands/registry';
@@ -131,6 +131,48 @@ export function TableGrid() {
             {hover.rows ? t('ribbon.tableGrid', { rows: hover.rows, cols: hover.cols }) : ' '}
           </div>
         </div>
+      )}
+    </Popover>
+  );
+}
+
+/** Insertar › Imagen: desde un archivo, una dirección o el portapapeles (06 · IMG-11). */
+export function ImageMenu() {
+  const { t } = useTranslation();
+  const hasDoc = useDocs((s) => s.activeId !== null);
+  return (
+    <Popover
+      label={t('ribbon.image')}
+      disabled={!hasDoc}
+      testId="image-menu"
+      trigger={
+        <>
+          <Icon icon={ImageGlyph} size={24} />
+          <span className="btn-label">{t('ribbon.image')}</span>
+        </>
+      }
+    >
+      {(close) => (
+        <ul className="gallery">
+          {['insert.image', 'insert.imageUrl', 'insert.imageClipboard'].map((id) => {
+            const cmd = getCommand(id)!;
+            return (
+              <li key={id}>
+                <button
+                  className="gallery-item"
+                  data-command={id}
+                  onClick={() => {
+                    close();
+                    cmd.run();
+                  }}
+                >
+                  <Icon icon={cmd.icon} />
+                  <span>{t(cmd.labelKey)}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       )}
     </Popover>
   );

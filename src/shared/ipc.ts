@@ -56,6 +56,57 @@ export const ipcContract = {
     request: z.object({ path, zoom: z.number().min(0.5).max(3) }),
     response: z.undefined(),
   },
+  /** Guarda bytes (base64) como `<doc>.NNN.<ext>` junto al documento. */
+  'image:save': {
+    request: z.object({
+      docPath: path,
+      data: z.string().max(90_000_000),
+      ext: z.string().max(8),
+      name: z.string().max(200).optional(),
+    }),
+    response: z.object({ name: z.string() }),
+  },
+  /** Nombre que recibiría la próxima imagen del documento (se muestra en el diálogo). */
+  'image:nextName': {
+    request: z.object({ docPath: path, ext: z.string().max(8) }),
+    response: z.object({ name: z.string() }),
+  },
+  /** Copia (o solo enlaza si ya está en la carpeta del documento) un archivo de imagen. */
+  'image:import': {
+    request: z.object({ docPath: path, srcPath: path }),
+    response: z.object({ rel: z.string() }),
+  },
+  'image:pick': { request: z.undefined(), response: z.array(path) },
+  /** Bytes de un archivo de imagen elegido por el usuario (selector o arrastre). */
+  'image:readFile': {
+    request: z.object({ path }),
+    response: z.object({ mime: z.string(), data: z.string() }),
+  },
+  /** Descarga una imagen remota junto al documento («Guardar localmente», IMG-12). */
+  'image:download': {
+    request: z.object({ docPath: path, url: z.string().max(4096) }),
+    response: z.object({ name: z.string() }),
+  },
+  'image:read': {
+    request: z.object({ docPath: path, rel: z.string().max(1024) }),
+    response: z.object({ mime: z.string(), data: z.string() }),
+  },
+  'image:clipboard': {
+    request: z.undefined(),
+    response: z.object({ data: z.string().nullable(), ext: z.string() }),
+  },
+  'image:showInFolder': {
+    request: z.object({ docPath: path, rel: z.string().max(1024) }),
+    response: z.undefined(),
+  },
+  'export:images': {
+    request: z.object({
+      docPath: path,
+      htmlPath: path,
+      names: z.array(z.string().max(1024)).max(500),
+    }),
+    response: z.object({ folder: z.string() }),
+  },
   'settings:get': {
     request: z.undefined(),
     response: z.object({ documentDefaults: z.record(z.string(), z.unknown()) }),
@@ -103,6 +154,20 @@ export interface MdtecaApi {
   state: {
     getView(path: string): Promise<{ zoom: number | null }>;
     setView(path: string, zoom: number): Promise<void>;
+  };
+  image: {
+    save(docPath: string, data: string, ext: string, name?: string): Promise<{ name: string }>;
+    nextName(docPath: string, ext: string): Promise<{ name: string }>;
+    importFile(docPath: string, srcPath: string): Promise<{ rel: string }>;
+    pick(): Promise<string[]>;
+    readFile(path: string): Promise<{ mime: string; data: string }>;
+    download(docPath: string, url: string): Promise<{ name: string }>;
+    read(docPath: string, rel: string): Promise<{ mime: string; data: string }>;
+    clipboard(): Promise<{ data: string | null; ext: string }>;
+    showInFolder(docPath: string, rel: string): Promise<void>;
+    copyForExport(docPath: string, htmlPath: string, names: string[]): Promise<{ folder: string }>;
+    /** Ruta de un archivo arrastrado al editor. */
+    pathOf(file: File): string;
   };
   settings: {
     get(): Promise<IpcResponse<'settings:get'>>;

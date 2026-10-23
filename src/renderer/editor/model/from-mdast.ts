@@ -1,3 +1,4 @@
+import { parseImgTag } from './image-html';
 import type { Mark, Node as PmNode } from 'prosemirror-model';
 import type { PhrasingContent, RootContent } from 'mdast';
 import { schema } from './schema';
@@ -47,6 +48,10 @@ export function blockToPm(node: RootContent, ctx: Ctx): PmNode {
       return s['horizontal_rule']!.create();
     case 'html': {
       const value = slice(ctx, node) || node.value;
+      // Una `<img …>` sola en su línea es un bloque HTML para CommonMark, pero para nosotros es una
+      // imagen con tamaño guardado dentro de su párrafo (06).
+      const img = parseImgTag(value);
+      if (img) return s['paragraph']!.create(null, s['image']!.create(img));
       return value.trim() === PAGE_BREAK_COMMENT
         ? s['page_break']!.create()
         : s['html_block']!.create({ value });
@@ -117,14 +122,24 @@ function inlineToPm(nodes: PhrasingContent[], ctx: Ctx, marks: readonly Mark[]):
       case 'image':
         out.push(
           schema.nodes['image']!.create(
-            { src: node.url, alt: node.alt ?? '', title: node.title ?? null },
+            { src: node.url, alt: node.alt ?? '', title: node.title ?? null, width: null },
             null,
             marks,
           ),
         );
         break;
+      case 'html': {
+        // `<img src="…" width="…">`: imagen con tamaño guardado (06).
+        const img = parseImgTag(node.value);
+        out.push(
+          img
+            ? schema.nodes['image']!.create(img, null, marks)
+            : schema.nodes['raw_inline']!.create({ value: slice(ctx, node) }, null, marks),
+        );
+        break;
+      }
       default:
-        // html en línea, footnoteReference, linkReference, imageReference…
+        // footnoteReference, linkReference, imageReference…
         out.push(schema.nodes['raw_inline']!.create({ value: slice(ctx, node) }, null, marks));
     }
   }

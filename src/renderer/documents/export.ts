@@ -9,9 +9,24 @@ import { Paginator, type Analysis } from '../editor/paginator/paginator';
 import { buildDocCss } from '../editor/typography';
 import { createWysiwygState, createWysiwygView } from '../editor/wysiwyg/view';
 import { resolveConfig } from './config';
-import { showError, useDocs, type DocInfo } from './store';
+import { imageKind } from './images';
+import { askExportImages, showError, useDocs, type DocInfo } from './store';
 
 const api = () => window.mdteca;
+const CANCELLED = 'exportación cancelada';
+
+/** Espera a que las imágenes del contenedor terminen de cargar (su altura cambia el reparto). */
+const waitImages = (root: ParentNode): Promise<unknown> =>
+  Promise.all(
+    [...root.querySelectorAll('img')].map((img) =>
+      img.complete
+        ? undefined
+        : new Promise((resolve) => {
+            img.addEventListener('load', resolve, { once: true });
+            img.addEventListener('error', resolve, { once: true });
+          }),
+    ),
+  );
 
 /** Documento montado fuera de pantalla con el mismo CSS y los mismos *node views* que el editor. */
 interface Offscreen {
@@ -56,6 +71,7 @@ async function mountOffscreen(id: string): Promise<Offscreen> {
     document.fonts.load(`bold 1em "${eff.typography.font}"`),
     document.fonts.ready,
   ]).catch(() => undefined);
+  await waitImages(container);
   const pager = new Paginator(view, { scroller: () => null, onLayout: () => undefined }, false);
   const analysis = pager.analyze(g);
   if (!analysis) {
@@ -188,6 +204,7 @@ export async function preparePrint(id: string): Promise<PrintView> {
   document.head.append(pageStyle);
   document.body.append(root);
   off.dispose();
+  await waitImages(root);
   return {
     root,
     pages: layout.pages,
@@ -242,7 +259,7 @@ const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 /** HTML de un documento: un solo archivo con su CSS y sus fuentes. */
-export async function buildHtml(id: string): Promise<string> {
+export async function buildHtml(id: string, htmlPath?: string): Promise<string> {
   const off = await mountOffscreen(id);
   try {
     const { info } = off;
@@ -250,6 +267,7 @@ export async function buildHtml(id: string): Promise<string> {
     const flow = off.container.querySelector('.ProseMirror') as HTMLElement;
     const body = cleanClone(flow.cloneNode(true) as HTMLElement);
     body.removeAttribute('id');
+    await bundleImages(info, body, htmlPath);
     body.querySelectorAll('.page-break').forEach((n) => {
       (n as HTMLElement).style.breakAfter = 'page';
     });
@@ -303,10 +321,44 @@ export async function exportHtml(id: string): Promise<string | null> {
   const path = await api().file.saveDialog(baseName(info, '.html'), 'html');
   if (!path) return null;
   try {
-    await api().file.write(path, await buildHtml(id));
+    await api().file.write(path, await buildHtml(id, path));
     return path;
   } catch (error) {
+    if (error instanceof Error && error.message === CANCELLED) return null;
     await showError(`${i18next.t('export.error', { name: info.name })}\n${String(error)}`);
     return null;
   }
+}
+
+/**
+ * Imágenes-archivo del HTML (VW-42): se incrustan en base64 o se copian a `<html>_files/`, a
+ * elección. Las remotas y las ya incrustadas se dejan como están.
+ */
+async function bundleImages(info: DocInfo, body: HTMLElement, htmlPath?: string): Promise<void> {
+  const imgs = [...body.querySelectorAll<HTMLImageElement>('img[data-src]')];
+  const local = imgs.filter((i) => imageKind(i.dataset['src']!) === 'file');
+  for (const img of imgs) {
+    if (!local.includes(img)) img.setAttribute('src', img.dataset['src']!);
+  }
+  if (local.length && info.path) {
+    const names = [...new Set(local.map((i) => decodeURI(i.dataset['src']!)))];
+    const how = htmlPath ? await askExportImages(names.length) : 'embed';
+    if (how === null) throw new Error(CANCELLED);
+    if (how === 'folder' && htmlPath) {
+      const { folder } = await api().image.copyForExport(info.path, htmlPath, names);
+      for (const img of local) {
+        const file = decodeURI(img.dataset['src']!).split('/').pop()!;
+        img.setAttribute('src', `${folder}/${encodeURIComponent(file)}`);
+      }
+    } else {
+      const data = new Map<string, string>();
+      for (const rel of names) {
+        const { mime, data: b64 } = await api().image.read(info.path, rel);
+        data.set(rel, `data:${mime};base64,${b64}`);
+      }
+      for (const img of local) img.setAttribute('src', data.get(decodeURI(img.dataset['src']!))!);
+    }
+  }
+  for (const img of imgs) img.removeAttribute('data-src');
+  body.querySelectorAll('.image-handle').forEach((n) => n.remove());
 }

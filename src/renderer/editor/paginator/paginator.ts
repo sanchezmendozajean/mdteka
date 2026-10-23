@@ -88,6 +88,20 @@ export class Paginator {
     if (this.geometry) this.schedule(false);
   }
 
+  /** Descarta la medida del bloque que contiene `el` (una imagen terminó de cargar, por ejemplo). */
+  invalidateAt(el: Element | null): void {
+    if (!this.geometry) return;
+    try {
+      if (el) {
+        const $pos = this.view.state.doc.resolve(this.view.posAtDOM(el, 0));
+        if ($pos.depth >= 1) this.cache.delete($pos.node(1));
+      } else this.cache = new WeakMap();
+    } catch {
+      this.cache = new WeakMap();
+    }
+    this.schedule(false);
+  }
+
   /** Programa una paginación: tras editar se espera un fotograma; la entrada nunca se bloquea. */
   schedule(edited: boolean): void {
     if (edited) this.lastEdit = performance.now();

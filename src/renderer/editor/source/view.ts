@@ -12,6 +12,8 @@ import { highlightSelectionMatches, search } from '@codemirror/search';
 import { EditorState, type Extension, type Transaction } from '@codemirror/state';
 import { drawSelection, EditorView, keymap } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
+import { imageFilesFrom, imageHooks } from '../image-hooks';
+import { foldDataUrls } from './data-urls';
 import { sourcePages } from './pages';
 
 /** Pliegue de secciones por título: desde la línea del título hasta antes del siguiente de igual o mayor rango. */
@@ -57,6 +59,23 @@ export function sourceExtensions(): Extension[] {
     drawSelection(),
     EditorView.lineWrapping,
     sourcePages(),
+    foldDataUrls(),
+    EditorView.domEventHandlers({
+      paste(event) {
+        const files = imageFilesFrom(event.clipboardData?.files);
+        if (files.length === 0 || !imageHooks.onFiles) return false;
+        event.preventDefault();
+        imageHooks.onFiles(files, null);
+        return true;
+      },
+      drop(event, view) {
+        const files = imageFilesFrom(event.dataTransfer?.files);
+        if (files.length === 0 || !imageHooks.onFiles) return false;
+        event.preventDefault();
+        imageHooks.onFiles(files, view.posAtCoords({ x: event.clientX, y: event.clientY }));
+        return true;
+      },
+    }),
     markdown({ base: markdownLanguage, codeLanguages: languages }),
     syntaxHighlighting(highlightStyle),
     headingFolding,

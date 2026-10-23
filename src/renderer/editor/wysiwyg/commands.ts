@@ -493,3 +493,65 @@ export function selectionIsNode(state: EditorState): boolean {
 }
 
 export type { Transaction };
+
+// ---------------------------------------------------------------------------------------------
+// Imágenes (06)
+// ---------------------------------------------------------------------------------------------
+
+export interface ImageSpec {
+  src: string;
+  alt: string;
+}
+
+/**
+ * Inserta imágenes. Una sola va en línea, en el cursor, y queda seleccionada (con su menú); varias
+ * van cada una en su párrafo, tras el bloque actual. Si el cursor está en un párrafo vacío lo
+ * sustituyen.
+ */
+export function insertImages(specs: ImageSpec[], at?: number): Command {
+  return (state, dispatch) => {
+    if (specs.length === 0) return false;
+    const tr = state.tr;
+    if (at !== undefined) tr.setSelection(TextSelection.near(tr.doc.resolve(at)));
+    // Con una imagen seleccionada, la nueva va detrás en lugar de sustituirla.
+    const current = tr.selection;
+    if (current instanceof NodeSelection && current.node.type === n['image']) {
+      tr.setSelection(TextSelection.near(tr.doc.resolve(current.to)));
+    }
+    const image = (s: ImageSpec) => n['image']!.create({ src: s.src, alt: s.alt });
+    const { $from } = tr.selection;
+    if (specs.length === 1 && $from.parent.isTextblock) {
+      const from = tr.selection.from;
+      tr.replaceSelectionWith(image(specs[0]!), false);
+      tr.setSelection(NodeSelection.create(tr.doc, from));
+    } else {
+      const paragraphs = specs.map((s) => n['paragraph']!.create(null, image(s)));
+      const emptyPara = $from.parent.type === n['paragraph'] && $from.parent.content.size === 0;
+      if (emptyPara) tr.replaceWith($from.before(), $from.after(), paragraphs);
+      else tr.insert($from.after($from.depth >= 1 ? 1 : $from.depth), paragraphs);
+    }
+    dispatch?.(tr.scrollIntoView());
+    return true;
+  };
+}
+
+/** Cambia atributos de la imagen que empieza en `pos` conservando la selección. */
+export function setImageAttrs(pos: number, patch: Record<string, unknown>): Command {
+  return (state, dispatch) => {
+    const node = state.doc.nodeAt(pos);
+    if (!node || node.type !== n['image']) return false;
+    const tr = state.tr.setNodeMarkup(pos, undefined, { ...node.attrs, ...patch });
+    // La imagen sigue seleccionada (y con su menú) tras cambiarle atributos.
+    dispatch?.(tr.setSelection(NodeSelection.create(tr.doc, pos)));
+    return true;
+  };
+}
+
+export function removeImage(pos: number): Command {
+  return (state, dispatch) => {
+    const node = state.doc.nodeAt(pos);
+    if (!node || node.type !== n['image']) return false;
+    dispatch?.(state.tr.delete(pos, pos + node.nodeSize));
+    return true;
+  };
+}
