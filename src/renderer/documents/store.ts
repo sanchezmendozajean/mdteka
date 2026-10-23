@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
+import type { SettingsSection } from '../ui/SettingsDialog';
 import { create } from 'zustand';
 import { readConfigBlock, type ReadConfig } from '@shared/document-config';
 import type { Eol } from '../editor/model/text-format';
@@ -122,6 +123,8 @@ export type DialogRequest =
   | { kind: 'wizard'; initial: WizardInput; resolve: (r: WizardResult | null) => void }
   | { kind: 'projectSettings'; resolve: () => void }
   | { kind: 'quickOpen'; resolve: () => void }
+  | { kind: 'palette'; resolve: () => void }
+  | { kind: 'settings'; section?: SettingsSection; resolve: () => void }
   | { kind: 'iconPicker'; current: string | undefined; resolve: (r: string | null) => void };
 
 export interface ChooseOption {
@@ -161,21 +164,34 @@ export interface ImagePasteChoice {
 interface DialogsState {
   current: DialogRequest | null;
   queue: DialogRequest[];
-  open: (request: DialogRequest) => void;
+  /** Diálogos tapados por uno abierto desde ellos (confirmar algo desde Ajustes). */
+  stack: DialogRequest[];
+  open: (request: DialogRequest, nested?: boolean) => void;
   close: () => void;
 }
 
 export const useDialogs = create<DialogsState>((set) => ({
   current: null,
   queue: [],
-  open: (request) =>
-    set((s) => (s.current ? { queue: [...s.queue, request] } : { current: request })),
-  close: () => set((s) => ({ current: s.queue[0] ?? null, queue: s.queue.slice(1) })),
+  stack: [],
+  open: (request, nested = false) =>
+    set((s) => {
+      if (!s.current) return { current: request };
+      // Anidado: se muestra encima y, al cerrarlo, se vuelve al anterior.
+      if (nested) return { current: request, stack: [...s.stack, s.current] };
+      return { queue: [...s.queue, request] };
+    }),
+  close: () =>
+    set((s) => {
+      if (s.stack.length)
+        return { current: s.stack[s.stack.length - 1]!, stack: s.stack.slice(0, -1) };
+      return { current: s.queue[0] ?? null, queue: s.queue.slice(1) };
+    }),
 }));
 
-function ask<T>(build: (resolve: (value: T) => void) => DialogRequest): Promise<T> {
+function ask<T>(build: (resolve: (value: T) => void) => DialogRequest, nested = false): Promise<T> {
   return new Promise<T>((resolve) => {
-    useDialogs.getState().open(build(resolve));
+    useDialogs.getState().open(build(resolve), nested);
   });
 }
 
@@ -192,13 +208,16 @@ export const showError = (message: string) =>
 
 export const askText = (title: string, label: string, initial = '', confirm?: string) =>
   ask<string | null>((resolve) => ({ kind: 'prompt', title, label, initial, confirm, resolve }));
-export const askChoose = (title: string, options: ChooseOption[], body?: string) =>
-  ask<string | null>((resolve) => ({ kind: 'choose', title, body, options, resolve }));
+export const askChoose = (title: string, options: ChooseOption[], body?: string, nested = false) =>
+  ask<string | null>((resolve) => ({ kind: 'choose', title, body, options, resolve }), nested);
 export const askWizard = (initial: WizardInput) =>
   ask<WizardResult | null>((resolve) => ({ kind: 'wizard', initial, resolve }));
 export const showProjectSettings = () =>
   ask<void>((resolve) => ({ kind: 'projectSettings', resolve }));
 export const showQuickOpen = () => ask<void>((resolve) => ({ kind: 'quickOpen', resolve }));
+export const showPalette = () => ask<void>((resolve) => ({ kind: 'palette', resolve }));
+export const showSettings = (section?: SettingsSection) =>
+  ask<void>((resolve) => ({ kind: 'settings', section, resolve }));
 export const askIcon = (current: string | undefined) =>
   ask<string | null>((resolve) => ({ kind: 'iconPicker', current, resolve }));
 

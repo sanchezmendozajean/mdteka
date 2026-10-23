@@ -1,15 +1,11 @@
 import { app } from 'electron';
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { z } from 'zod';
 import { DocumentConfigSchema } from '@shared/document-config';
+import { mergeSettings, SettingsSchema, type Settings } from '@shared/settings';
 
 /** Ajustes de la app (09): `userData/settings.json`, validados con zod (CFG-02). */
-const SettingsSchema = z.object({
-  /** Valores por defecto de documento (origen «app» en el panel Documento). */
-  documentDefaults: z.record(z.string(), z.unknown()).default({}),
-});
-export type Settings = z.infer<typeof SettingsSchema>;
+export type { Settings };
 
 const file = () => join(app.getPath('userData'), 'settings.json');
 let cache: Settings | null = null;
@@ -39,14 +35,30 @@ export function loadSettings(): Settings {
   }
 }
 
+function write(next: Settings): Settings {
+  cache = next;
+  mkdirSync(app.getPath('userData'), { recursive: true });
+  const tmp = `${file()}.tmp`;
+  writeFileSync(tmp, `${JSON.stringify(next, null, 2)}\n`);
+  renameSync(tmp, file());
+  return next;
+}
+
+/** Aplica un parche validado a los ajustes y los guarda. */
+export function saveSettings(patch: Record<string, unknown>): Settings {
+  const next = mergeSettings(loadSettings(), patch);
+  if (!validDefaults(next.documentDefaults))
+    throw new Error('Valores por defecto de documento no válidos');
+  return write(next);
+}
+
 export function saveDocumentDefaults(defaults: Record<string, unknown>): Settings {
   const rest = { ...defaults };
   delete rest['version'];
-  if (!validDefaults(rest)) throw new Error('Valores por defecto de documento no válidos');
-  cache = { ...loadSettings(), documentDefaults: rest };
-  mkdirSync(app.getPath('userData'), { recursive: true });
-  const tmp = `${file()}.tmp`;
-  writeFileSync(tmp, `${JSON.stringify(cache, null, 2)}\n`);
-  renameSync(tmp, file());
-  return cache;
+  return saveSettings({ documentDefaults: rest });
+}
+
+/** Vuelve a los valores de fábrica (Ajustes › Avanzado). */
+export function resetSettings(): Settings {
+  return write(SettingsSchema.parse({}));
 }

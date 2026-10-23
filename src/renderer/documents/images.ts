@@ -2,6 +2,7 @@ import i18next from 'i18next';
 import { editor } from '../editor/controller';
 import { imageHooks } from '../editor/image-hooks';
 import type { ImageSpec } from '../editor/wysiwyg/commands';
+import { appSettings } from '../app/settings';
 import { resolveConfig, updateConfig, useSettings } from './config';
 import { saveDocument } from './actions';
 import {
@@ -18,7 +19,8 @@ import {
 const api = () => window.mdteca;
 
 /** Aviso al incrustar una imagen más pesada que esto (IMG-01). */
-export const WARN_BYTES = 300 * 1024;
+/** Umbral de aviso al pegar como base64 (Ajustes › Imágenes). */
+export const warnBytes = (): number => appSettings().images.warnKb * 1024;
 
 /** Una imagen lista para insertar. */
 export interface ImageData {
@@ -176,7 +178,7 @@ export async function resolveSources(
   const out: ImageSpec[] = [];
   for (const [i, item] of items.entries()) {
     let how = mode;
-    if (how === 'base64' && item.bytes.length > WARN_BYTES) {
+    if (how === 'base64' && item.bytes.length > warnBytes()) {
       const answer = await askImageLarge(Math.round(item.bytes.length / 1024));
       if (answer === null) return null;
       if (answer === 'file') how = 'file';
@@ -290,7 +292,7 @@ export async function convertToBase64(pos: number, src: string): Promise<void> {
   if (!doc?.path || imageKind(src) !== 'file') return;
   try {
     const { mime, data } = await api().image.read(doc.path, decodeURI(src));
-    if (fromBase64(data).length > WARN_BYTES) {
+    if (fromBase64(data).length > warnBytes()) {
       const answer = await askImageLarge(Math.round((data.length * 3) / 4 / 1024));
       if (answer !== 'embed') return;
     }

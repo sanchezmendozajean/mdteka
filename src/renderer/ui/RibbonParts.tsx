@@ -1,7 +1,7 @@
 import { ChevronDown, Image as ImageGlyph, Table } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getCommand } from '../commands/registry';
+import { formatShortcut, getCommand, shortcutOf } from '../commands/registry';
 import { useDocs } from '../documents/store';
 import { editor } from '../editor/controller';
 import { Icon } from './Icon';
@@ -76,7 +76,7 @@ export function StylesGallery() {
                 >
                   <Icon icon={cmd.icon} />
                   <span>{t(cmd.labelKey)}</span>
-                  {cmd.shortcut && <kbd>{cmd.shortcut}</kbd>}
+                  {shortcutOf(cmd) && <kbd>{formatShortcut(shortcutOf(cmd)!)}</kbd>}
                 </button>
               </li>
             );

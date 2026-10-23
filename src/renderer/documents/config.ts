@@ -9,6 +9,7 @@ import {
   type DocumentConfig,
   type Resolved,
 } from '@shared/document-config';
+import { useAppSettings } from '../app/settings';
 import { editor } from '../editor/controller';
 import { defaultsOfProject } from '../project/store';
 import { activeDoc, configFields, useDocs, type DocInfo } from './store';
@@ -23,8 +24,14 @@ export const useSettings = create<{ documentDefaults: Json; set: (d: Json) => vo
 
 export async function loadSettings(): Promise<void> {
   const settings = await window.mdteca.settings.get();
-  useSettings.getState().set(settings.documentDefaults);
+  useAppSettings.getState().set(settings);
 }
+
+// Los valores por defecto del documento viven dentro de los ajustes de la app.
+useAppSettings.subscribe((s) => {
+  if (s.settings.documentDefaults !== useSettings.getState().documentDefaults)
+    useSettings.getState().set(s.settings.documentDefaults);
+});
 
 const appDefaults = () => useSettings.getState().documentDefaults;
 const projectDefaults = (doc?: { path: string | null }) => defaultsOfProject(doc?.path ?? null);

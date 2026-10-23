@@ -1448,3 +1448,196 @@ kbd {
 .panel-resizer:active {
   background: color-mix(in srgb, var(--accent) 35%, transparent);
 }
+
+/* ---------- Acentos (Ajustes › Apariencia) ---------- */
+:root[data-accent='blue'] {
+  --accent: #2f5bea;
+}
+:root[data-accent='violet'] {
+  --accent: #7048e8;
+}
+:root[data-accent='rose'] {
+  --accent: #c2255c;
+}
+:root[data-accent='amber'] {
+  --accent: #b45f06;
+}
+:root[data-accent='green'] {
+  --accent: #2b8a3e;
+}
+:root[data-theme='dark'][data-accent='blue'] {
+  --accent: #8aa4ff;
+  --on-accent: #0b1330;
+}
+:root[data-theme='dark'][data-accent='violet'] {
+  --accent: #b69cfa;
+  --on-accent: #1a0f3a;
+}
+:root[data-theme='dark'][data-accent='rose'] {
+  --accent: #f783ac;
+  --on-accent: #3a0b1c;
+}
+:root[data-theme='dark'][data-accent='amber'] {
+  --accent: #f0a03a;
+  --on-accent: #2e1a00;
+}
+:root[data-theme='dark'][data-accent='green'] {
+  --accent: #69db7c;
+  --on-accent: #0a2410;
+}
+
+/* ---------- Densidad compacta ---------- */
+:root[data-density='compact'] .ribbon-body {
+  height: 64px;
+}
+:root[data-density='compact'] .btn {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+:root[data-density='compact'] .nav-row {
+  min-height: 24px;
+}
+:root[data-density='compact'] .panel-title {
+  padding: 8px 14px;
+}
+
+/* ---------- Hoja oscura en tema oscuro ---------- */
+:root[data-theme='dark'][data-sheet='dark'] {
+  --paper: #232321;
+  --ink: #ece9e5;
+}
+
+/* ---------- Modo concentración ---------- */
+.app.focus {
+  grid-template-rows: 1fr;
+}
+.app.focus .titlebar,
+.app.focus .ribbon,
+.app.focus .panel,
+.app.focus .status-bar,
+.app.focus .doc-tabs,
+.app.focus .project-bar {
+  display: none;
+}
+
+/* ---------- Diálogo de ajustes ---------- */
+.settings-layout {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 16px;
+  min-height: 340px;
+  max-height: 62vh;
+}
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-right: 1px solid var(--line);
+  padding-right: 8px;
+}
+.settings-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.settings-tab:hover {
+  background: var(--hover);
+}
+.settings-tab[aria-current='true'] {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+.settings-body {
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.set-row {
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  color: var(--text-2);
+}
+.set-row select,
+.set-row input:not([type='range']) {
+  font: inherit;
+  padding: 5px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--field);
+  color: var(--text);
+  min-width: 0;
+}
+.set-group {
+  margin: 4px 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+.set-group legend {
+  padding: 0 6px;
+  color: var(--text-2);
+}
+.swatches {
+  display: flex;
+  gap: 8px;
+}
+.swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--line-strong);
+  cursor: pointer;
+}
+.swatch[aria-checked='true'] {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.shortcut-list {
+  margin: 8px 0;
+  max-height: 34vh;
+  overflow-y: auto;
+}
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 4px;
+  border-bottom: 1px solid var(--line);
+}
+.shortcut-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.shortcut-key {
+  min-width: 120px;
+  justify-content: center;
+}
+.shortcut-key[aria-pressed='true'] {
+  outline: 2px solid var(--accent);
+}
+.set-warning {
+  color: var(--danger);
+  margin: 4px 0;
+}
+.palette-list .quick-row.disabled {
+  opacity: 0.45;
+}
+.palette-list kbd {
+  margin-left: auto;
+}

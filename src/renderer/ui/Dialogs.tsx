@@ -10,7 +10,9 @@ import {
   ImagePasteDialog,
   ImageUrlDialog,
 } from './ImageDialogs';
+import { CommandPalette } from './CommandPalette';
 import { Modal } from './Modal';
+import { SettingsDialog } from './SettingsDialog';
 import {
   ChooseDialog,
   IconPickerDialog,
@@ -163,6 +165,12 @@ export function Dialogs() {
             </button>
           </div>
         </Modal>
+      );
+    case 'palette':
+      return <CommandPalette finish={() => done(current.resolve, undefined)} />;
+    case 'settings':
+      return (
+        <SettingsDialog section={current.section} finish={() => done(current.resolve, undefined)} />
       );
     case 'prompt':
       return <PromptDialog req={current} finish={(r) => done(current.resolve, r)} />;

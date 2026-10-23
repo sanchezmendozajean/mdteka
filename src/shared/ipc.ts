@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SettingsSchema } from './settings';
 
 const path = z.string().min(1).max(4096);
 
@@ -182,14 +183,25 @@ export const ipcContract = {
     }),
     response: z.undefined(),
   },
-  'settings:get': {
-    request: z.undefined(),
-    response: z.object({ documentDefaults: z.record(z.string(), z.unknown()) }),
+  'settings:get': { request: z.undefined(), response: SettingsSchema },
+  /** Aplica un parche a los ajustes (se valida y se guarda en main). */
+  'settings:set': {
+    request: z.object({ patch: z.record(z.string(), z.unknown()) }),
+    response: SettingsSchema,
   },
+  'settings:reset': { request: z.undefined(), response: SettingsSchema },
   'settings:setDocumentDefaults': {
     request: z.object({ documentDefaults: z.record(z.string(), z.unknown()) }),
-    response: z.object({ documentDefaults: z.record(z.string(), z.unknown()) }),
+    response: SettingsSchema,
   },
+  /** Idiomas del corrector ortográfico y su estado (Chromium). */
+  'spell:configure': {
+    request: z.object({ enabled: z.boolean(), languages: z.array(z.string().max(16)).max(8) }),
+    response: z.object({ available: z.array(z.string()) }),
+  },
+  'window:setFullScreen': { request: z.object({ on: z.boolean() }), response: z.undefined() },
+  /** Abre «Aplicaciones predeterminadas» de Windows para asociar .md y .mdteca. */
+  'app:openDefaultApps': { request: z.undefined(), response: z.undefined() },
   'shell:openExternal': {
     request: z.object({ url: z.string().max(4096) }),
     response: z.undefined(),
@@ -265,9 +277,18 @@ export interface MdtecaApi {
   };
   settings: {
     get(): Promise<IpcResponse<'settings:get'>>;
+    set(patch: Record<string, unknown>): Promise<IpcResponse<'settings:set'>>;
+    reset(): Promise<IpcResponse<'settings:reset'>>;
     setDocumentDefaults(
       documentDefaults: Record<string, unknown>,
     ): Promise<IpcResponse<'settings:setDocumentDefaults'>>;
+  };
+  spell: { configure(enabled: boolean, languages: string[]): Promise<string[]> };
+  window: { setFullScreen(on: boolean): Promise<void> };
+  appUi: {
+    openDefaultApps(): Promise<void>;
+    /** Escala de toda la interfaz (zoom del navegador, independiente del zoom del documento). */
+    setScale(factor: number): void;
   };
   shell: { openExternal(url: string): Promise<void> };
   on(event: IpcEvent, callback: (payload: unknown) => void): () => void;

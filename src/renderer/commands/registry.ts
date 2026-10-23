@@ -69,8 +69,67 @@ export function matchesShortcut(e: KeyboardEvent, shortcut: string): boolean {
   );
 }
 
+// ---------------------------------------------------------------------------------------------
+// Atajos reasignados por el usuario (Ajustes › Atajos)
+// ---------------------------------------------------------------------------------------------
+
+let overrides: Record<string, string> = {};
+
+/** Fija los atajos reasignados: id de comando → atajo (`''` = sin atajo). */
+export function setShortcutOverrides(map: Record<string, string>): void {
+  overrides = map;
+}
+
+/** Atajo vigente de un comando: el reasignado o el de fábrica. */
+export function shortcutOf(cmd: Command): string | undefined {
+  return cmd.id in overrides ? overrides[cmd.id] || undefined : cmd.shortcut;
+}
+
+/** Atajos con los que se dispara un comando (los alternativos se pierden al reasignar). */
+const shortcutsOf = (cmd: Command): string[] =>
+  cmd.id in overrides ? [overrides[cmd.id] ?? ''] : [cmd.shortcut ?? '', ...(cmd.aliases ?? [])];
+
 export function findByShortcut(e: KeyboardEvent): Command | undefined {
   return listCommands().find(
-    (c) => !c.native && [c.shortcut, ...(c.aliases ?? [])].some((s) => s && matchesShortcut(e, s)),
+    (c) => !c.native && shortcutsOf(c).some((s) => s && matchesShortcut(e, s)),
   );
+}
+
+const canon = (s: string) =>
+  s
+    .toLowerCase()
+    .split('+')
+    .map((p) => p.trim());
+
+/** Comando que ya usa ese atajo (distinto de `exceptId`), para avisar de conflictos al reasignar. */
+export function conflictFor(shortcut: string, exceptId: string): Command | undefined {
+  const want = canon(shortcut);
+  const same = (s: string) => {
+    const parts = canon(s);
+    return (
+      parts[parts.length - 1] === want[want.length - 1] &&
+      [...parts.slice(0, -1)].sort().join() === [...want.slice(0, -1)].sort().join()
+    );
+  };
+  return listCommands().find((c) => c.id !== exceptId && shortcutsOf(c).some((s) => s && same(s)));
+}
+
+/** Texto de un atajo en la plataforma actual (`Ctrl` es `Cmd` en macOS). */
+export function formatShortcut(shortcut: string): string {
+  return navigator.platform.startsWith('Mac')
+    ? shortcut.replace(/Ctrl/g, 'Cmd').replace(/Alt/g, 'Option')
+    : shortcut;
+}
+
+/** Atajo normalizado a partir de un evento de teclado (`Ctrl+Shift+K`), o null si solo hay modificadores. */
+export function shortcutFromEvent(e: KeyboardEvent): string | null {
+  const key = eventKey(e);
+  if (['control', 'shift', 'alt', 'meta', 'dead', 'unidentified'].includes(key)) return null;
+  const parts: string[] = [];
+  if (e.ctrlKey || e.metaKey) parts.push('Ctrl');
+  if (e.altKey) parts.push('Alt');
+  if (e.shiftKey) parts.push('Shift');
+  const pretty = key.length === 1 ? key.toUpperCase() : key[0]!.toUpperCase() + key.slice(1);
+  parts.push(pretty);
+  return parts.join('+');
 }

@@ -23,6 +23,8 @@ import { Navigator } from '../ui/Navigator';
 import { ProjectBar } from '../ui/ProjectBar';
 import { StatusBar } from '../ui/StatusBar';
 import { Welcome } from '../ui/Welcome';
+import { wireAppearance } from './appearance';
+import { wireFocus } from './focus';
 import { useUi } from './store';
 
 const isTextField = (el: EventTarget | null) =>
@@ -32,7 +34,7 @@ const isTextField = (el: EventTarget | null) =>
 
 export function App() {
   const { t } = useTranslation();
-  const { theme, navigatorOpen, documentPanelOpen } = useUi();
+  const { theme, navigatorOpen, documentPanelOpen, focusMode } = useUi();
   const hasDocs = useDocs((s) => s.docs.some((d) => !d.hidden));
   const projectTitle = useProject((s) => s.project?.title ?? null);
   const projectOpen = projectTitle !== null;
@@ -48,6 +50,8 @@ export function App() {
 
   useEffect(() => {
     const offProject = wireProject();
+    const offAppearance = wireAppearance();
+    const offFocus = wireFocus();
     const off = wireApp();
     void window.mdteca.app.info().then((info) => {
       if (info.e2e)
@@ -62,6 +66,8 @@ export function App() {
     return () => {
       off();
       offProject();
+      offAppearance();
+      offFocus();
     };
   }, []);
 
@@ -84,7 +90,7 @@ export function App() {
   }, []);
 
   return (
-    <div className="app" data-testid="app">
+    <div className={`app${focusMode ? ' focus' : ''}`} data-testid="app">
       <header className="titlebar">
         <span className="brand">
           <Icon icon={FileText} /> {t('app.name')}
@@ -115,6 +121,8 @@ export function App() {
         )}
         <CommandButton id="view.toggleNavigator" pressed={navigatorOpen} />
         <CommandButton id="view.toggleDocumentPanel" pressed={documentPanelOpen} />
+        <CommandButton id="app.palette" />
+        <CommandButton id="app.settings" />
         <CommandButton id="view.toggleTheme" />
       </header>
       <Ribbon />

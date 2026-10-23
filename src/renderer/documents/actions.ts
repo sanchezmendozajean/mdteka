@@ -1,4 +1,5 @@
 import i18next from 'i18next';
+import { appSettings } from '../app/settings';
 import { editor, type DocRuntime } from '../editor/controller';
 import { emptyDoc } from '../editor/model/doc';
 import { applyFormat, detectFormat, splitConfigBlock, type Eol } from '../editor/model/text-format';
@@ -99,9 +100,9 @@ export function newDocument(): string {
       path: null,
       name: `${i18next.t('doc.untitled')}${suffix}.md`,
       dirty: false,
-      mode: 'wysiwyg',
+      mode: appSettings().editor.defaultMode,
       ...viewFields(''),
-      eol: '\n',
+      eol: appSettings().files.newEol === 'crlf' ? '\r\n' : '\n',
       bom: false,
       ...configFields(''),
       savedConfigRaw: '',
@@ -140,7 +141,7 @@ export async function openPaths(paths: string[]): Promise<void> {
           path,
           name: baseName(path),
           dirty: false,
-          mode: 'wysiwyg',
+          mode: appSettings().editor.defaultMode,
           ...viewFields(configRaw, path),
           eol,
           bom,

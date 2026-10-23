@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { getCommand } from '../commands/registry';
+import { formatShortcut, getCommand, shortcutOf } from '../commands/registry';
+import { useAppSettings } from '../app/settings';
 import { useDocs } from '../documents/store';
 import { useProject } from '../project/store';
 import { Icon } from './Icon';
@@ -18,6 +19,9 @@ interface Props {
 export function CommandButton({ id, large, label, pressed }: Props) {
   const { t } = useTranslation();
   const cmd = getCommand(id);
+  // Se repinta al reasignar atajos para que el tooltip muestre el vigente.
+  useAppSettings((s) => s.settings.shortcuts[id]);
+  const shortcut = cmd ? shortcutOf(cmd) : undefined;
   // Algunos comandos dependen de que haya un proyecto abierto: se repinta al abrirlo o cerrarlo.
   useProject((s) => s.project !== null);
   // Los selectores devuelven booleanos: el botón solo se repinta si su estado cambia.
@@ -33,7 +37,7 @@ export function CommandButton({ id, large, label, pressed }: Props) {
   return (
     <button
       className={`btn${large ? ' btn-large' : ''}`}
-      title={cmd.shortcut ? `${name} (${cmd.shortcut})` : name}
+      title={shortcut ? `${name} (${formatShortcut(shortcut)})` : name}
       aria-label={name}
       aria-pressed={isActive}
       data-command={id}

@@ -26,6 +26,10 @@ function FileTab() {
         <CommandButton id="file.saveAs" large />
         <CommandButton id="file.close" large />
       </Group>
+      <Group label={t('ribbon.groups.app')}>
+        <CommandButton id="app.settings" large />
+        <CommandButton id="app.palette" large />
+      </Group>
       <Group label={t('ribbon.groups.export')}>
         <CommandButton id="file.exportPdf" large />
         <CommandButton id="file.exportHtml" large />
@@ -207,6 +211,7 @@ function ViewTab() {
       <Group label={t('ribbon.groups.panels')}>
         <CommandButton id="view.toggleNavigator" large pressed={navigatorOpen} />
         <CommandButton id="view.toggleDocumentPanel" large pressed={documentPanelOpen} />
+        <CommandButton id="view.focus" large />
         <CommandButton id="view.toggleTheme" large />
       </Group>
     </>

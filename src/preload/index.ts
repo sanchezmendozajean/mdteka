@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer, webUtils } from 'electron';
+import { contextBridge, ipcRenderer, webFrame, webUtils } from 'electron';
 import { ipcEvents, type IpcChannel, type MdtecaApi } from '@shared/ipc';
 
 const invoke = <T>(channel: IpcChannel, payload?: unknown) =>
@@ -67,8 +67,19 @@ const api: MdtecaApi = {
   },
   settings: {
     get: () => invoke('settings:get'),
+    set: (patch) => invoke('settings:set', { patch }),
+    reset: () => invoke('settings:reset'),
     setDocumentDefaults: (documentDefaults) =>
       invoke('settings:setDocumentDefaults', { documentDefaults }),
+  },
+  spell: {
+    configure: async (enabled, languages) =>
+      (await invoke<{ available: string[] }>('spell:configure', { enabled, languages })).available,
+  },
+  window: { setFullScreen: (on) => invoke('window:setFullScreen', { on }) },
+  appUi: {
+    openDefaultApps: () => invoke('app:openDefaultApps'),
+    setScale: (factor) => webFrame.setZoomFactor(factor),
   },
   shell: { openExternal: (url) => invoke('shell:openExternal', { url }) },
   on(event, callback) {

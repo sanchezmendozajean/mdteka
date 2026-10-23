@@ -1,4 +1,7 @@
 import {
+  ChevronLeft,
+  ChevronRight,
+  Command,
   BookPlus,
   FileSearch,
   FileText,
@@ -87,6 +90,7 @@ import {
   BetweenVerticalEnd,
   type LucideIcon,
 } from 'lucide-react';
+import { toggleTheme } from '../app/appearance';
 import { useUi } from '../app/store';
 import { closeDocument, newDocument, openFileDialog, saveDocument } from '../documents/actions';
 import { resetConfig, resolveConfig, updateActiveConfig } from '../documents/config';
@@ -112,7 +116,8 @@ import {
   openProjectDialog,
   showSearch,
 } from '../project/actions';
-import { showProjectSettings, showQuickOpen } from '../documents/store';
+import { showPalette, showProjectSettings, showQuickOpen, showSettings } from '../documents/store';
+import { toggleFocusMode } from '../app/focus';
 import { exportProjectPdf } from '../project/export';
 import { editor, type FormatCommand } from '../editor/controller';
 import type { FormatState } from '../editor/wysiwyg/commands';
@@ -138,6 +143,16 @@ const fmt = (id: string, icon: LucideIcon, command: FormatCommand, options: Opti
   def(id, icon, () => void editor.run(command), options);
 
 const activeId = () => useDocs.getState().activeId;
+
+/** Pestaña siguiente (1) o anterior (-1), dando la vuelta al llegar al final. */
+function stepTab(direction: 1 | -1): void {
+  const { docs, activeId: current } = useDocs.getState();
+  const visible = docs.filter((d) => !d.hidden);
+  if (visible.length < 2) return;
+  const at = visible.findIndex((d) => d.id === current);
+  const next = visible[(at + direction + visible.length) % visible.length];
+  if (next) editor.activate(next.id);
+}
 const withDoc = (fn: (id: string) => void) => () => {
   const id = activeId();
   if (id) fn(id);
@@ -301,14 +316,7 @@ def('view.collapseRibbon', PanelTop, () => ui().set({ ribbonCollapsed: !ui().rib
   shortcut: 'Ctrl+F1',
   global: true,
 });
-def(
-  'view.toggleTheme',
-  Moon,
-  () => ui().set({ theme: ui().theme === 'light' ? 'dark' : 'light' }),
-  {
-    global: true,
-  },
-);
+def('view.toggleTheme', Moon, () => toggleTheme(), { global: true });
 
 // ----- Diseño (04) ---------------------------------------------------------------------------------
 def('design.alignLeft', AlignLeft, () => updateActiveConfig({ typography: { textAlign: 'left' } }));
@@ -403,6 +411,21 @@ def(
   withDoc((id) => void printDocument(id)),
   { shortcut: 'Ctrl+P' },
 );
+
+// ----- Aplicación -------------------------------------------------------------------------------------
+def('app.settings', Settings, () => void showSettings(), {
+  shortcut: 'Ctrl+,',
+  global: true,
+  inFields: true,
+});
+def('app.palette', Command, () => void showPalette(), {
+  shortcut: 'Ctrl+Shift+P',
+  global: true,
+  inFields: true,
+});
+def('view.focus', Maximize2, () => toggleFocusMode(), { shortcut: 'F11', global: true });
+def('view.nextTab', ChevronRight, () => stepTab(1), { shortcut: 'Ctrl+Tab' });
+def('view.prevTab', ChevronLeft, () => stepTab(-1), { shortcut: 'Ctrl+Shift+Tab' });
 
 // ----- Proyecto ----------------------------------------------------------------------------------------
 const inProject = () => isProjectOpen();

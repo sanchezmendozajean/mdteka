@@ -50,7 +50,7 @@ import {
   scanMarkdown,
   searchFiles,
 } from './project';
-import { loadSettings, saveDocumentDefaults } from './settings';
+import { loadSettings, resetSettings, saveDocumentDefaults, saveSettings } from './settings';
 import { getProjectState, getViewState, setProjectState, setViewState } from './state';
 import { firstH1 } from '@shared/project';
 import { promises as fsp } from 'node:fs';
@@ -295,6 +295,21 @@ function registerIpc(): void {
     },
   );
   handle('settings:get', () => loadSettings());
+  handle('settings:set', (req: { patch: Record<string, unknown> }) => saveSettings(req.patch));
+  handle('settings:reset', () => resetSettings());
+  handle('spell:configure', (req: { enabled: boolean; languages: string[] }) => {
+    const ses = session.defaultSession;
+    ses.setSpellCheckerEnabled(req.enabled);
+    const available = ses.availableSpellCheckerLanguages;
+    ses.setSpellCheckerLanguages(req.languages.filter((l) => available.includes(l)));
+    return { available };
+  });
+  handle('window:setFullScreen', (req: { on: boolean }) => {
+    mainWindow?.setFullScreen(req.on);
+  });
+  handle('app:openDefaultApps', async () => {
+    if (process.platform === 'win32') await shell.openExternal('ms-settings:defaultapps');
+  });
   handle('settings:setDocumentDefaults', (req: { documentDefaults: Record<string, unknown> }) =>
     saveDocumentDefaults(req.documentDefaults),
   );

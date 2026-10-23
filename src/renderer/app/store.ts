@@ -8,6 +8,8 @@ interface UiState {
   ribbonTab: RibbonTab;
   ribbonCollapsed: boolean;
   navigatorOpen: boolean;
+  /** Modo concentración: solo el documento (F11). */
+  focusMode: boolean;
   /** Ancho del navegador en px (PRJ-20): se puede arrastrar y se recuerda. */
   navigatorWidth: number;
   documentPanelOpen: boolean;
@@ -45,6 +47,7 @@ export const useUi = create<UiState>((set) => ({
   ribbonTab: 'home',
   ribbonCollapsed: false,
   navigatorOpen: true,
+  focusMode: false,
   navigatorWidth: savedNavWidth(),
   documentPanelOpen: true,
   stylesFocus: 0,
