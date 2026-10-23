@@ -1,3 +1,4 @@
+import type { LucideIcon } from 'lucide-react';
 import { create } from 'zustand';
 import { readConfigBlock, type ReadConfig } from '@shared/document-config';
 import type { Eol } from '../editor/model/text-format';
@@ -9,6 +10,8 @@ export type ViewKind = 'pages' | 'continuous';
 /** Metadatos reactivos de un documento abierto (el texto vive en el runtime del controlador). */
 export interface DocInfo {
   id: string;
+  /** Documento temporal (exportación de un proyecto): no tiene pestaña ni se recuerda. */
+  hidden?: boolean;
   path: string | null;
   name: string;
   dirty: boolean;
@@ -99,7 +102,50 @@ export type DialogRequest =
   | { kind: 'imageLarge'; kb: number; resolve: (r: 'file' | 'embed' | null) => void }
   | { kind: 'imageUrl'; resolve: (r: string | null) => void }
   | { kind: 'exportImages'; count: number; resolve: (r: 'embed' | 'folder' | null) => void }
-  | { kind: 'error'; message: string; resolve: () => void };
+  | { kind: 'error'; message: string; resolve: () => void }
+  | {
+      kind: 'prompt';
+      title: string;
+      label: string;
+      initial: string;
+      confirm?: string;
+      resolve: (r: string | null) => void;
+    }
+  | {
+      kind: 'choose';
+      title: string;
+      body?: string;
+      options: ChooseOption[];
+      /** Opción que se marca como destacada (la primera si no se indica). */
+      resolve: (id: string | null) => void;
+    }
+  | { kind: 'wizard'; initial: WizardInput; resolve: (r: WizardResult | null) => void }
+  | { kind: 'projectSettings'; resolve: () => void }
+  | { kind: 'quickOpen'; resolve: () => void }
+  | { kind: 'iconPicker'; current: string | undefined; resolve: (r: string | null) => void };
+
+export interface ChooseOption {
+  id: string;
+  label: string;
+  icon?: LucideIcon;
+  /** Texto secundario (ruta, descripción). */
+  hint?: string;
+  danger?: boolean;
+}
+
+/** Valores iniciales del asistente de proyecto nuevo (PRJ-32). */
+export interface WizardInput {
+  title: string;
+  /** Carpeta raíz sugerida, o null si hay que elegirla. */
+  folder: string | null;
+  importExisting: boolean;
+}
+
+export interface WizardResult {
+  title: string;
+  folder: string;
+  importExisting: boolean;
+}
 
 /** Respuesta del diálogo de pegado de imagen (IMG-03). */
 export interface ImagePasteChoice {
@@ -143,6 +189,18 @@ export const showCompare = (name: string, mine: string, theirs: string) =>
   ask<void>((resolve) => ({ kind: 'compare', name, mine, theirs, resolve }));
 export const showError = (message: string) =>
   ask<void>((resolve) => ({ kind: 'error', message, resolve }));
+
+export const askText = (title: string, label: string, initial = '', confirm?: string) =>
+  ask<string | null>((resolve) => ({ kind: 'prompt', title, label, initial, confirm, resolve }));
+export const askChoose = (title: string, options: ChooseOption[], body?: string) =>
+  ask<string | null>((resolve) => ({ kind: 'choose', title, body, options, resolve }));
+export const askWizard = (initial: WizardInput) =>
+  ask<WizardResult | null>((resolve) => ({ kind: 'wizard', initial, resolve }));
+export const showProjectSettings = () =>
+  ask<void>((resolve) => ({ kind: 'projectSettings', resolve }));
+export const showQuickOpen = () => ask<void>((resolve) => ({ kind: 'quickOpen', resolve }));
+export const askIcon = (current: string | undefined) =>
+  ask<string | null>((resolve) => ({ kind: 'iconPicker', current, resolve }));
 
 export const askImagePaste = (info: Extract<DialogRequest, { kind: 'imagePaste' }>['info']) =>
   ask<ImagePasteChoice | null>((resolve) => ({ kind: 'imagePaste', info, resolve }));

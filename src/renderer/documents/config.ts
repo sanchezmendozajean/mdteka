@@ -10,6 +10,7 @@ import {
   type Resolved,
 } from '@shared/document-config';
 import { editor } from '../editor/controller';
+import { defaultsOfProject } from '../project/store';
 import { activeDoc, configFields, useDocs, type DocInfo } from './store';
 
 type Json = Record<string, unknown>;
@@ -26,10 +27,11 @@ export async function loadSettings(): Promise<void> {
 }
 
 const appDefaults = () => useSettings.getState().documentDefaults;
+const projectDefaults = (doc?: { path: string | null }) => defaultsOfProject(doc?.path ?? null);
 
 /** Configuración efectiva de un documento (fábrica ← app ← preset ← bloque). */
 export const resolveConfig = (doc: DocInfo | undefined): Resolved =>
-  effectiveConfig(doc?.config.config ?? null, appDefaults());
+  effectiveConfig(doc?.config.config ?? null, appDefaults(), projectDefaults(doc));
 
 /** Escribe el nuevo texto del bloque y recalcula si el documento está sucio. */
 function setBlock(id: string, raw: string): void {
@@ -55,7 +57,9 @@ export function updateConfig(id: string, patch: Json): void {
   const info = useDocs.getState().docs.find((d) => d.id === id);
   if (!info) return;
   const base = info.config.status === 'ok' ? info.config.config : null;
-  const next = applyPatch(base, patch, (theme) => inheritedConfig(appDefaults(), theme));
+  const next = applyPatch(base, patch, (theme) =>
+    inheritedConfig(appDefaults(), theme, projectDefaults(info)),
+  );
   setBlock(id, toBlock(next, info));
 }
 
@@ -105,8 +109,15 @@ export function repairConfig(id: string): void {
 }
 
 /** Vista, zoom y ancho de columna iniciales de un documento (`view.default` del bloque o heredado). */
-export function viewFields(configRaw: string): Pick<DocInfo, 'view' | 'zoom' | 'columnWidth'> {
-  const eff = effectiveConfig(readConfigBlock(configRaw).config, appDefaults());
+export function viewFields(
+  configRaw: string,
+  path: string | null = null,
+): Pick<DocInfo, 'view' | 'zoom' | 'columnWidth'> {
+  const eff = effectiveConfig(
+    readConfigBlock(configRaw).config,
+    appDefaults(),
+    defaultsOfProject(path),
+  );
   return {
     view: eff.view?.default === 'continuous' ? 'continuous' : 'pages',
     zoom: 1,

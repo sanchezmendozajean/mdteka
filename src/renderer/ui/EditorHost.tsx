@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { effectiveConfig } from '@shared/document-config';
 import { expandTokens, pageGeometry, SHEET_GAP, type PageGeometry } from '@shared/page';
 import { useSettings } from '../documents/config';
+import { useProjectDefaults } from '../project/store';
 import { useDocs } from '../documents/store';
 import { editor } from '../editor/controller';
 import { usePagination } from '../editor/pagination-store';
@@ -63,8 +64,12 @@ export function EditorHost() {
   const activeId = doc?.id ?? null;
   const config = doc?.config.config ?? null;
   const defaults = useSettings((s) => s.documentDefaults);
+  const projectDefaults = useProjectDefaults(doc?.path ?? null);
   const pages = usePagination((s) => s.pages);
-  const resolved = useMemo(() => effectiveConfig(config, defaults), [config, defaults]);
+  const resolved = useMemo(
+    () => effectiveConfig(config, defaults, projectDefaults),
+    [config, defaults, projectDefaults],
+  );
   const css = useMemo(
     () => (activeId ? buildDocCss(activeId, resolved) : ''),
     [activeId, resolved],

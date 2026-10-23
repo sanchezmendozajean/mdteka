@@ -146,7 +146,7 @@ const STYLE_ORDER = [
 const isObject = (v: unknown): v is Json =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
 
-function orderKeys(value: unknown, path: string): unknown {
+export function orderKeys(value: unknown, path: string): unknown {
   if (!isObject(value)) return value;
   const known = path.startsWith('styles.') ? STYLE_ORDER : (ORDER[path] ?? []);
   const keys = Object.keys(value);
@@ -376,11 +376,26 @@ export const PRESETS: Preset[] = [
 export const presetById = (id: string | undefined): Preset | undefined =>
   PRESETS.find((p) => p.id === id);
 
-/** Lo que hereda un documento: fábrica ← ajustes de la app ← preset (`theme`). */
-export function inheritedConfig(app: Json | null | undefined, theme: string | undefined): Json {
+/**
+ * Lo que hereda un documento: fábrica ← ajustes de la app ← proyecto ← preset (`theme`). Si el
+ * documento no elige preset, vale el del proyecto y los valores explícitos del proyecto lo
+ * superan (04 · Herencia).
+ */
+export function inheritedConfig(
+  app: Json | null | undefined,
+  theme: string | undefined,
+  project?: Json | null,
+): Json {
   let out = mergeDeep(FACTORY, app ?? {});
+  const proj = project ?? {};
   const preset = presetById(theme);
-  if (preset) out = mergeDeep(out, preset.config);
+  if (preset) {
+    out = mergeDeep(mergeDeep(out, proj), preset.config);
+  } else {
+    const fromProject = presetById(proj['theme'] as string | undefined);
+    if (fromProject) out = mergeDeep(out, fromProject.config);
+    out = mergeDeep(out, proj);
+  }
   return out;
 }
 
@@ -388,24 +403,27 @@ export function inheritedConfig(app: Json | null | undefined, theme: string | un
 export function effectiveConfig(
   doc: DocumentConfig | null,
   app: Json | null | undefined,
+  project?: Json | null,
 ): Resolved {
-  const merged = mergeDeep(inheritedConfig(app, doc?.theme), doc ?? {});
+  const merged = mergeDeep(inheritedConfig(app, doc?.theme, project), doc ?? {});
   return merged as unknown as Resolved;
 }
 
 /** Dónde se define un valor (indicador de origen del panel Documento). */
-export type Origin = 'document' | 'app' | 'default';
+export type Origin = 'document' | 'project' | 'app' | 'default';
 
 export function originOf(
   path: string[],
   doc: DocumentConfig | null,
   app: Json | null | undefined,
+  project?: Json | null,
 ): Origin {
   const get = (root: unknown) =>
     path.reduce<unknown>((acc, k) => (isObject(acc) ? acc[k] : undefined), root);
   if (get(doc) !== undefined) return 'document';
   const preset = presetById(doc?.theme);
   if (preset && get(preset.config) !== undefined) return 'default';
+  if (project && get(project) !== undefined) return 'project';
   return get(app) !== undefined ? 'app' : 'default';
 }
 

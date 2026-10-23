@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { getCommand } from '../commands/registry';
 import { useDocs } from '../documents/store';
+import { useProject } from '../project/store';
 import { Icon } from './Icon';
 
 interface Props {
@@ -17,6 +18,8 @@ interface Props {
 export function CommandButton({ id, large, label, pressed }: Props) {
   const { t } = useTranslation();
   const cmd = getCommand(id);
+  // Algunos comandos dependen de que haya un proyecto abierto: se repinta al abrirlo o cerrarlo.
+  useProject((s) => s.project !== null);
   // Los selectores devuelven booleanos: el botón solo se repinta si su estado cambia.
   const enabled = useDocs((s) =>
     cmd ? (cmd.global || s.activeId !== null) && (cmd.when ? cmd.when() : true) : false,

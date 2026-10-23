@@ -7,7 +7,8 @@ import { Icon } from './Icon';
 
 export function DocTabs() {
   const { t } = useTranslation();
-  const { docs, activeId } = useDocs();
+  const { docs: all, activeId } = useDocs();
+  const docs = all.filter((d) => !d.hidden);
   if (docs.length === 0) return null;
   return (
     <div className="doc-tabs" role="tablist" aria-label={t('doc.tabs')}>

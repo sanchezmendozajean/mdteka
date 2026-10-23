@@ -11,6 +11,14 @@ import {
   ImageUrlDialog,
 } from './ImageDialogs';
 import { Modal } from './Modal';
+import {
+  ChooseDialog,
+  IconPickerDialog,
+  ProjectSettingsDialog,
+  PromptDialog,
+  QuickOpenDialog,
+  WizardDialog,
+} from './ProjectDialogs';
 
 export function Dialogs() {
   const { t } = useTranslation();
@@ -156,6 +164,18 @@ export function Dialogs() {
           </div>
         </Modal>
       );
+    case 'prompt':
+      return <PromptDialog req={current} finish={(r) => done(current.resolve, r)} />;
+    case 'choose':
+      return <ChooseDialog req={current} finish={(r) => done(current.resolve, r)} />;
+    case 'wizard':
+      return <WizardDialog req={current} finish={(r) => done(current.resolve, r)} />;
+    case 'projectSettings':
+      return <ProjectSettingsDialog finish={() => done(current.resolve, undefined)} />;
+    case 'quickOpen':
+      return <QuickOpenDialog finish={() => done(current.resolve, undefined)} />;
+    case 'iconPicker':
+      return <IconPickerDialog req={current} finish={(r) => done(current.resolve, r)} />;
     case 'imagePaste':
       return <ImagePasteDialog req={current} finish={(r) => done(current.resolve, r)} />;
     case 'imageLarge':

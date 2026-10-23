@@ -1,7 +1,6 @@
-import { effectiveConfig } from '@shared/document-config';
 import { pageGeometry } from '@shared/page';
 import { editor } from '../editor/controller';
-import { updateConfig, useSettings } from './config';
+import { resolveConfig, updateConfig } from './config';
 import { useDocs, type ViewKind } from './store';
 
 export const ZOOM_MIN = 0.5;
@@ -41,7 +40,7 @@ export function stepZoom(id: string, direction: 1 | -1): void {
 function sheetWidth(id: string): number {
   const doc = useDocs.getState().docs.find((d) => d.id === id);
   if (!doc) return 794;
-  const eff = effectiveConfig(doc.config.config, useSettings.getState().documentDefaults);
+  const eff = resolveConfig(doc);
   return doc.view === 'pages' ? pageGeometry(eff.page).width : doc.columnWidth;
 }
 
@@ -50,7 +49,7 @@ export function fitZoom(id: string, mode: 'width' | 'page'): void {
   const scroller = editor.scrollElement();
   const doc = useDocs.getState().docs.find((d) => d.id === id);
   if (!scroller || !doc) return;
-  const eff = effectiveConfig(doc.config.config, useSettings.getState().documentDefaults);
+  const eff = resolveConfig(doc);
   const g = pageGeometry(eff.page);
   const byWidth = (scroller.clientWidth - 48) / sheetWidth(id);
   const byHeight = (scroller.clientHeight - 48) / g.height;

@@ -214,3 +214,37 @@ describe('[DOC-04] applyPatch', () => {
     expect(out.typography).toEqual({ font: 'Inter', size: 12, lineHeight: 2 });
   });
 });
+
+describe('[PRJ] los defaults del proyecto entre la app y el documento', () => {
+  const app = { typography: { font: 'Inter', size: 11 } };
+  const project = { typography: { font: 'Lora', size: 13 }, theme: 'tecnico' };
+
+  it('el proyecto supera a la app y el documento al proyecto', () => {
+    expect(effectiveConfig(null, app, project).typography.size).toBe(13);
+    expect(effectiveConfig(null, app, project).typography.font).toBe('Lora');
+    const doc = { version: 1, typography: { size: 9 } } as DocumentConfig;
+    expect(effectiveConfig(doc, app, project).typography.size).toBe(9);
+    expect(effectiveConfig(doc, app, project).typography.font).toBe('Lora');
+  });
+
+  it('el preset del proyecto se aplica y sus valores explícitos lo superan', () => {
+    // «tecnico» define su propia fuente; el proyecto fija Lora y gana.
+    expect(effectiveConfig(null, null, { theme: 'tecnico' }).typography.font).not.toBe('Lora');
+    expect(effectiveConfig(null, null, project).typography.font).toBe('Lora');
+  });
+
+  it('un preset elegido en el documento supera a lo explícito del proyecto', () => {
+    const doc = { version: 1, theme: 'clasico' } as DocumentConfig;
+    const preset = PRESETS.find((p) => p.id === 'clasico')!;
+    const font = (preset.config as { typography?: { font?: string } }).typography?.font;
+    expect(effectiveConfig(doc, app, project).typography.font).toBe(font);
+  });
+
+  it('el origen distingue documento, proyecto, app y valor de fábrica', () => {
+    const doc = { version: 1, typography: { size: 9 } } as DocumentConfig;
+    expect(originOf(['typography', 'size'], doc, app, project)).toBe('document');
+    expect(originOf(['typography', 'font'], doc, app, project)).toBe('project');
+    expect(originOf(['typography', 'size'], null, app, null)).toBe('app');
+    expect(originOf(['typography', 'lineHeight'], null, app, project)).toBe('default');
+  });
+});

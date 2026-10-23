@@ -10,6 +10,8 @@ export function Welcome() {
       <div className="welcome-actions">
         <CommandButton id="file.new" large />
         <CommandButton id="file.open" large />
+        <CommandButton id="project.open" large />
+        <CommandButton id="project.new" large />
       </div>
     </div>
   );

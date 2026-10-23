@@ -213,6 +213,34 @@ function ViewTab() {
   );
 }
 
+function ProjectTab() {
+  const { t } = useTranslation();
+  return (
+    <>
+      <Group label={t('ribbon.groups.projectOpen')}>
+        <CommandButton id="project.open" large />
+        <CommandButton id="project.new" large />
+        <CommandButton id="project.openAs" large />
+        <CommandButton id="project.editFile" large />
+        <CommandButton id="project.settings" large />
+      </Group>
+      <Group label={t('ribbon.groups.projectStructure')}>
+        <CommandButton id="project.newChapter" large />
+        <CommandButton id="project.newBook" large />
+        <CommandButton id="project.newCollection" large />
+      </Group>
+      <Group label={t('ribbon.groups.projectSearch')}>
+        <CommandButton id="project.search" large />
+        <CommandButton id="project.quickOpen" large />
+      </Group>
+      <Group label={t('ribbon.groups.projectExport')}>
+        <CommandButton id="project.exportPdf" large />
+        <CommandButton id="project.cleanImages" large />
+      </Group>
+    </>
+  );
+}
+
 const BODIES: Partial<Record<RibbonTab, () => React.JSX.Element>> = {
   file: FileTab,
   home: HomeTab,
@@ -220,6 +248,7 @@ const BODIES: Partial<Record<RibbonTab, () => React.JSX.Element>> = {
   design: DesignTab,
   layout: LayoutTab,
   view: ViewTab,
+  project: ProjectTab,
 };
 
 export function Ribbon() {

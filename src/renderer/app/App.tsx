@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
 import { FileText, Library } from 'lucide-react';
+import { editOnlyThisFile, openAsProject } from '../project/actions';
+import { useProject } from '../project/store';
 import { useTranslation } from 'react-i18next';
 import { findByShortcut } from '../commands/registry';
 import { wireApp } from '../documents/actions';
+import { wireProject } from '../project/actions';
 import { activeDoc, useDocs } from '../documents/store';
 import { exportPdf, preparePrint } from '../documents/export';
 import { editor } from '../editor/controller';
@@ -16,7 +19,8 @@ import { FindBar } from '../ui/FindBar';
 import { ImagePopover } from '../ui/ImagePopover';
 import { Icon } from '../ui/Icon';
 import { Ribbon } from '../ui/Ribbon';
-import { SidePanel } from '../ui/SidePanel';
+import { Navigator } from '../ui/Navigator';
+import { ProjectBar } from '../ui/ProjectBar';
 import { StatusBar } from '../ui/StatusBar';
 import { Welcome } from '../ui/Welcome';
 import { useUi } from './store';
@@ -29,7 +33,9 @@ const isTextField = (el: EventTarget | null) =>
 export function App() {
   const { t } = useTranslation();
   const { theme, navigatorOpen, documentPanelOpen } = useUi();
-  const hasDocs = useDocs((s) => s.docs.length > 0);
+  const hasDocs = useDocs((s) => s.docs.some((d) => !d.hidden));
+  const projectTitle = useProject((s) => s.project?.title ?? null);
+  const projectOpen = projectTitle !== null;
   const doc = useDocs((s) => s.docs.find((d) => d.id === s.activeId));
 
   useEffect(() => {
@@ -41,6 +47,7 @@ export function App() {
   }, [doc]);
 
   useEffect(() => {
+    const offProject = wireProject();
     const off = wireApp();
     void window.mdteca.app.info().then((info) => {
       if (info.e2e)
@@ -52,7 +59,10 @@ export function App() {
           pages: () => usePagination.getState().pages,
         };
     });
-    return off;
+    return () => {
+      off();
+      offProject();
+    };
   }, []);
 
   // Atajos del registro de comandos (se atienden en captura para ganar al editor).
@@ -79,23 +89,39 @@ export function App() {
         <span className="brand">
           <Icon icon={FileText} /> {t('app.name')}
         </span>
+        <span className="mode-switch" role="group" aria-label={t('project.modeLabel')}>
+          <button
+            className="mode-btn"
+            aria-pressed={!projectOpen}
+            data-testid="mode-file"
+            onClick={() => projectOpen && editOnlyThisFile()}
+          >
+            <Icon icon={FileText} size={14} /> {t('project.modeFile')}
+          </button>
+          <button
+            className="mode-btn"
+            aria-pressed={projectOpen}
+            data-testid="mode-project"
+            onClick={() => !projectOpen && void openAsProject()}
+          >
+            <Icon icon={Library} size={14} /> {t('project.modeProject')}
+          </button>
+        </span>
         {doc && <span className="title-doc">{doc.name}</span>}
+        {projectTitle && (
+          <span className="title-project" data-testid="title-project">
+            — {projectTitle}
+          </span>
+        )}
         <CommandButton id="view.toggleNavigator" pressed={navigatorOpen} />
         <CommandButton id="view.toggleDocumentPanel" pressed={documentPanelOpen} />
         <CommandButton id="view.toggleTheme" />
       </header>
       <Ribbon />
       <div className="workspace">
-        {navigatorOpen && (
-          <SidePanel
-            side="left"
-            testId="navigator"
-            title={t('panels.navigator')}
-            icon={Library}
-            empty={t('panels.emptyNavigator')}
-          />
-        )}
+        {navigatorOpen && <Navigator />}
         <main className="canvas">
+          <ProjectBar />
           <DocTabs />
           {hasDocs && <FindBar />}
           <div className="canvas-body" hidden={!hasDocs}>

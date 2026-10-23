@@ -19,7 +19,10 @@ const api: MdtecaApi = {
     unwatch: (path) => invoke('file:unwatch', { path }),
   },
   edit: { action: (action) => invoke('edit:action', { action }) },
-  clipboard: { readText: () => invoke('clipboard:readText') },
+  clipboard: {
+    readText: () => invoke('clipboard:readText'),
+    writeText: (text) => invoke('clipboard:writeText', { text }),
+  },
   export: {
     pdf: (path) => invoke('export:pdf', { path }),
     print: () => invoke('export:print'),
@@ -42,6 +45,25 @@ const api: MdtecaApi = {
     copyForExport: (docPath, htmlPath, names) =>
       invoke('export:images', { docPath, htmlPath, names }),
     pathOf: (file) => webUtils.getPathForFile(file),
+  },
+  project: {
+    openDialog: () => invoke('project:openDialog'),
+    folderDialog: () => invoke('project:folderDialog'),
+    grantFolder: (folder) => invoke('project:grantFolder', { folder }),
+    load: (path) => invoke('project:load', { path }),
+    save: (path, text) => invoke('project:save', { path, text }),
+    scan: (root, ignore) => invoke('project:scan', { root, ignore }),
+    find: (docPath) => invoke('project:find', { docPath }),
+    inspect: (root, files) => invoke('project:inspect', { root, files }),
+    search: (req) => invoke('project:search', req),
+    createFile: (path, content) => invoke('project:createFile', { path, content }),
+    move: (from, to) => invoke('project:move', { from, to }),
+    duplicate: (from, to) => invoke('project:duplicate', { from, to }),
+    trash: (path) => invoke('project:trash', { path }),
+    reveal: (path) => invoke('project:reveal', { path }),
+    orphans: (docPath) => invoke('project:orphans', { docPath }),
+    getState: (path) => invoke('state:getProject', { path }),
+    setState: (req) => invoke('state:setProject', req),
   },
   settings: {
     get: () => invoke('settings:get'),

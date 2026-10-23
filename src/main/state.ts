@@ -30,6 +30,38 @@ export function getViewState(path: string): ViewState | null {
   return load()[key(path)] ?? null;
 }
 
+/** Estado de sesión de un proyecto (09): nodos expandidos y pestañas abiertas. */
+export interface ProjectState {
+  expanded: string[];
+  open: string[];
+  active: string | null;
+}
+
+const projectFile = () => join(app.getPath('userData'), 'state', 'projects.json');
+let projects: Record<string, ProjectState> | null = null;
+
+function loadProjects(): Record<string, ProjectState> {
+  if (projects) return projects;
+  try {
+    projects = JSON.parse(readFileSync(projectFile(), 'utf8')) as Record<string, ProjectState>;
+  } catch {
+    projects = {};
+  }
+  return projects;
+}
+
+export function getProjectState(path: string): ProjectState {
+  return loadProjects()[key(path)] ?? { expanded: [], open: [], active: null };
+}
+
+export function setProjectState(path: string, state: ProjectState): void {
+  loadProjects()[key(path)] = state;
+  mkdirSync(dirname(projectFile()), { recursive: true });
+  const tmp = `${projectFile()}.tmp`;
+  writeFileSync(tmp, JSON.stringify(projects));
+  renameSync(tmp, projectFile());
+}
+
 export function setViewState(path: string, state: ViewState): void {
   load()[key(path)] = state;
   mkdirSync(dirname(file()), { recursive: true });

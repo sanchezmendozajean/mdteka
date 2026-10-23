@@ -36,6 +36,10 @@ export const ipcContract = {
     response: z.undefined(),
   },
   'clipboard:readText': { request: z.undefined(), response: z.string() },
+  'clipboard:writeText': {
+    request: z.object({ text: z.string().max(100000) }),
+    response: z.undefined(),
+  },
   /** Genera un PDF de la ventana (la vista de impresión ya está montada) y lo guarda. */
   'export:pdf': {
     request: z.object({ path }),
@@ -107,6 +111,77 @@ export const ipcContract = {
     }),
     response: z.object({ folder: z.string() }),
   },
+  // ---- Proyectos (05) ----
+  'project:openDialog': { request: z.undefined(), response: path.nullable() },
+  'project:folderDialog': { request: z.undefined(), response: path.nullable() },
+  /** Concede la carpeta de un documento abierto para crear en ella un proyecto. */
+  'project:grantFolder': { request: z.object({ folder: path }), response: path },
+  /** Lee el .mdteca y concede la carpeta del proyecto. */
+  'project:load': {
+    request: z.object({ path }),
+    response: z.object({ path, root: path, text: z.string() }),
+  },
+  'project:save': { request: z.object({ path, text: z.string() }), response: z.undefined() },
+  'project:scan': {
+    request: z.object({ root: path, ignore: z.array(z.string().max(300)).max(200) }),
+    response: z.array(z.string()),
+  },
+  /** Archivos .mdteca de la carpeta del documento o de las superiores. */
+  'project:find': { request: z.object({ docPath: path }), response: z.array(path) },
+  /** Existencia y primer título de cada archivo indexado. */
+  'project:inspect': {
+    request: z.object({ root: path, files: z.array(z.string().max(1024)).max(5000) }),
+    response: z.record(z.string(), z.object({ exists: z.boolean(), h1: z.string().optional() })),
+  },
+  'project:search': {
+    request: z.object({
+      root: path,
+      files: z.array(z.string().max(1024)).max(5000),
+      query: z.string().max(500),
+      caseSensitive: z.boolean(),
+      wholeWord: z.boolean(),
+      regex: z.boolean(),
+    }),
+    response: z.array(
+      z.object({
+        file: z.string(),
+        n: z.number(),
+        line: z.number(),
+        text: z.string(),
+        from: z.number(),
+        to: z.number(),
+      }),
+    ),
+  },
+  'project:createFile': {
+    request: z.object({ path, content: z.string() }),
+    response: z.undefined(),
+  },
+  'project:move': {
+    request: z.object({ from: path, to: path }),
+    response: z.object({ images: z.number(), links: z.number() }),
+  },
+  'project:duplicate': { request: z.object({ from: path, to: path }), response: z.undefined() },
+  'project:trash': { request: z.object({ path }), response: z.undefined() },
+  'project:reveal': { request: z.object({ path }), response: z.undefined() },
+  'project:orphans': { request: z.object({ docPath: path }), response: z.array(path) },
+  'state:getProject': {
+    request: z.object({ path }),
+    response: z.object({
+      expanded: z.array(z.string()),
+      open: z.array(z.string()),
+      active: z.string().nullable(),
+    }),
+  },
+  'state:setProject': {
+    request: z.object({
+      path,
+      expanded: z.array(z.string().max(200)).max(5000),
+      open: z.array(z.string().max(1024)).max(200),
+      active: z.string().max(1024).nullable(),
+    }),
+    response: z.undefined(),
+  },
   'settings:get': {
     request: z.undefined(),
     response: z.object({ documentDefaults: z.record(z.string(), z.unknown()) }),
@@ -145,7 +220,7 @@ export interface MdtecaApi {
     unwatch(path: string): Promise<void>;
   };
   edit: { action(action: 'cut' | 'copy' | 'paste' | 'pastePlain'): Promise<void> };
-  clipboard: { readText(): Promise<string> };
+  clipboard: { readText(): Promise<string>; writeText(text: string): Promise<void> };
   export: {
     pdf(path: string): Promise<void>;
     print(): Promise<void>;
@@ -168,6 +243,25 @@ export interface MdtecaApi {
     copyForExport(docPath: string, htmlPath: string, names: string[]): Promise<{ folder: string }>;
     /** Ruta de un archivo arrastrado al editor. */
     pathOf(file: File): string;
+  };
+  project: {
+    openDialog(): Promise<string | null>;
+    folderDialog(): Promise<string | null>;
+    grantFolder(folder: string): Promise<string>;
+    load(path: string): Promise<IpcResponse<'project:load'>>;
+    save(path: string, text: string): Promise<void>;
+    scan(root: string, ignore: string[]): Promise<string[]>;
+    find(docPath: string): Promise<string[]>;
+    inspect(root: string, files: string[]): Promise<IpcResponse<'project:inspect'>>;
+    search(req: IpcRequest<'project:search'>): Promise<IpcResponse<'project:search'>>;
+    createFile(path: string, content: string): Promise<void>;
+    move(from: string, to: string): Promise<IpcResponse<'project:move'>>;
+    duplicate(from: string, to: string): Promise<void>;
+    trash(path: string): Promise<void>;
+    reveal(path: string): Promise<void>;
+    orphans(docPath: string): Promise<string[]>;
+    getState(path: string): Promise<IpcResponse<'state:getProject'>>;
+    setState(req: IpcRequest<'state:setProject'>): Promise<void>;
   };
   settings: {
     get(): Promise<IpcResponse<'settings:get'>>;

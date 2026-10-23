@@ -1,4 +1,15 @@
 import {
+  BookPlus,
+  FileSearch,
+  FileText,
+  FolderInput,
+  FolderKanban,
+  FolderPlus,
+  FolderTree,
+  Eraser,
+  FilePlus2,
+  ScanSearch,
+  Settings,
   FileDown,
   FileOutput,
   Printer,
@@ -88,6 +99,21 @@ import {
 } from '../documents/images';
 import { fitZoom, saveViewAsDefault, setView, setZoom, stepZoom } from '../documents/view';
 import { useFind } from '../editor/find-store';
+import {
+  activeBookId,
+  cleanOrphanImages,
+  editOnlyThisFile,
+  isProjectOpen,
+  newBook,
+  newChapter,
+  newCollection,
+  newProjectWizard,
+  openAsProject,
+  openProjectDialog,
+  showSearch,
+} from '../project/actions';
+import { showProjectSettings, showQuickOpen } from '../documents/store';
+import { exportProjectPdf } from '../project/export';
 import { editor, type FormatCommand } from '../editor/controller';
 import type { FormatState } from '../editor/wysiwyg/commands';
 import { registerCommand } from './registry';
@@ -377,3 +403,53 @@ def(
   withDoc((id) => void printDocument(id)),
   { shortcut: 'Ctrl+P' },
 );
+
+// ----- Proyecto ----------------------------------------------------------------------------------------
+const inProject = () => isProjectOpen();
+def('project.open', FolderKanban, () => void openProjectDialog(), { global: true, inFields: true });
+def('project.new', FolderPlus, () => void newProjectWizard(null), {
+  shortcut: 'Ctrl+Shift+N',
+  global: true,
+});
+def('project.openAs', FolderInput, () => void openAsProject(), {
+  global: true,
+  when: () => !isProjectOpen(),
+});
+def('project.editFile', FileText, () => editOnlyThisFile(), { global: true, when: inProject });
+def(
+  'project.newChapter',
+  FilePlus2,
+  () => {
+    // Al libro del documento activo; si no hay ninguno, se crea el primero.
+    const id = activeBookId();
+    if (id) void newChapter(id);
+    else void newBook();
+  },
+  { global: true, when: inProject },
+);
+def('project.newBook', BookPlus, () => void newBook(), { global: true, when: inProject });
+def('project.newCollection', FolderTree, () => void newCollection(), {
+  global: true,
+  when: inProject,
+});
+def('project.search', FileSearch, () => showSearch(), {
+  shortcut: 'Ctrl+Shift+F',
+  global: true,
+  when: inProject,
+});
+def('project.quickOpen', ScanSearch, () => void showQuickOpen(), {
+  shortcut: 'Ctrl+Shift+O',
+  global: true,
+  when: inProject,
+});
+def('project.settings', Settings, () => void showProjectSettings(), {
+  global: true,
+  when: inProject,
+});
+def('project.exportPdf', FileDown, () => void exportProjectPdf(), {
+  global: true,
+  when: inProject,
+});
+def('project.cleanImages', Eraser, () => void cleanOrphanImages(), {
+  when: () => !!activeDoc()?.path,
+});

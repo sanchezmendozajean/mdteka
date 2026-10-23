@@ -15,6 +15,7 @@ import { findPlugin } from './find';
 import { pagePlugin } from '../paginator/plugin';
 import { imageFilesFrom, imageHooks } from '../image-hooks';
 import { highlightPlugin } from './highlight';
+import { linkHooks } from '../link-hooks';
 import { installMarginSelect } from './margin-select';
 import { nodeViews } from './nodeviews';
 
@@ -131,7 +132,8 @@ export function createWysiwygView(
         (m) => m.type.name === 'link',
       );
       if (!link) return false;
-      void window.mdteca.shell.openExternal(link.attrs['href'] as string);
+      const href = link.attrs['href'] as string;
+      if (!linkHooks.open?.(href)) void window.mdteca.shell.openExternal(href);
       return true;
     },
     dispatchTransaction(tr) {

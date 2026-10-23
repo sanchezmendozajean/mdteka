@@ -14,7 +14,11 @@ import { ipcContract, type IpcChannel, type IpcEvent } from '@shared/ipc';
 import { buildCsp } from './csp';
 import {
   closeAllWatchers,
+  assertGranted,
+  assertTreeRoot,
+  grantableDir,
   grant,
+  grantTree,
   isInDocDir,
   pathsFromArgv,
   readText,
@@ -36,8 +40,20 @@ import {
   saveImage,
 } from './images';
 import { isSafeExternalUrl } from './security';
+import {
+  assertTrashable,
+  createFile,
+  duplicateDocument,
+  findProjectFiles,
+  moveDocument,
+  orphanImages,
+  scanMarkdown,
+  searchFiles,
+} from './project';
 import { loadSettings, saveDocumentDefaults } from './settings';
-import { getViewState, setViewState } from './state';
+import { getProjectState, getViewState, setProjectState, setViewState } from './state';
+import { firstH1 } from '@shared/project';
+import { promises as fsp } from 'node:fs';
 
 const isDev = !app.isPackaged && !!process.env['ELECTRON_RENDERER_URL'];
 const e2e = process.env['MDTECA_E2E'] === '1';
@@ -117,6 +133,7 @@ function registerIpc(): void {
     else wc.pasteAndMatchStyle();
   });
   handle('clipboard:readText', () => clipboard.readText());
+  handle('clipboard:writeText', (req: { text: string }) => clipboard.writeText(req.text));
   handle('export:pdf', async (req: { path: string }) => {
     const wc = mainWindow?.webContents;
     if (!wc) return;
@@ -190,6 +207,93 @@ function registerIpc(): void {
   handle('export:images', async (req: { docPath: string; htmlPath: string; names: string[] }) => ({
     folder: await copyImagesFor(req.docPath, req.htmlPath, req.names),
   }));
+  // ---- Proyectos (05) ----
+  handle('project:openDialog', async () => {
+    const forced = process.env['MDTECA_E2E_OPEN_PATH'];
+    if (e2e && forced) return grant(forced);
+    const result = await dialog.showOpenDialog(mainWindow!, {
+      properties: ['openFile'],
+      filters: [{ name: 'Proyecto MDteca', extensions: ['mdteca'] }],
+    });
+    return result.canceled || !result.filePaths[0] ? null : grant(result.filePaths[0]);
+  });
+  handle('project:folderDialog', async () => {
+    const forced = process.env['MDTECA_E2E_FOLDER_PATH'];
+    if (e2e && forced) return grantTree(forced);
+    const result = await dialog.showOpenDialog(mainWindow!, {
+      properties: ['openDirectory', 'createDirectory'],
+    });
+    return result.canceled || !result.filePaths[0] ? null : grantTree(result.filePaths[0]);
+  });
+  handle('project:grantFolder', (req: { folder: string }) => {
+    // Solo la carpeta de un documento ya abierto (o de un proyecto abierto): la del asistente.
+    if (!isInDocDir(grantableDir(req.folder))) throw new Error('Ruta no autorizada');
+    return grantTree(req.folder);
+  });
+  handle('project:load', async (req: { path: string }) => {
+    const file = assertGranted(req.path);
+    const root = grantTree(dirname(file));
+    return { path: file, root, text: await readText(file) };
+  });
+  handle('project:save', async (req: { path: string; text: string }) => {
+    await writeTextAtomic(req.path, req.text);
+  });
+  handle('project:scan', (req: { root: string; ignore: string[] }) =>
+    scanMarkdown(req.root, req.ignore),
+  );
+  handle('project:find', async (req: { docPath: string }) =>
+    (await findProjectFiles(req.docPath)).map((p) => grant(p)),
+  );
+  handle('project:inspect', async (req: { root: string; files: string[] }) => {
+    const root = assertTreeRoot(req.root);
+    const out: Record<string, { exists: boolean; h1?: string }> = {};
+    await Promise.all(
+      req.files.map(async (file) => {
+        try {
+          const full = join(root, ...file.split('/'));
+          if (!full.startsWith(root)) throw new Error('fuera');
+          const fh = await fsp.open(full, 'r');
+          try {
+            const buf = Buffer.alloc(16384);
+            const { bytesRead } = await fh.read(buf, 0, buf.length, 0);
+            const h1 = firstH1(buf.subarray(0, bytesRead).toString('utf8'));
+            out[file] = h1 ? { exists: true, h1 } : { exists: true };
+          } finally {
+            await fh.close();
+          }
+        } catch {
+          out[file] = { exists: false };
+        }
+      }),
+    );
+    return out;
+  });
+  handle(
+    'project:search',
+    (req: Parameters<typeof searchFiles>[2] & { root: string; files: string[] }) =>
+      searchFiles(req.root, req.files, req),
+  );
+  handle('project:createFile', (req: { path: string; content: string }) =>
+    createFile(req.path, req.content),
+  );
+  handle('project:move', (req: { from: string; to: string }) => moveDocument(req.from, req.to));
+  handle('project:duplicate', (req: { from: string; to: string }) =>
+    duplicateDocument(req.from, req.to),
+  );
+  handle('project:trash', async (req: { path: string }) => {
+    await shell.trashItem(assertTrashable(req.path));
+  });
+  handle('project:reveal', (req: { path: string }) => {
+    shell.showItemInFolder(assertGranted(req.path));
+  });
+  handle('project:orphans', (req: { docPath: string }) => orphanImages(req.docPath));
+  handle('state:getProject', (req: { path: string }) => getProjectState(req.path));
+  handle(
+    'state:setProject',
+    (req: { path: string; expanded: string[]; open: string[]; active: string | null }) => {
+      setProjectState(req.path, { expanded: req.expanded, open: req.open, active: req.active });
+    },
+  );
   handle('settings:get', () => loadSettings());
   handle('settings:setDocumentDefaults', (req: { documentDefaults: Record<string, unknown> }) =>
     saveDocumentDefaults(req.documentDefaults),

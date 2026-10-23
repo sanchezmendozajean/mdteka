@@ -37,6 +37,24 @@ function canonical(raw: string): string {
 /** Carpetas de los documentos abiertos: lo único que sirve `mdteca-asset://` (02). */
 const docDirs = new Set<string>();
 
+/** Carpetas de proyectos abiertos: sus documentos (y el `.mdteca`) se pueden leer y escribir (05). */
+const trees = new Set<string>();
+const TREE_FILES = /\.(md|markdown|mdown|txt|mdteca)$/i;
+
+export function grantTree(raw: string): string {
+  const p = canonical(raw);
+  trees.add(key(p));
+  // Las imágenes de cualquier documento del proyecto se pueden mostrar (mdteca-asset://).
+  docDirs.add(key(p));
+  return p;
+}
+
+const inTree = (p: string): boolean => {
+  const k = key(p);
+  for (const t of trees) if (k.startsWith(t.endsWith(sep) ? t : t + sep)) return true;
+  return false;
+};
+
 export function grant(raw: string): string {
   const p = canonical(raw);
   grants.add(key(p));
@@ -53,10 +71,22 @@ export function isInDocDir(p: string): boolean {
   return false;
 }
 
+/** Ruta canónica de una carpeta (para compararla con las de los documentos abiertos). */
+export const grantableDir = (raw: string): string => canonical(raw);
+
+/** Carpeta de un proyecto abierto (o una subcarpeta suya). */
+export function assertTreeRoot(raw: string): string {
+  const p = canonical(raw);
+  if (trees.has(key(p)) || inTree(p)) return p;
+  throw new Error('Ruta no autorizada');
+}
+
 export function assertGranted(raw: string): string {
   const p = canonical(raw);
-  if (!grants.has(key(p))) throw new Error('Ruta no autorizada');
-  return p;
+  if (grants.has(key(p))) return p;
+  // Un documento dentro de la carpeta de un proyecto abierto se concede al primer uso.
+  if (inTree(p) && TREE_FILES.test(p)) return grant(p);
+  throw new Error('Ruta no autorizada');
 }
 
 const sha = (text: string) => createHash('sha1').update(text).digest('hex');
@@ -132,7 +162,7 @@ export async function closeAllWatchers(): Promise<void> {
   watchers.clear();
 }
 
-const OPENABLE = /\.(md|markdown|mdown|txt)$/i;
+const OPENABLE = /\.(md|markdown|mdown|txt|mdteca)$/i;
 
 /** Rutas de archivo útiles dentro de una lista de argumentos de línea de comandos. */
 export function pathsFromArgv(argv: string[]): string[] {

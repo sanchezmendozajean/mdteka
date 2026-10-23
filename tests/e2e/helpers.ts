@@ -1,7 +1,7 @@
 import { _electron as electron, type ElectronApplication, type Page } from '@playwright/test';
-import { mkdtempSync, realpathSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 export interface Launched {
   userData: string;
@@ -15,20 +15,27 @@ export interface Launched {
 export async function launch(
   files: Record<string, string | Buffer> = {},
   reuse?: { dir: string; userData: string },
+  /** Nombres de los archivos que se pasan por línea de comandos (por defecto, todos). */
+  opening?: string[],
+  /** Variables de entorno extra (diálogos nativos simulados). */
+  extraEnv: Record<string, string> = {},
 ): Promise<Launched> {
   const dir = reuse?.dir ?? mkdtempSync(join(realpathSync.native(tmpdir()), 'mdteca-e2e-'));
   const userData =
     reuse?.userData ?? mkdtempSync(join(realpathSync.native(tmpdir()), 'mdteca-ud-'));
-  const paths = Object.entries(files).map(([name, content]) => {
+  const all = Object.entries(files).map(([name, content]) => {
     const path = join(dir, name);
+    mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, content);
-    return path;
+    return [name, path] as const;
   });
+  const paths = all.filter(([name]) => !opening || opening.includes(name)).map(([, path]) => path);
   // VS Code define ELECTRON_RUN_AS_NODE=1, lo que impediría arrancar Electron como app.
   const env = {
     ...process.env,
     MDTECA_E2E: '1',
     MDTECA_USER_DATA: userData,
+    ...extraEnv,
   } as Record<string, string>;
   delete env['ELECTRON_RUN_AS_NODE'];
   const app = await electron.launch({ args: ['.', ...paths], cwd: process.cwd(), env });

@@ -19,6 +19,14 @@ import {
 const api = () => window.mdteca;
 const baseName = (path: string) => path.split(/[\\/]/).pop() ?? path;
 
+/** Enganches que rellena el módulo de proyectos (evita la dependencia circular). */
+export const hooks: {
+  openProject?: (path: string) => void;
+  /** Devuelve true si la ruta era el `.mdteca` abierto (el cambio ya está atendido). */
+  projectFileChanged?: (path: string) => boolean;
+  documentOpened?: (path: string) => void;
+} = {};
+
 let untitledCounter = 0;
 
 function register(info: Omit<DocInfo, 'id'>, source: string, createState?: boolean): string {
@@ -43,6 +51,44 @@ function register(info: Omit<DocInfo, 'id'>, source: string, createState?: boole
   useDocs.getState().add({ ...info, id });
   editor.activate(id);
   return id;
+}
+
+/** Documento temporal sin pestaña, solo para exportarlo (PDF de un proyecto). */
+export function registerHidden(path: string, name: string, source: string): string {
+  const id = crypto.randomUUID();
+  editor.register({
+    id,
+    source,
+    savedSource: source,
+    pmState: null,
+    pmSource: null,
+    cmState: null,
+    cmSource: null,
+    mode: 'wysiwyg',
+    scrollRatio: 0,
+    stale: false,
+  });
+  useDocs.getState().add({
+    id,
+    hidden: true,
+    path,
+    name,
+    dirty: false,
+    mode: 'wysiwyg',
+    ...viewFields('', path),
+    eol: '\n',
+    bom: false,
+    ...configFields(''),
+    savedConfigRaw: '',
+    words: 0,
+    externalChange: false,
+  });
+  return id;
+}
+
+export function discardHidden(id: string): void {
+  editor.discard(id);
+  useDocs.getState().remove(id);
 }
 
 export function newDocument(): string {
@@ -75,6 +121,10 @@ function parseRaw(raw: string): { body: string; configRaw: string; eol: Eol; bom
 
 export async function openPaths(paths: string[]): Promise<void> {
   for (const path of paths) {
+    if (/.mdteca$/i.test(path)) {
+      hooks.openProject?.(path);
+      continue;
+    }
     const existing = useDocs
       .getState()
       .docs.find((d) => d.path?.toLowerCase() === path.toLowerCase());
@@ -91,7 +141,7 @@ export async function openPaths(paths: string[]): Promise<void> {
           name: baseName(path),
           dirty: false,
           mode: 'wysiwyg',
-          ...viewFields(configRaw),
+          ...viewFields(configRaw, path),
           eol,
           bom,
           ...configFields(configRaw),
@@ -107,6 +157,7 @@ export async function openPaths(paths: string[]): Promise<void> {
         .state.getView(path)
         .catch(() => ({ zoom: null }));
       if (zoom) setZoom(id, zoom);
+      hooks.documentOpened?.(path);
     } catch (error) {
       await showError(`${i18next.t('doc.openError', { name: baseName(path) })}\n${String(error)}`);
     }
@@ -159,7 +210,7 @@ export async function saveDocument(id: string, saveAs = false): Promise<boolean>
 }
 
 /** Pide confirmación si hay cambios. Devuelve true si el documento puede cerrarse. */
-async function resolveUnsaved(id: string): Promise<boolean> {
+export async function resolveUnsaved(id: string): Promise<boolean> {
   editor.flush();
   const info = useDocs.getState().docs.find((d) => d.id === id);
   if (!info || !info.dirty) return true;
@@ -169,8 +220,9 @@ async function resolveUnsaved(id: string): Promise<boolean> {
   return true;
 }
 
-export async function closeDocument(id: string): Promise<boolean> {
-  if (!(await resolveUnsaved(id))) return false;
+/** Cierra una pestaña. Con `force` no pregunta por cambios (la acción ya los resolvió o los descarta). */
+export async function closeDocument(id: string, force = false): Promise<boolean> {
+  if (!force && !(await resolveUnsaved(id))) return false;
   const { docs, activeId } = useDocs.getState();
   const index = docs.findIndex((d) => d.id === id);
   const info = docs[index];
@@ -215,6 +267,7 @@ function applyExternal(id: string, raw: string): void {
 }
 
 export async function handleExternalChange(path: string): Promise<void> {
+  if (hooks.projectFileChanged?.(path)) return;
   const info = useDocs.getState().docs.find((d) => d.path?.toLowerCase() === path.toLowerCase());
   const rt = info && editor.runtime(info.id);
   if (!info || !rt) return;

@@ -1,4 +1,4 @@
-import { FileText, PanelRight, RotateCcw, Settings } from 'lucide-react';
+import { FileText, Library, PanelRight, RotateCcw, Settings } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -21,6 +21,7 @@ import {
   useSettings,
 } from '../documents/config';
 import { useDocs } from '../documents/store';
+import { useProjectDefaults } from '../project/store';
 import { Icon } from './Icon';
 
 type Json = Record<string, unknown>;
@@ -41,8 +42,9 @@ function Row({ label, path, children }: RowProps) {
   const { t } = useTranslation();
   const doc = useDocs((d) => d.docs.find((x) => x.id === d.activeId));
   const defaults = useSettings((d) => d.documentDefaults);
+  const projectDefaults = useProjectDefaults(doc?.path ?? null);
   if (!doc) return null;
-  const origin = originOf(path, doc.config.config, defaults);
+  const origin = originOf(path, doc.config.config, defaults, projectDefaults);
   return (
     <div className="field-row" data-testid={`cfg-${path.join('.')}`} data-origin={origin}>
       <span className="field-label">{label}</span>
@@ -63,6 +65,11 @@ function Row({ label, path, children }: RowProps) {
               <Icon icon={RotateCcw} size={14} />
             </button>
           </>
+        )}
+        {origin === 'project' && (
+          <span title={t('docPanel.originProject')}>
+            <Icon icon={Library} size={14} />
+          </span>
         )}
         {origin === 'app' && (
           <span title={t('docPanel.originApp')}>
