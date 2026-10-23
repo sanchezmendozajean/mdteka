@@ -118,3 +118,44 @@ test.describe('[Fase 6] esquema del documento', () => {
     await l.app.close();
   });
 });
+
+test.describe('[Fase 6] KeyTips de la cinta', () => {
+  const tapAlt = async (page: import('@playwright/test').Page) => {
+    await page.keyboard.down('Alt');
+    await page.keyboard.up('Alt');
+  };
+
+  test('Alt muestra una letra sobre cada pestaña, que la abre, y luego una tecla por botón', async () => {
+    const l = await launch({ 'a.md': 'Hola\n' });
+    await waitForEditor(l.page);
+    await l.page.locator('.ProseMirror').click();
+    await l.page.keyboard.press('Control+a');
+    await tapAlt(l.page);
+    await expect(l.page.getByTestId('keytip')).toHaveCount(7);
+    await l.page.keyboard.press('n');
+    await expect(l.page.getByTestId('tab-insert')).toHaveAttribute('aria-selected', 'true');
+    await expect(l.page.getByTestId('keytip').first()).toBeVisible();
+    // De vuelta en Inicio, la tecla de «Negrita» la aplica.
+    await l.page.keyboard.press('Escape');
+    await tapAlt(l.page);
+    await l.page.keyboard.press('i');
+    const bold = l.page.locator('[data-testid="keytip"][data-for="format.bold"]');
+    await expect(bold).toBeVisible();
+    await l.page.keyboard.press((await bold.getAttribute('data-key'))!);
+    await expect.poll(() => source(l.page)).toBe('**Hola**\n');
+    await expect(l.page.getByTestId('keytips')).toHaveCount(0);
+    await l.app.close();
+  });
+
+  test('Esc y un segundo Alt cierran los KeyTips', async () => {
+    const l = await launch({});
+    await tapAlt(l.page);
+    await expect(l.page.getByTestId('keytips')).toBeVisible();
+    await l.page.keyboard.press('Escape');
+    await expect(l.page.getByTestId('keytips')).toHaveCount(0);
+    await tapAlt(l.page);
+    await tapAlt(l.page);
+    await expect(l.page.getByTestId('keytips')).toHaveCount(0);
+    await l.app.close();
+  });
+});

@@ -1719,3 +1719,25 @@ kbd {
 .outline-item[data-level='1'] {
   font-weight: 600;
 }
+
+/* ---------- KeyTips (Alt) ---------- */
+.keytips {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+}
+.keytip {
+  position: fixed;
+  transform: translateX(-50%);
+  min-width: 16px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--text);
+  color: var(--bg-app);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+  box-shadow: var(--shadow-pop);
+}

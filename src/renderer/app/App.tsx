@@ -21,6 +21,7 @@ import { FindBar } from '../ui/FindBar';
 import { FloatingToolbar } from '../ui/FloatingToolbar';
 import { ImagePopover } from '../ui/ImagePopover';
 import { Icon } from '../ui/Icon';
+import { KeyTips } from '../ui/KeyTips';
 import { Ribbon } from '../ui/Ribbon';
 import { Navigator } from '../ui/Navigator';
 import { ProjectBar } from '../ui/ProjectBar';
@@ -149,6 +150,7 @@ export function App() {
       <StatusBar />
       <ImagePopover />
       <FloatingToolbar />
+      <KeyTips />
       <EditorContextMenu />
       <Dialogs />
     </div>
