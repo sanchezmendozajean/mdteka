@@ -3,7 +3,7 @@ import { execSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Settings } from '@shared/settings';
-import { launch, source, waitForEditor, type Launched } from './helpers';
+import { launch, navigate, source, waitForEditor, type Launched } from './helpers';
 
 const saved = (l: Launched) =>
   JSON.parse(readFileSync(join(l.userData, 'settings.json'), 'utf8')) as Partial<Settings> &
@@ -241,7 +241,7 @@ const crash = async (l: Launched) => {
 test.describe('[Fase 6] autoguardado, recuperación y arranque', () => {
   const typeAtEnd = async (page: Page, text: string) => {
     await page.locator('.ProseMirror').click();
-    await page.keyboard.press('Control+End');
+    await navigate(page, 'Control+End');
     await page.keyboard.type(text);
   };
 

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { launch, source, waitForEditor } from './helpers';
+import { launch, navigate, source, waitForEditor } from './helpers';
 
 test.describe('[Fase 6] barra flotante y menú contextual del editor', () => {
   test('[03] al seleccionar texto aparece la barra flotante y da formato', async () => {
@@ -85,7 +85,7 @@ test.describe('[Fase 6] esquema del documento', () => {
     await expect(l.page.getByTestId('outline-item')).toHaveText(['Uno', 'Dos', 'Tres']);
     await expect(l.page.getByTestId('outline-item').nth(2)).toHaveAttribute('data-level', '3');
     await l.page.locator('.ProseMirror').click();
-    await l.page.keyboard.press('Control+End');
+    await navigate(l.page, 'Control+End');
     await l.page.keyboard.press('Enter');
     await l.page.keyboard.type('Nuevo');
     await l.page.keyboard.press('Control+1');
