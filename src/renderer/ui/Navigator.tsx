@@ -766,20 +766,22 @@ export function Navigator() {
           handle.addEventListener('pointerup', up);
         }}
       />
-      <div className="panel-tabs" role="tablist">
-        {(['navigator', 'outline'] as const).map((tab) => (
-          <button
-            key={tab}
-            role="tab"
-            className="panel-tab"
-            aria-selected={leftTab === tab}
-            data-testid={`left-tab-${tab}`}
-            onClick={() => useUi.getState().set({ leftTab: tab })}
-          >
-            <Icon icon={tab === 'navigator' ? Library : TableOfContents} size={16} />
-            {t(`panels.${tab}`)}
-          </button>
-        ))}
+      <div className="panel-tabs">
+        <div role="tablist" className="panel-tablist">
+          {(['navigator', 'outline'] as const).map((tab) => (
+            <button
+              key={tab}
+              role="tab"
+              className="panel-tab"
+              aria-selected={leftTab === tab}
+              data-testid={`left-tab-${tab}`}
+              onClick={() => useUi.getState().set({ leftTab: tab })}
+            >
+              <Icon icon={tab === 'navigator' ? Library : TableOfContents} size={16} />
+              {t(`panels.${tab}`)}
+            </button>
+          ))}
+        </div>
         <HidePanelButton side="left" />
       </div>
       {leftTab === 'outline' ? (

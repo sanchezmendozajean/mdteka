@@ -339,6 +339,7 @@ kbd {
   gap: 6px;
   padding: 6px 8px 6px 10px;
   cursor: pointer;
+  min-width: 0;
   border-radius: var(--radius) var(--radius) 0 0;
   color: var(--text-2);
   max-width: 220px;
@@ -1505,6 +1506,32 @@ kbd {
 :root[data-theme='dark'][data-sheet='dark'] {
   --paper: #232321;
   --ink: #ece9e5;
+  --ink-2: #bdb8af;
+  --ink-3: #99948b;
+  --ink-rule: #3d3b37;
+  --code-bg: #2e2d2a;
+  --doc-link: #6cc4cc;
+  --accent-doc: #6cc4cc;
+}
+:root[data-theme='dark'][data-sheet='dark'] .tok-keyword,
+:root[data-theme='dark'][data-sheet='dark'] .tok-operator {
+  color: #d2a8ff;
+}
+:root[data-theme='dark'][data-sheet='dark'] .tok-string,
+:root[data-theme='dark'][data-sheet='dark'] .tok-string2 {
+  color: #7ee2a8;
+}
+:root[data-theme='dark'][data-sheet='dark'] .tok-number,
+:root[data-theme='dark'][data-sheet='dark'] .tok-bool,
+:root[data-theme='dark'][data-sheet='dark'] .tok-atom {
+  color: #f0a35e;
+}
+:root[data-theme='dark'][data-sheet='dark'] .tok-typeName,
+:root[data-theme='dark'][data-sheet='dark'] .tok-className {
+  color: #79b8ff;
+}
+:root[data-theme='dark'][data-sheet='dark'] .tok-comment {
+  color: var(--ink-3);
 }
 
 /* ---------- Modo concentración ---------- */
@@ -1740,4 +1767,25 @@ kbd {
   line-height: 14px;
   text-align: center;
   box-shadow: var(--shadow-pop);
+}
+
+/* Texto solo para lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Controles nativos (casillas, selectores, deslizadores) acordes al tema y al acento */
+:root {
+  accent-color: var(--accent);
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
 }

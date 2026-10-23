@@ -1,5 +1,5 @@
 import { FileText, Library, PanelRight, RotateCcw, Settings } from 'lucide-react';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   BUNDLED_FONTS,
@@ -44,12 +44,21 @@ function Row({ label, path, children }: RowProps) {
   const doc = useDocs((d) => d.docs.find((x) => x.id === d.activeId));
   const defaults = useSettings((d) => d.documentDefaults);
   const projectDefaults = useProjectDefaults(doc?.path ?? null);
+  const control = useRef<HTMLDivElement>(null);
+  // Los controles de la fila se nombran con su etiqueta (accesibilidad): inputs y selects.
+  useLayoutEffect(() => {
+    control.current?.querySelectorAll('input, select, textarea').forEach((el) => {
+      if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', label);
+    });
+  });
   if (!doc) return null;
   const origin = originOf(path, doc.config.config, defaults, projectDefaults);
   return (
     <div className="field-row" data-testid={`cfg-${path.join('.')}`} data-origin={origin}>
       <span className="field-label">{label}</span>
-      <div className="field-control">{children}</div>
+      <div className="field-control" ref={control}>
+        {children}
+      </div>
       <span className="field-origin">
         {origin === 'document' && (
           <>
@@ -274,6 +283,7 @@ export function DocumentPanel() {
           className="field-input"
           value={cfg?.theme ?? ''}
           data-testid="cfg-theme"
+          aria-label={t('docPanel.preset')}
           onChange={(e) =>
             updateConfig(doc.id, {
               theme: e.target.value || undefined,
@@ -485,6 +495,7 @@ export function DocumentPanel() {
               className="field-input"
               value={styleKey}
               data-testid="style-element"
+              aria-label={t('docPanel.element')}
               onChange={(e) => setStyleKey(e.target.value as StyleKey)}
             >
               {STYLE_KEYS.filter((k) => k !== 'table').map((k) => (

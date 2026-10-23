@@ -55,7 +55,7 @@ export function CommandPalette({ finish }: { finish: () => void }) {
           e.stopPropagation();
         }}
       />
-      <div className="quick-list palette-list" role="listbox">
+      <div className="quick-list palette-list" role="listbox" aria-label={t('palette.title')}>
         {rows.length === 0 && <div className="panel-empty">{t('palette.none')}</div>}
         {rows.map((r, i) => {
           const shortcut = shortcutOf(r.cmd);

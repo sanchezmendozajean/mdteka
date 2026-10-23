@@ -20,6 +20,7 @@ export function DocTabs() {
           aria-selected={doc.id === activeId}
           className="doc-tab"
           data-testid="doc-tab"
+          data-active={doc.id === activeId}
           title={doc.path ?? doc.name}
           onClick={() => editor.activate(doc.id)}
           onAuxClick={(e) => e.button === 1 && void closeDocument(doc.id)}
@@ -31,16 +32,19 @@ export function DocTabs() {
             <span className="dirty-dot" data-testid="dirty-dot" title={t('doc.unsavedMarker')} />
           )}
           {doc.externalChange && <span className="external-dot" title={t('doc.externalMarker')} />}
-          <button
+          {/* Para el ratón: con teclado o lector de pantalla se cierra con Ctrl+W (comando «Cerrar documento»). */}
+          <span
             className="tab-close"
-            aria-label={t('doc.closeTab', { name: doc.name })}
+            aria-hidden="true"
+            data-testid="tab-close"
+            title={t('doc.closeTab', { name: doc.name })}
             onClick={(e) => {
               e.stopPropagation();
               void closeDocument(doc.id);
             }}
           >
             <Icon icon={X} size={14} />
-          </button>
+          </span>
         </div>
       ))}
     </div>

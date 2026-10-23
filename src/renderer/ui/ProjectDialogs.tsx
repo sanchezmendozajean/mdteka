@@ -414,7 +414,7 @@ export function QuickOpenDialog({ finish }: { finish: () => void }) {
           e.stopPropagation();
         }}
       />
-      <div className="quick-list" role="listbox">
+      <div className="quick-list" role="listbox" aria-label={t('project.quickOpenTitle')}>
         {rows.length === 0 && <div className="panel-empty">{t('project.quickOpenNone')}</div>}
         {rows.map((r, i) => (
           <button

@@ -49,13 +49,13 @@ export function Popover({ trigger, label, disabled, testId, children }: Props) {
         className="btn"
         aria-haspopup="true"
         aria-expanded={open}
-        aria-label={label}
         title={label}
         disabled={disabled}
         data-testid={testId}
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => setOpen((v) => !v)}
       >
+        <span className="sr-only">{label}</span>
         {trigger}
       </button>
       {open &&

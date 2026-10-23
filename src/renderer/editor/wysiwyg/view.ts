@@ -15,6 +15,7 @@ import { findPlugin } from './find';
 import { pagePlugin } from '../paginator/plugin';
 import { imageFilesFrom, imageHooks } from '../image-hooks';
 import { highlightPlugin } from './highlight';
+import i18next from 'i18next';
 import { linkHooks } from '../link-hooks';
 import { installMarginSelect } from './margin-select';
 import { nodeViews } from './nodeviews';
@@ -101,12 +102,14 @@ export function createWysiwygView(
   const view: EditorView = new EditorView(mount, {
     state,
     nodeViews,
-    attributes: {
+    // Función: el nombre accesible sigue al idioma de la interfaz.
+    attributes: () => ({
       'data-testid': 'wysiwyg',
       spellcheck: 'true',
       role: 'textbox',
       'aria-multiline': 'true',
-    },
+      'aria-label': i18next.t('editor.label'),
+    }),
     transformPastedHTML: sanitizePasted,
     // Imágenes pegadas o arrastradas (06): el flujo decide si se incrustan o se guardan como archivo.
     handlePaste(_v, event) {

@@ -1,3 +1,4 @@
+import i18next from 'i18next';
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
 import {
   foldGutter,
@@ -84,7 +85,11 @@ export function sourceExtensions(): Extension[] {
     // La barra de búsqueda es la de MDteca, común a ambos modos: se anula el panel de CodeMirror.
     search({ createPanel: () => ({ dom: document.createElement('span') }) }),
     keymap.of([...historyKeymap, ...foldKeymap, ...defaultKeymap, indentWithTab]),
-    EditorView.contentAttributes.of({ 'data-testid': 'source', spellcheck: 'true' }),
+    EditorView.contentAttributes.of({
+      'data-testid': 'source',
+      spellcheck: 'true',
+      'aria-label': i18next.t('editor.label'),
+    }),
   ];
 }
 
