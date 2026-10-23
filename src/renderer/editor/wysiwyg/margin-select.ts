@@ -1,9 +1,11 @@
-import { AllSelection, TextSelection } from 'prosemirror-state';
+import { AllSelection, Selection, TextSelection } from 'prosemirror-state';
 import type { EditorView } from 'prosemirror-view';
 
 /**
  * Barra de selección del margen izquierdo, como en Word: clic selecciona la línea, arrastrar
  * selecciona líneas completas, doble clic el párrafo y triple clic todo el documento.
+ * En el margen derecho un clic pone el cursor al final de la línea (también tras una imagen que
+ * ocupa todo el ancho) y bajo la última línea lo pone al final del documento.
  * Se engancha a la hoja (`.doc-column`), cuyo relleno izquierdo queda fuera del editor.
  */
 export function installMarginSelect(view: EditorView, sheet: HTMLElement): () => void {
@@ -21,6 +23,38 @@ export function installMarginSelect(view: EditorView, sheet: HTMLElement): () =>
     if (!first || !last) return false;
     return e.clientX < bounds().left - GUTTER && e.clientY >= first.top && e.clientY <= last.bottom;
   };
+  /**
+   * Zona donde un clic solo coloca el cursor: el margen derecho a la altura del contenido
+   * (final de esa línea) o el espacio bajo la última línea (final del documento).
+   */
+  const caretTarget = (e: MouseEvent): 'line-end' | 'doc-end' | null => {
+    // El espacio bajo la última línea es parte del editor; los márgenes son de la hoja.
+    if ((e.target !== sheet && e.target !== view.dom) || view.dom.offsetParent === null)
+      return null;
+    const first = view.dom.firstElementChild?.getBoundingClientRect();
+    const last = view.dom.lastElementChild?.getBoundingClientRect();
+    if (!first || !last) return null;
+    if (e.clientY > last.bottom) return 'doc-end';
+    if (e.target !== sheet) return null;
+    if (e.clientX > bounds().right && e.clientY >= first.top) return 'line-end';
+    return null;
+  };
+  const placeCaret = (e: MouseEvent, target: 'line-end' | 'doc-end') => {
+    const { doc } = view.state;
+    let sel: Selection;
+    if (target === 'doc-end') {
+      sel = Selection.atEnd(doc);
+    } else {
+      const hit = view.posAtCoords({ left: bounds().right - 1, top: e.clientY });
+      if (!hit) return;
+      // Una imagen que llena la línea: el cursor va tras ella.
+      const image = hit.inside >= 0 ? doc.nodeAt(hit.inside) : null;
+      const pos = image?.type.name === 'image' ? hit.inside + image.nodeSize : hit.pos;
+      sel = Selection.near(doc.resolve(pos), -1);
+    }
+    view.focus();
+    view.dispatch(view.state.tr.setSelection(sel).scrollIntoView());
+  };
   const at = (x: number, y: number) => view.posAtCoords({ left: x, top: y })?.pos ?? null;
 
   const select = (anchor: number, head: number) => {
@@ -30,7 +64,14 @@ export function installMarginSelect(view: EditorView, sheet: HTMLElement): () =>
   };
 
   const onDown = (e: MouseEvent) => {
-    if (e.button !== 0 || !inBar(e)) return;
+    if (e.button !== 0) return;
+    const caret = caretTarget(e);
+    if (caret) {
+      e.preventDefault();
+      placeCaret(e, caret);
+      return;
+    }
+    if (!inBar(e)) return;
     const { left, right } = bounds();
     const y = e.clientY;
     const start = at(left, y);
@@ -70,8 +111,11 @@ export function installMarginSelect(view: EditorView, sheet: HTMLElement): () =>
     window.addEventListener('mouseup', onUp);
   };
 
-  const onHover = (e: MouseEvent) => sheet.classList.toggle('margin-select', inBar(e));
-  const onLeave = () => sheet.classList.remove('margin-select');
+  const onHover = (e: MouseEvent) => {
+    sheet.classList.toggle('margin-select', inBar(e));
+    sheet.classList.toggle('margin-caret', caretTarget(e) !== null);
+  };
+  const onLeave = () => sheet.classList.remove('margin-select', 'margin-caret');
 
   sheet.addEventListener('mousedown', onDown);
   sheet.addEventListener('mousemove', onHover);

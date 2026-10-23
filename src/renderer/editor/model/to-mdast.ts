@@ -91,8 +91,8 @@ function runToLeaf(run: Run): PhrasingContent | PhrasingContent[] | null {
       return literal(run.escaped ?? node.text!);
     case 'hard_break':
       return { type: 'break' };
-    case 'image': // Con tamaño guardado se escribe como HTML en línea (06).
-    {
+    case 'image': {
+      // Con tamaño guardado se escribe como HTML en línea (06).
       const title = (node.attrs['title'] as string | null) ?? null;
       // El pie de foto visible solo existe si hay título.
       const mark = node.attrs['caption'] && title ? [literal(CAPTION_MARK)] : [];

@@ -68,6 +68,7 @@
 - Quitar un bloque de código conserva las líneas como párrafos.
 - Flecha abajo al final de un bloque de código final crea un párrafo debajo.
 - Barra de selección en el margen izquierdo: clic = línea, arrastrar = líneas, doble clic = párrafo, triple clic = todo.
+- Clic en el margen derecho = cursor al final de esa línea (también tras una imagen a todo el ancho); clic bajo la última línea = cursor al final del documento.
 - Una palabra muy larga se parte y ya no empuja los paneles.
 
 **Decisiones**: ADR 006.

@@ -223,6 +223,58 @@ test.describe('[Fase 1] barra de selección del margen', () => {
       .toBe('tres cuatro');
     await app.close();
   });
+
+  test('[ED-15] clic en el margen derecho pone el cursor al final de la línea, también tras una imagen a todo el ancho', async () => {
+    const png = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+      'base64',
+    );
+    const { app, page } = await launch({
+      'm.md': 'uno dos\n\ntres cuatro\n\n<img src="m.001.png" alt="" width="3000">\n',
+      'm.001.png': png,
+    });
+    await waitForEditor(page);
+    // La hoja es más ancha que la ventana de pruebas: se desplaza hasta ver su margen derecho.
+    await page.evaluate(() => {
+      for (
+        let el: Element | null = document.querySelector('.ProseMirror');
+        el;
+        el = el.parentElement
+      )
+        el.scrollLeft = el.scrollWidth;
+    });
+    const rightOf = (selector: string, index: number) =>
+      page.evaluate(
+        ({ selector, index }) => {
+          const r = document.querySelectorAll(selector)[index]!.getBoundingClientRect();
+          const pm = document.querySelector('.ProseMirror')!.getBoundingClientRect();
+          return { x: pm.right + 12, y: r.top + r.height / 2 };
+        },
+        { selector, index },
+      );
+    const para = await rightOf('.ProseMirror p', 0);
+    await page.mouse.click(para.x, para.y);
+    await page.keyboard.type('X');
+    expect(await source(page)).toContain('uno dosX\n');
+    const image = await rightOf('.ProseMirror .image-wrap', 0);
+    await page.mouse.click(image.x, image.y);
+    await page.keyboard.type('Y');
+    expect(await source(page)).toContain('width="3000">Y');
+    await app.close();
+  });
+
+  test('[ED-15] clic bajo la última línea pone el cursor al final del documento', async () => {
+    const { app, page } = await launch({ 'm.md': 'uno dos\n\ntres cuatro\n' });
+    await waitForEditor(page);
+    const target = await page.evaluate(() => {
+      const p = document.querySelectorAll('.ProseMirror p')[1]!.getBoundingClientRect();
+      return { x: p.left + 20, y: p.bottom + 120 };
+    });
+    await page.mouse.click(target.x, target.y);
+    await page.keyboard.type('Z');
+    expect(await source(page)).toBe('uno dos\n\ntres cuatroZ\n');
+    await app.close();
+  });
 });
 
 test('[UI-10] una palabra muy larga se parte y no empuja los paneles', async () => {

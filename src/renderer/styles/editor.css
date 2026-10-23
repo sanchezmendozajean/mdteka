@@ -403,6 +403,10 @@
   background: color-mix(in srgb, var(--accent) 24%, transparent) !important;
 }
 
+.doc-column.margin-caret {
+  cursor: text;
+}
+
 /* Barra de selección del margen izquierdo (como Word): flecha hacia la derecha sobre el margen. */
 .doc-column.margin-select {
   cursor:
