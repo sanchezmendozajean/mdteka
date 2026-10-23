@@ -35,7 +35,13 @@ describe('[IMG-02] nombres de imagen', () => {
 describe('[IMG] imagen con tamaño guardado', () => {
   it('lee y escribe <img> con src, alt, title y width', () => {
     const a = parseImgTag('<img src="a b.png" alt="Una &quot;foto&quot;" title="t" width="400">');
-    expect(a).toEqual({ src: 'a b.png', alt: 'Una "foto"', title: 't', width: 400, caption: false });
+    expect(a).toEqual({
+      src: 'a b.png',
+      alt: 'Una "foto"',
+      title: 't',
+      width: 400,
+      caption: false,
+    });
     expect(imgTag(a!)).toBe('<img src="a b.png" alt="Una &quot;foto&quot;" title="t" width="400">');
   });
 

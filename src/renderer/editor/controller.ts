@@ -656,7 +656,14 @@ class EditorController {
         width: number | null;
         caption: boolean;
       };
-      next = { pos: sel.from, src: a.src, alt: a.alt, title: a.title ?? '', width: a.width, caption: a.caption };
+      next = {
+        pos: sel.from,
+        src: a.src,
+        alt: a.alt,
+        title: a.title ?? '',
+        width: a.width,
+        caption: a.caption,
+      };
     }
     const cur = useImageUi.getState().selected;
     if (JSON.stringify(cur) === JSON.stringify(next)) return;

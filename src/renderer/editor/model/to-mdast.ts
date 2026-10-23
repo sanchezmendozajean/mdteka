@@ -91,35 +91,34 @@ function runToLeaf(run: Run): PhrasingContent | PhrasingContent[] | null {
       return literal(run.escaped ?? node.text!);
     case 'hard_break':
       return { type: 'break' };
-    case 'image':
-      // Con tamaño guardado se escribe como HTML en línea (06).
-      {
-        const title = (node.attrs['title'] as string | null) ?? null;
-        // El pie de foto visible solo existe si hay título.
-        const mark = node.attrs['caption'] && title ? [literal(CAPTION_MARK)] : [];
-        if (node.attrs['width']) {
-          return [
-            literal(
-              imgTag({
-                src: node.attrs['src'] as string,
-                alt: node.attrs['alt'] as string,
-                title,
-                width: node.attrs['width'] as number,
-              }),
-            ),
-            ...mark,
-          ];
-        }
+    case 'image': // Con tamaño guardado se escribe como HTML en línea (06).
+    {
+      const title = (node.attrs['title'] as string | null) ?? null;
+      // El pie de foto visible solo existe si hay título.
+      const mark = node.attrs['caption'] && title ? [literal(CAPTION_MARK)] : [];
+      if (node.attrs['width']) {
         return [
-          {
-            type: 'image',
-            url: node.attrs['src'] as string,
-            alt: node.attrs['alt'] as string,
-            title,
-          },
+          literal(
+            imgTag({
+              src: node.attrs['src'] as string,
+              alt: node.attrs['alt'] as string,
+              title,
+              width: node.attrs['width'] as number,
+            }),
+          ),
           ...mark,
         ];
       }
+      return [
+        {
+          type: 'image',
+          url: node.attrs['src'] as string,
+          alt: node.attrs['alt'] as string,
+          title,
+        },
+        ...mark,
+      ];
+    }
     case 'raw_inline':
       return literal(node.attrs['value'] as string);
     default:

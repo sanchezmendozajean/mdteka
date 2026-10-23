@@ -551,10 +551,8 @@
   width: 0;
   min-width: 100%;
   padding-top: 6px;
-  text-align: center;
-  font-size: 0.9em;
-  font-style: italic;
-  color: var(--ink-3);
+  text-align: left;
+  font-size: 0.63em;
 }
 .ProseMirror .image-wrap img {
   display: block;

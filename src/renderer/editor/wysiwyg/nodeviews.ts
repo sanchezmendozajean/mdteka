@@ -267,6 +267,7 @@ export const nodeViews = {
   raw_block: (node: PmNode, view: EditorView, getPos: GetPos) =>
     new RawBlockView(node, view, getPos),
   page_break: () => new PageBreakView(),
-  image: (node: PmNode, view: EditorView) => new ImageView(node, view),
+  image: (node: PmNode, view: EditorView, getPos: () => number | undefined) =>
+    new ImageView(node, view, getPos),
   raw_inline: (node: PmNode) => new RawInlineView(node),
 };

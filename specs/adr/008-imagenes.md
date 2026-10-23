@@ -23,8 +23,8 @@
 5. **Una sola imagen va en línea; varias, cada una en su párrafo.** Tras insertar una imagen queda
    seleccionada (con su menú); si se pega otra con una imagen seleccionada, va detrás en lugar de
    sustituirla.
-6. **Tamaño guardado (06).** Arrastrar el tirador cambia el ancho solo en pantalla; «Guardar
-   tamaño» lo escribe como `<img src="…" alt="…" width="N">`. Una `<img>` sola en su línea es un
+6. **Tamaño guardado (06).** Soltar el tirador escribe el ancho (antes había que confirmar con «Guardar
+   tamaño»; se quitó a petición) como `<img src="…" alt="…" width="N">`. Una `<img>` sola en su línea es un
    bloque HTML para CommonMark, pero aquí se lee como imagen dentro de su párrafo, así que el
    documento sigue editándose como imagen y se guarda idéntico. Cualquier otra etiqueta o atributo
    se conserva como HTML.

@@ -1,5 +1,4 @@
 import {
-  Check,
   Code,
   Download,
   FileImage,
@@ -199,19 +198,6 @@ export function ImagePopover() {
         <span data-testid="image-width">
           {width ? `${Math.round(width)} px` : t('images.autoSize')}
         </span>
-        {draft !== null && draft !== sel.width && (
-          <button
-            className="btn"
-            data-testid="image-save-size"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => {
-              editor.updateImage(sel.pos, { width: draft });
-              useImageUi.getState().set({ draftWidth: null });
-            }}
-          >
-            <Icon icon={Check} /> {t('images.saveSize')}
-          </button>
-        )}
         {sel.width !== null && draft === null && (
           <button
             className="btn"

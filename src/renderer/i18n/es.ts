@@ -158,7 +158,6 @@ export const es = {
     openFolder: 'Abrir carpeta',
     remove: 'Quitar imagen',
     autoSize: 'Tamaño automático',
-    saveSize: 'Guardar tamaño',
     resetSize: 'Quitar tamaño',
     saveError: 'No se pudo guardar la imagen.',
     noClipboardImage: 'El portapapeles no contiene una imagen.',

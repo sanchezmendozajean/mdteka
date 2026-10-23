@@ -13,7 +13,7 @@
 **Edición en WYSIWYG**
 - Las imágenes locales se muestran por el protocolo `mdteca-asset://`, limitado a las carpetas de los documentos abiertos y solo para imágenes; las remotas se muestran sin descargarse [IMG-12].
 - Clic selecciona la imagen y abre su menú: texto alternativo, título, reemplazar, convertir a archivo o a base64, guardar localmente una remota, abrir carpeta y quitar (no borra el archivo).
-- Redimensionado con tirador: solo se escribe `<img src="…" width="N">` si se confirma con *Guardar tamaño*; *Quitar tamaño* vuelve a la sintaxis Markdown.
+- Redimensionado con tirador: al soltar el tirador se escribe `<img src="…" width="N">`; *Quitar tamaño* vuelve a la sintaxis Markdown.
 - En modo texto las data URL largas se pliegan (`…·48 KB`) sin cambiar el texto.
 - Las imágenes se escalan para caber en la página y entran en el reparto de páginas y en el PDF; el HTML exportado las incrusta o las copia a una carpeta.
 

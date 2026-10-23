@@ -322,7 +322,7 @@ test.describe('[Fase 4] edición de una imagen', () => {
     await app.close();
   });
 
-  test('[IMG] el tamaño solo se escribe si se confirma («Guardar tamaño»)', async () => {
+  test('[IMG] soltar el tirador escribe el tamaño en el documento', async () => {
     const { app, page, files } = await open();
     await page.evaluate(() => {
       // La imagen de 1 px se amplía para poder arrastrar el tirador con comodidad.
@@ -335,10 +335,6 @@ test.describe('[Fase 4] edición de una imagen', () => {
     await page.mouse.down();
     await page.mouse.move(box.x + 85, box.y + 5, { steps: 5 });
     await page.mouse.up();
-    await expect(page.getByTestId('image-save-size')).toBeVisible();
-    // Sin confirmar, el documento no cambia.
-    expect(await source(page)).toBe('Texto ![](a.001.png) fin\n');
-    await page.getByTestId('image-save-size').click();
     await expect.poll(() => source(page)).toMatch(/<img src="a\.001\.png" alt="" width="\d+">/);
     await save(page);
     expect(readFileSync(files[0]!, 'utf8')).toMatch(/<img src="a\.001\.png" alt="" width="\d+">/);
@@ -349,7 +345,7 @@ test.describe('[Fase 4] edición de una imagen', () => {
     await app.close();
   });
 
-  test('[IMG] cancelar el tamaño (clic fuera) restituye el ancho', async () => {
+  test('[IMG] el tamaño elegido se conserva al hacer clic fuera', async () => {
     const { app, page } = await open();
     await page.locator('.ProseMirror .image-wrap').click();
     const handle = page.locator('.ProseMirror .image-handle');
@@ -360,7 +356,7 @@ test.describe('[Fase 4] edición de una imagen', () => {
     await page.mouse.up();
     await page.locator('.ProseMirror p').click({ position: { x: 5, y: 5 } });
     await expect(page.getByTestId('image-popover')).toHaveCount(0);
-    expect(await source(page)).toBe('Texto ![](a.001.png) fin\n');
+    await expect.poll(() => source(page)).toMatch(/<img src="a\.001\.png" alt="" width="\d+">/);
     await app.close();
   });
 });

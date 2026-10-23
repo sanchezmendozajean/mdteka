@@ -1,5 +1,6 @@
 import i18next from 'i18next';
 import type { Node as PmNode } from 'prosemirror-model';
+import { NodeSelection } from 'prosemirror-state';
 import type { EditorView, NodeView } from 'prosemirror-view';
 import { useImageUi } from '../image-ui-store';
 
@@ -37,7 +38,7 @@ const MIN_WIDTH = 24;
 
 /**
  * Imagen: se muestra (archivo local por `mdteca-asset://`, remota o data URL), se selecciona con un
- * clic y se redimensiona con el tirador; el tamaño solo se escribe si el usuario lo confirma.
+ * clic y se redimensiona con el tirador; al soltarlo el ancho se escribe en el documento.
  */
 export class ImageView implements NodeView {
   dom: HTMLElement;
@@ -49,6 +50,7 @@ export class ImageView implements NodeView {
   constructor(
     node: PmNode,
     private view: EditorView,
+    private getPos: () => number | undefined,
   ) {
     this.node = node;
     this.dom = document.createElement('span');
@@ -112,7 +114,8 @@ export class ImageView implements NodeView {
     this.node = node;
     this.render();
     // El pie cambia la altura del bloque: se vuelve a medir para repaginar.
-    if (captionChanged) window.dispatchEvent(new CustomEvent('mdteca-layout', { detail: this.dom }));
+    if (captionChanged)
+      window.dispatchEvent(new CustomEvent('mdteca-layout', { detail: this.dom }));
     return true;
   }
 
@@ -122,7 +125,6 @@ export class ImageView implements NodeView {
 
   deselectNode(): void {
     this.dom.classList.remove('image-selected');
-    // El tamaño provisional se descarta si no se confirmó.
     this.img.style.width = this.node.attrs['width'] ? `${this.node.attrs['width']}px` : '';
     useImageUi.getState().set({ draftWidth: null });
   }
@@ -137,10 +139,12 @@ export class ImageView implements NodeView {
     // El zoom escala los píxeles de pantalla: se convierte a px de diseño.
     const scale = startWidth / (this.img.offsetWidth || startWidth);
     const maxWidth = this.view.dom.getBoundingClientRect().width / scale;
+    let current = 0;
     const move = (m: PointerEvent) => {
       const width = Math.round(
         Math.min(maxWidth, Math.max(MIN_WIDTH, startWidth / scale + (m.clientX - startX) / scale)),
       );
+      current = width;
       this.img.style.width = `${width}px`;
       useImageUi.getState().set({ draftWidth: width });
       window.dispatchEvent(new CustomEvent('mdteca-layout', { detail: this.dom }));
@@ -148,6 +152,15 @@ export class ImageView implements NodeView {
     const up = () => {
       this.handle.removeEventListener('pointermove', move);
       this.handle.removeEventListener('pointerup', up);
+      useImageUi.getState().set({ draftWidth: null });
+      // Soltar el tirador escribe el ancho en el documento.
+      const pos = this.getPos();
+      if (!current || pos === undefined || current === this.node.attrs['width']) return;
+      const tr = this.view.state.tr.setNodeMarkup(pos, undefined, {
+        ...this.node.attrs,
+        width: current,
+      });
+      this.view.dispatch(tr.setSelection(NodeSelection.create(tr.doc, pos)));
     };
     this.handle.addEventListener('pointermove', move);
     this.handle.addEventListener('pointerup', up);

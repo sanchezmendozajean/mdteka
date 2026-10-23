@@ -162,7 +162,6 @@ export const en: Widen<typeof es> = {
     openFolder: 'Open folder',
     remove: 'Remove image',
     autoSize: 'Automatic size',
-    saveSize: 'Save size',
     resetSize: 'Remove size',
     saveError: 'The image could not be saved.',
     noClipboardImage: 'The clipboard does not contain an image.',
