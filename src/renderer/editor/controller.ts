@@ -2,7 +2,7 @@ import { redoDepth, undoDepth, undo as pmUndo, redo as pmRedo } from 'prosemirro
 import { EditorState as PmState, NodeSelection, Selection, TextSelection } from 'prosemirror-state';
 import type { EditorView as PmView } from 'prosemirror-view';
 import { EditorState as CmState } from '@codemirror/state';
-import type { EditorView as CmView } from '@codemirror/view';
+import { EditorView as CmEditorView, type EditorView as CmView } from '@codemirror/view';
 import { askLink, useDocs, type Mode } from '../documents/store';
 import type { PageGeometry } from '@shared/page';
 import { Paginator } from './paginator/paginator';
@@ -71,6 +71,7 @@ import {
   type FindOptions,
 } from './wysiwyg/find';
 import { appSettings } from '../app/settings';
+import { useOutline, type OutlineItem } from './outline-store';
 import { useSelectionUi } from './selection-ui-store';
 import { createWysiwygState, createWysiwygView } from './wysiwyg/view';
 import { schema } from './model/schema';
@@ -443,6 +444,68 @@ class EditorController {
   // Estado de formato (botones activos de la cinta)
   // -------------------------------------------------------------------------------------------
 
+  // -------------------------------------------------------------------------------------------
+  // Esquema (títulos del documento)
+  // -------------------------------------------------------------------------------------------
+
+  private outlineTimer: ReturnType<typeof setTimeout> | undefined;
+
+  private scheduleOutline(): void {
+    clearTimeout(this.outlineTimer);
+    this.outlineTimer = setTimeout(() => this.publishOutline(), 250);
+  }
+
+  /** Títulos de primer nivel del documento activo (en WYSIWYG, los nodos; en texto, las líneas `#`). */
+  private computeOutline(): OutlineItem[] {
+    const rt = this.current();
+    if (!rt) return [];
+    const items: OutlineItem[] = [];
+    if (rt.mode === 'wysiwyg' && this.pm) {
+      this.pm.state.doc.forEach((node, pos) => {
+        if (node.type.name === 'heading' && node.textContent.trim())
+          items.push({ level: node.attrs['level'] as number, text: node.textContent.trim(), pos });
+      });
+    } else if (this.cm) {
+      let fenced = false;
+      for (let n = 1; n <= this.cm.state.doc.lines; n++) {
+        const line = this.cm.state.doc.line(n);
+        if (/^\s{0,3}(```|~~~)/.test(line.text)) fenced = !fenced;
+        const m = !fenced && /^(#{1,6})\s+(.+?)\s*#*\s*$/.exec(line.text);
+        if (m) items.push({ level: m[1]!.length, text: m[2]!, pos: line.from });
+      }
+    }
+    return items;
+  }
+
+  private publishOutline(): void {
+    const items = this.computeOutline();
+    const cur = useOutline.getState().items;
+    if (JSON.stringify(cur) !== JSON.stringify(items)) useOutline.getState().set(items);
+  }
+
+  /** Lleva el cursor a un título del esquema y lo deja a la vista. */
+  goToOutline(index: number): void {
+    const rt = this.current();
+    // Se recalcula en el momento: las posiciones del esquema publicado pueden ser de la otra vista.
+    const item = this.computeOutline()[index];
+    if (!rt || !item) return;
+    if (rt.mode === 'wysiwyg' && this.pm) {
+      const pos = Math.min(item.pos + 1, this.pm.state.doc.content.size);
+      this.pm.dispatch(
+        this.pm.state.tr
+          .setSelection(Selection.near(this.pm.state.doc.resolve(pos)))
+          .scrollIntoView(),
+      );
+      this.pm.focus();
+    } else if (this.cm) {
+      this.cm.dispatch({
+        selection: { anchor: item.pos },
+        effects: CmEditorView.scrollIntoView(item.pos, { y: 'start', yMargin: 24 }),
+      });
+      this.cm.focus();
+    }
+  }
+
   private scheduleFormat(): void {
     if (this.formatFrame) return;
     this.formatFrame = requestAnimationFrame(() => {
@@ -459,6 +522,7 @@ class EditorController {
       // Solo se publica si cambió algo: evita repintar la cinta en cada tecla (ED-12).
       const store = useDocs.getState();
       if (next && !sameFormat(store.format, next)) store.setFormat(next);
+      this.scheduleOutline();
     });
   }
 

@@ -210,6 +210,7 @@ function ViewTab() {
       </Group>
       <Group label={t('ribbon.groups.panels')}>
         <CommandButton id="view.toggleNavigator" large pressed={navigatorOpen} />
+        <CommandButton id="view.outline" large />
         <CommandButton id="view.toggleDocumentPanel" large pressed={documentPanelOpen} />
         <CommandButton id="view.focus" large />
         <CommandButton id="view.toggleTheme" large />

@@ -546,6 +546,7 @@ export const es = {
     'app.settings': 'Ajustes',
     'app.palette': 'Paleta de comandos',
     'view.focus': 'Modo concentración',
+    'view.outline': 'Esquema del documento',
     'view.nextTab': 'Pestaña siguiente',
     'view.prevTab': 'Pestaña anterior',
   },

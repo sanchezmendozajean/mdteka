@@ -1,4 +1,5 @@
 import {
+  TableOfContents,
   ChevronLeft,
   ChevronRight,
   Command,
@@ -422,6 +423,9 @@ def('app.palette', Command, () => void showPalette(), {
   shortcut: 'Ctrl+Shift+P',
   global: true,
   inFields: true,
+});
+def('view.outline', TableOfContents, () => ui().set({ navigatorOpen: true, leftTab: 'outline' }), {
+  global: true,
 });
 def('view.focus', Maximize2, () => toggleFocusMode(), { shortcut: 'F11', global: true });
 def('view.nextTab', ChevronRight, () => stepTab(1), { shortcut: 'Ctrl+Tab' });

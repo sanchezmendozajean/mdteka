@@ -19,6 +19,7 @@ import {
   Regex,
   Search,
   Shapes,
+  TableOfContents,
   Trash2,
   WholeWord,
   X,
@@ -64,6 +65,7 @@ import { useProject } from '../project/store';
 import { CommandButton } from './CommandButton';
 import { ContextMenu, type MenuItem } from './ContextMenu';
 import { HidePanelButton } from './HidePanelButton';
+import { Outline } from './Outline';
 import { Icon } from './Icon';
 
 const DRAG_TYPE = 'application/x-mdteca-item';
@@ -674,6 +676,7 @@ export function Navigator() {
   const { t } = useTranslation();
   const project = useProject((s) => s.project);
   const width = useUi((s) => s.navigatorWidth);
+  const leftTab = useUi((s) => s.leftTab);
   const info = useProject((s) => s.info);
   const expandedIds = useProject((s) => s.expanded);
   const filter = useProject((s) => s.filter);
@@ -763,59 +766,77 @@ export function Navigator() {
           handle.addEventListener('pointerup', up);
         }}
       />
-      <div className="panel-title">
-        <Icon icon={Library} /> {t('panels.navigator')}
+      <div className="panel-tabs" role="tablist">
+        {(['navigator', 'outline'] as const).map((tab) => (
+          <button
+            key={tab}
+            role="tab"
+            className="panel-tab"
+            aria-selected={leftTab === tab}
+            data-testid={`left-tab-${tab}`}
+            onClick={() => useUi.getState().set({ leftTab: tab })}
+          >
+            <Icon icon={tab === 'navigator' ? Library : TableOfContents} size={16} />
+            {t(`panels.${tab}`)}
+          </button>
+        ))}
         <HidePanelButton side="left" />
       </div>
-      {!project || !ctx ? (
-        <EmptyNavigator />
+      {leftTab === 'outline' ? (
+        <Outline />
       ) : (
         <>
-          <div className="nav-header" data-testid="nav-header">
-            <span className="nav-project-title" title={project.description ?? project.title}>
-              {project.title}
-            </span>
-            <CommandButton id="project.search" />
-            <CommandButton id="project.settings" />
-          </div>
-          {panel === 'search' ? (
-            <SearchPanel />
+          {!project || !ctx ? (
+            <EmptyNavigator />
           ) : (
             <>
-              <div className="nav-filter">
-                <Icon icon={Search} size={14} />
-                <input
-                  className="nav-input"
-                  data-testid="nav-filter"
-                  placeholder={t('project.filter')}
-                  aria-label={t('project.filter')}
-                  value={filter}
-                  onChange={(e) => useProject.getState().set({ filter: e.target.value })}
-                  onKeyDown={(e) => e.stopPropagation()}
-                />
+              <div className="nav-header" data-testid="nav-header">
+                <span className="nav-project-title" title={project.description ?? project.title}>
+                  {project.title}
+                </span>
+                <CommandButton id="project.search" />
+                <CommandButton id="project.settings" />
               </div>
-              <div
-                className="nav-tree"
-                role="tree"
-                aria-label={t('panels.navigator')}
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  setMenu({ x: e.clientX, y: e.clientY, items: background });
-                }}
-              >
-                {project.collections.length === 0 && (
-                  <div className="panel-empty">{t('project.emptyBody')}</div>
-                )}
-                {/* Con una sola colección el navegador la oculta (PRJ-11). */}
-                {project.collections.length === 1
-                  ? project.collections[0]!.books.filter(
-                      (b) => !ctx.filter || b.items.some(ctx.visible),
-                    ).map((b) => <BookNode key={b.id} book={b} depth={0} ctx={ctx} />)
-                  : project.collections.map((c) => (
-                      <CollectionNode key={c.id} collection={c} ctx={ctx} />
-                    ))}
-              </div>
-              <Unindexed />
+              {panel === 'search' ? (
+                <SearchPanel />
+              ) : (
+                <>
+                  <div className="nav-filter">
+                    <Icon icon={Search} size={14} />
+                    <input
+                      className="nav-input"
+                      data-testid="nav-filter"
+                      placeholder={t('project.filter')}
+                      aria-label={t('project.filter')}
+                      value={filter}
+                      onChange={(e) => useProject.getState().set({ filter: e.target.value })}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                  <div
+                    className="nav-tree"
+                    role="tree"
+                    aria-label={t('panels.navigator')}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      setMenu({ x: e.clientX, y: e.clientY, items: background });
+                    }}
+                  >
+                    {project.collections.length === 0 && (
+                      <div className="panel-empty">{t('project.emptyBody')}</div>
+                    )}
+                    {/* Con una sola colección el navegador la oculta (PRJ-11). */}
+                    {project.collections.length === 1
+                      ? project.collections[0]!.books.filter(
+                          (b) => !ctx.filter || b.items.some(ctx.visible),
+                        ).map((b) => <BookNode key={b.id} book={b} depth={0} ctx={ctx} />)
+                      : project.collections.map((c) => (
+                          <CollectionNode key={c.id} collection={c} ctx={ctx} />
+                        ))}
+                  </div>
+                  <Unindexed />
+                </>
+              )}
             </>
           )}
         </>

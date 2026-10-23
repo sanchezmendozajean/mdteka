@@ -549,6 +549,7 @@ export const en: Widen<typeof es> = {
     'app.settings': 'Settings',
     'app.palette': 'Command palette',
     'view.focus': 'Focus mode',
+    'view.outline': 'Document outline',
     'view.nextTab': 'Next tab',
     'view.prevTab': 'Previous tab',
   },

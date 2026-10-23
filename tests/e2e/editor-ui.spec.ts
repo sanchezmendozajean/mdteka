@@ -74,3 +74,47 @@ test.describe('[Fase 6] barra flotante y menú contextual del editor', () => {
     await l.app.close();
   });
 });
+
+test.describe('[Fase 6] esquema del documento', () => {
+  const DOC = '# Uno\n\nTexto\n\n## Dos\n\n```\n# no es título\n```\n\n### Tres\n';
+
+  test('el esquema lista los títulos con su nivel y se actualiza al editar', async () => {
+    const l = await launch({ 'a.md': DOC });
+    await waitForEditor(l.page);
+    await l.page.getByTestId('left-tab-outline').click();
+    await expect(l.page.getByTestId('outline-item')).toHaveText(['Uno', 'Dos', 'Tres']);
+    await expect(l.page.getByTestId('outline-item').nth(2)).toHaveAttribute('data-level', '3');
+    await l.page.locator('.ProseMirror').click();
+    await l.page.keyboard.press('Control+End');
+    await l.page.keyboard.press('Enter');
+    await l.page.keyboard.type('Nuevo');
+    await l.page.keyboard.press('Control+1');
+    await expect(l.page.getByTestId('outline-item')).toHaveText(['Uno', 'Dos', 'Tres', 'Nuevo']);
+    await l.app.close();
+  });
+
+  test('clic en un título lleva el cursor allí, en WYSIWYG y en modo texto', async () => {
+    const l = await launch({ 'a.md': DOC });
+    await waitForEditor(l.page);
+    await l.page.getByTestId('left-tab-outline').click();
+    await l.page.getByTestId('outline-item').nth(1).click();
+    await l.page.keyboard.type('X');
+    await expect.poll(() => source(l.page)).toContain('## XDos');
+    // Modo texto.
+    await l.page.keyboard.press('Control+/');
+    await expect(l.page.locator('.cm-editor')).toBeVisible();
+    await expect(l.page.getByTestId('outline-item')).toHaveCount(3);
+    await l.page.getByTestId('outline-item').nth(2).click();
+    await l.page.keyboard.type('Y');
+    await expect.poll(() => source(l.page)).toContain('Y### Tres');
+    await l.app.close();
+  });
+
+  test('sin documento o sin títulos el esquema lo dice, y el comando de la cinta lo abre', async () => {
+    const l = await launch({});
+    await l.page.getByTestId('tab-view').click();
+    await l.page.locator('[data-command="view.outline"]').click();
+    await expect(l.page.getByTestId('outline-empty')).toBeVisible();
+    await l.app.close();
+  });
+});
