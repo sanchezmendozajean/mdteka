@@ -557,6 +557,7 @@
   padding-top: 6px;
   text-align: left;
   font-size: 0.63em;
+  font-weight: 700;
 }
 .ProseMirror .image-wrap img {
   display: block;
