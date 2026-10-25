@@ -1,11 +1,16 @@
 import {
+  ArrowDownLeft,
+  ArrowDownRight,
+  ArrowUpLeft,
+  ArrowUpRight,
   CaseSensitive,
   ChevronDown,
+  ChevronRight,
   ChevronUp,
+  Move,
   Regex,
   Replace,
   ReplaceAll,
-  Search,
   WholeWord,
   X,
   type LucideIcon,
@@ -14,8 +19,9 @@ import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDocs } from '../documents/store';
 import { editor } from '../editor/controller';
-import { useFind } from '../editor/find-store';
+import { useFind, type FindCorner } from '../editor/find-store';
 import { Icon } from './Icon';
+import { Popover } from './Popover';
 
 function Toggle({
   icon,
@@ -44,10 +50,17 @@ function Toggle({
   );
 }
 
-/** Barra de búsqueda y reemplazo, común a los dos modos de edición. */
+const CORNERS: { id: FindCorner; icon: LucideIcon; key: string }[] = [
+  { id: 'tl', icon: ArrowUpLeft, key: 'cornerTl' },
+  { id: 'tr', icon: ArrowUpRight, key: 'cornerTr' },
+  { id: 'bl', icon: ArrowDownLeft, key: 'cornerBl' },
+  { id: 'br', icon: ArrowDownRight, key: 'cornerBr' },
+];
+
+/** Caja flotante de búsqueda y reemplazo, común a los dos modos de edición. */
 export function FindBar() {
   const { t } = useTranslation();
-  const { open, showReplace, opts, replace, info, focusTick, set } = useFind();
+  const { open, showReplace, opts, replace, info, corner, focusTick, set, setCorner } = useFind();
   const activeId = useDocs((s) => s.activeId);
   const mode = useDocs((s) => s.docs.find((d) => d.id === s.activeId)?.mode);
   const input = useRef<HTMLInputElement>(null);
@@ -60,10 +73,17 @@ export function FindBar() {
     }
   }, [open, focusTick]);
 
-  // Recalcular al cambiar la consulta, el modo o el documento.
+  // Recalcular al cambiar la consulta, el modo o el documento; el cursor salta a la coincidencia.
   useEffect(() => {
-    set({ info: editor.find(open ? opts : null, replace) });
-  }, [open, opts, replace, mode, activeId, set]);
+    const found = editor.find(open ? opts : null, replace);
+    set({ info: open && opts.query && found.count ? editor.findReveal(opts) : found });
+    // El texto de reemplazo no mueve el cursor: queda fuera de las dependencias a propósito.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, opts, mode, activeId, set]);
+  useEffect(() => {
+    if (open) editor.find(opts, replace);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [replace]);
 
   if (!open || !activeId) return null;
 
@@ -80,11 +100,21 @@ export function FindBar() {
         ? t('find.count', { current: info.current + 1, count: info.count })
         : t('find.noResults')
       : '';
+  const doReplace = () => set({ info: editor.replaceOne(opts, replace) });
 
   return (
-    <div className="find-bar" role="search" data-testid="find-bar">
+    <div className={`find-bar find-${corner}`} role="search" data-testid="find-bar">
       <div className="find-row">
-        <Icon icon={Search} size={16} />
+        <button
+          className="btn find-expand"
+          title={t('find.toggleReplace')}
+          aria-label={t('find.toggleReplace')}
+          aria-expanded={showReplace}
+          data-testid="find-toggle-replace"
+          onClick={() => set({ showReplace: !showReplace })}
+        >
+          <Icon icon={showReplace ? ChevronDown : ChevronRight} size={16} />
+        </button>
         <input
           ref={input}
           className="find-input"
@@ -104,50 +134,10 @@ export function FindBar() {
             }
           }}
         />
-        <span className="find-status" data-testid="find-status" aria-live="polite">
-          {status}
-        </span>
-        <Toggle
-          icon={ChevronUp}
-          label={t('find.previous')}
-          onClick={() => step(-1)}
-          testId="find-prev"
-        />
-        <Toggle
-          icon={ChevronDown}
-          label={t('find.next')}
-          onClick={() => step(1)}
-          testId="find-next"
-        />
-        <Toggle
-          icon={CaseSensitive}
-          label={t('find.matchCase')}
-          pressed={opts.caseSensitive}
-          onClick={() => set({ opts: { ...opts, caseSensitive: !opts.caseSensitive } })}
-        />
-        <Toggle
-          icon={WholeWord}
-          label={t('find.wholeWord')}
-          pressed={opts.wholeWord}
-          onClick={() => set({ opts: { ...opts, wholeWord: !opts.wholeWord } })}
-        />
-        <Toggle
-          icon={Regex}
-          label={t('find.regex')}
-          pressed={opts.regex}
-          onClick={() => set({ opts: { ...opts, regex: !opts.regex } })}
-        />
-        <Toggle
-          icon={Replace}
-          label={t('find.toggleReplace')}
-          pressed={showReplace}
-          onClick={() => set({ showReplace: !showReplace })}
-        />
-        <Toggle icon={X} label={t('find.close')} onClick={close} testId="find-close" />
       </div>
       {showReplace && (
         <div className="find-row">
-          <Icon icon={Replace} size={16} />
+          <span className="find-expand" aria-hidden="true" />
           <input
             className="find-input"
             value={replace}
@@ -158,18 +148,88 @@ export function FindBar() {
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
-                set({ info: editor.replaceOne(opts, replace) });
+                doReplace();
               } else if (e.key === 'Escape') {
                 e.preventDefault();
                 close();
               }
             }}
           />
+        </div>
+      )}
+      <div className="find-row find-buttons">
+        <div className="find-group">
+          <Toggle
+            icon={CaseSensitive}
+            label={t('find.matchCase')}
+            pressed={opts.caseSensitive}
+            onClick={() => set({ opts: { ...opts, caseSensitive: !opts.caseSensitive } })}
+          />
+          <Toggle
+            icon={WholeWord}
+            label={t('find.wholeWord')}
+            pressed={opts.wholeWord}
+            onClick={() => set({ opts: { ...opts, wholeWord: !opts.wholeWord } })}
+          />
+          <Toggle
+            icon={Regex}
+            label={t('find.regex')}
+            pressed={opts.regex}
+            onClick={() => set({ opts: { ...opts, regex: !opts.regex } })}
+          />
+          <Popover
+            label={t('find.corner')}
+            testId="find-corner"
+            trigger={<Icon icon={Move} size={16} />}
+          >
+            {(closeMenu) => (
+              <div className="find-corners" role="group" aria-label={t('find.corner')}>
+                {CORNERS.map((c) => (
+                  <button
+                    key={c.id}
+                    className="btn"
+                    aria-pressed={corner === c.id}
+                    title={t(`find.${c.key}`)}
+                    aria-label={t(`find.${c.key}`)}
+                    data-testid={`find-corner-${c.id}`}
+                    onClick={() => {
+                      setCorner(c.id);
+                      closeMenu();
+                    }}
+                  >
+                    <Icon icon={c.icon} size={16} />
+                  </button>
+                ))}
+              </div>
+            )}
+          </Popover>
+        </div>
+        <div className="find-group">
+          <Toggle
+            icon={ChevronUp}
+            label={t('find.previous')}
+            onClick={() => step(-1)}
+            testId="find-prev"
+          />
+          <span className="find-status" data-testid="find-status" aria-live="polite">
+            {status}
+          </span>
+          <Toggle
+            icon={ChevronDown}
+            label={t('find.next')}
+            onClick={() => step(1)}
+            testId="find-next"
+          />
+          <Toggle icon={X} label={t('find.close')} onClick={close} testId="find-close" />
+        </div>
+      </div>
+      {showReplace && (
+        <div className="find-row">
           <Toggle
             icon={Replace}
             label={t('find.replace')}
             testId="replace-one"
-            onClick={() => set({ info: editor.replaceOne(opts, replace) })}
+            onClick={doReplace}
           />
           <Toggle
             icon={ReplaceAll}

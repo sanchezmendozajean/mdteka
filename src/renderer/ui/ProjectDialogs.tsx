@@ -126,6 +126,7 @@ export function WizardDialog({
       title={t('project.wizardTitle')}
       icon={FolderKanban}
       testId="dialog-wizard"
+      persistent
       onCancel={() => finish(null)}
     >
       <form

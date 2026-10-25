@@ -8,6 +8,10 @@ import { z } from 'zod';
 export const ACCENTS = ['teal', 'blue', 'violet', 'rose', 'amber', 'green'] as const;
 export type Accent = (typeof ACCENTS)[number];
 
+/** Límites del ancho del navegador en px (PRJ-20). */
+export const NAV_MIN = 200;
+export const NAV_MAX = 520;
+
 export const SettingsSchema = z.object({
   /** Valores por defecto de documento (origen «app» en el panel Documento). */
   documentDefaults: z.record(z.string(), z.unknown()).default({}),
@@ -52,6 +56,14 @@ export const SettingsSchema = z.object({
   files: z
     .object({
       newEol: z.enum(['lf', 'crlf']).default('lf'),
+    })
+    .prefault({}),
+  /** Disposición de la ventana: se recuerda entre sesiones, no se edita en el diálogo. */
+  layout: z
+    .object({
+      navigatorWidth: z.number().min(NAV_MIN).max(NAV_MAX).catch(260).default(260),
+      navigatorOpen: z.boolean().default(true),
+      documentPanelOpen: z.boolean().default(true),
     })
     .prefault({}),
   /** Atajos reasignados: id de comando → atajo (`''` = sin atajo). */

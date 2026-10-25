@@ -37,7 +37,7 @@ import {
   unindexed,
   type Target,
 } from '@shared/project';
-import { NAV_MAX, NAV_MIN, saveNavWidth, useUi } from '../app/store';
+import { NAV_MAX, NAV_MIN, useUi } from '../app/store';
 import { openPaths } from '../documents/actions';
 import { askIcon, useDocs } from '../documents/store';
 import {
@@ -45,6 +45,7 @@ import {
   addUnindexed,
   copyRelativePath,
   deleteChapterFile,
+  deleteNodeFromDisk,
   duplicateChapter,
   locateMissing,
   moveChapter,
@@ -373,6 +374,13 @@ function BookNode({ book, depth, ctx }: { book: Book; depth: number; ctx: Ctx })
       run: () => void removeNode('book', book.id),
       separator: true,
     },
+    {
+      id: 'delete',
+      label: t('project.removeFromDisk'),
+      icon: Trash2,
+      danger: true,
+      run: () => void deleteNodeFromDisk('book', book.id),
+    },
   ];
   return (
     <div role="none">
@@ -410,6 +418,19 @@ function BookNode({ book, depth, ctx }: { book: Book; depth: number; ctx: Ctx })
         <Icon icon={projectIcon(book.icon, BookOpen)} size={16} />
         <span className="nav-label">{book.title}</span>
         <span className="nav-count">{count}</span>
+        <button
+          className="btn btn-mini nav-add"
+          title={t('project.newChapter')}
+          aria-label={t('project.newChapter')}
+          data-testid="nav-add-chapter"
+          tabIndex={-1}
+          onClick={(e) => {
+            e.stopPropagation();
+            void newChapter(book.id);
+          }}
+        >
+          <Icon icon={FilePlus2} size={14} />
+        </button>
       </div>
       {isOpen && (
         <div role="group" className="nav-children" style={{ marginLeft: 17 + depth * 14 }}>
@@ -463,6 +484,13 @@ function CollectionNode({ collection, ctx }: { collection: Collection; ctx: Ctx 
       icon: X,
       run: () => void removeNode('collection', collection.id),
       separator: true,
+    },
+    {
+      id: 'delete',
+      label: t('project.removeFromDisk'),
+      icon: Trash2,
+      danger: true,
+      run: () => void deleteNodeFromDisk('collection', collection.id),
     },
   ];
   return (
@@ -664,9 +692,8 @@ function EmptyNavigator(): ReactNode {
     <div className="panel-empty" data-testid="navigator-empty">
       <p>{t('panels.emptyNavigator')}</p>
       <div className="nav-empty-actions">
-        <CommandButton id="project.open" label />
         <CommandButton id="project.new" label />
-        <CommandButton id="project.openAs" label />
+        <CommandButton id="file.open" label />
       </div>
     </div>
   );
@@ -760,7 +787,6 @@ export function Navigator() {
           const up = () => {
             handle.removeEventListener('pointermove', move);
             handle.removeEventListener('pointerup', up);
-            saveNavWidth(useUi.getState().navigatorWidth);
           };
           handle.addEventListener('pointermove', move);
           handle.addEventListener('pointerup', up);

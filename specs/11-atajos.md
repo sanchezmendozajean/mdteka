@@ -18,7 +18,8 @@ En macOS, `Ctrl` = `Cmd`. Todos son reasignables en Ajustes › Atajos.
 | Enlace | `Ctrl+K` |
 | Normal / Título 1–6 | `Ctrl+0` / `Ctrl+1`…`Ctrl+6` |
 | Lista viñetas / numerada / tareas | `Ctrl+Shift+8` / `Ctrl+Shift+7` / `Ctrl+Shift+9` |
-| Cita | `Ctrl+Shift+.` |
+| Cita | `Ctrl+Alt+Q` |
+| Símbolo (selector: «, », —, –, …; se elige con 1–9, flechas o Enter) | `Ctrl+Shift+.` |
 | Bloque de código | `Ctrl+Alt+C` |
 | Salto de página | `Ctrl+Enter` |
 | Pegar sin formato | `Ctrl+Shift+V` |

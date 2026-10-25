@@ -6,12 +6,14 @@ interface Props {
   trigger: ReactNode;
   label: string;
   disabled?: boolean;
+  /** Botón grande de la cinta: ícono de 24 px con la etiqueta debajo. */
+  large?: boolean;
   testId?: string;
   children: (close: () => void) => ReactNode;
 }
 
 /** Desplegable mínimo: se cierra con clic fuera o Escape y no roba el foco del editor. */
-export function Popover({ trigger, label, disabled, testId, children }: Props) {
+export function Popover({ trigger, label, disabled, large, testId, children }: Props) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const menu = useRef<HTMLDivElement>(null);
@@ -22,7 +24,10 @@ export function Popover({ trigger, label, disabled, testId, children }: Props) {
     if (!open || !root.current) return;
     const r = root.current.getBoundingClientRect();
     const w = menu.current?.offsetWidth ?? 0;
-    setPos({ top: r.bottom + 4, left: Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) });
+    const h = menu.current?.offsetHeight ?? 0;
+    // Si no cabe debajo (cajas flotantes en el borde inferior), se abre hacia arriba.
+    const top = r.bottom + 4 + h > window.innerHeight - 8 ? Math.max(8, r.top - h - 4) : r.bottom + 4;
+    setPos({ top, left: Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) });
   }, [open]);
 
   useEffect(() => {
@@ -46,7 +51,7 @@ export function Popover({ trigger, label, disabled, testId, children }: Props) {
   return (
     <div className="popover-root" ref={root}>
       <button
-        className="btn"
+        className={`btn${large ? ' btn-large' : ''}`}
         aria-haspopup="true"
         aria-expanded={open}
         title={label}

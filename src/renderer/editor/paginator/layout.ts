@@ -56,7 +56,7 @@ export interface LayoutOptions {
   chrome: number;
   /** Líneas mínimas que quedan al pie y al inicio al cortar un párrafo. */
   minLines?: number;
-  /** Fracción de página vacía que justifica cortar por líneas en vez de mover el bloque entero. */
+  /** Fracción de página vacía que justifica cortar por líneas en vez de mover el bloque entero (0: siempre se corta). */
   splitThreshold?: number;
 }
 
@@ -66,7 +66,7 @@ export function paginate(blocks: BlockMetrics[], opts: LayoutOptions): Layout {
   const C = opts.contentHeight;
   const pitch = C + opts.chrome;
   const minLines = opts.minLines ?? 2;
-  const threshold = opts.splitThreshold ?? 0.4;
+  const threshold = opts.splitThreshold ?? 0;
   const breaks: PageBreak[] = [];
   const pageOfBlock: number[] = new Array<number>(blocks.length).fill(1);
   /** Fondo del contenido tras colocar cada bloque (para recolocar títulos). */
@@ -138,7 +138,15 @@ export function paginate(blocks: BlockMetrics[], opts: LayoutOptions): Layout {
         if (lines!.length - k < minLines) k = lines!.length - minLines;
         if (k - start < minLines) {
           if (start === 0 && !fresh) {
-            // No caben ni dos líneas: el bloque entero pasa a la página siguiente.
+            // No caben ni dos líneas: el bloque pasa a la página siguiente, con los títulos que lo preceden.
+            let p = i;
+            while (p - 1 > firstOnPage && blocks[p - 1]!.keepWithNext) p--;
+            if (p < i) {
+              parts.length = partStart[p]!;
+              newPage({ kind: 'block', block: p, fill: C - endY[p - 1]! }, p);
+              i = p - 1;
+              break;
+            }
             newPage({ kind: 'block', block: i, fill: C - y }, i);
             pageOfBlock[i] = page;
             segTop = 0;

@@ -97,6 +97,11 @@ export function EditorHost() {
   // Página visible (barra de estado) y zoom con Ctrl + rueda (VW-30).
   const live = useRef({ paged, geometry, zoom, pages });
   live.current = { paged, geometry, zoom, pages };
+  // Con otro zoom el redondeo de bordes cambia: se reajustan los saltos dentro de tablas.
+  useEffect(() => {
+    editor.repaginate();
+  }, [zoom]);
+
   useEffect(() => {
     const el = scroller.current!;
     let frame = 0;

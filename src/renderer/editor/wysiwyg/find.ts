@@ -149,6 +149,12 @@ function select(view: EditorView, index: number): FindInfo {
     tr.setSelection(TextSelection.create(view.state.doc, match.from, match.to)).scrollIntoView();
   }
   view.dispatch(tr);
+  if (match) {
+    // Con el foco en la barra de búsqueda, ProseMirror no siempre desplaza: se asegura aquí.
+    const { node } = view.domAtPos(match.from);
+    const el = node.nodeType === 1 ? (node as Element) : node.parentElement;
+    el?.scrollIntoView({ block: 'center', inline: 'nearest' });
+  }
   return info(view.state);
 }
 

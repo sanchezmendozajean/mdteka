@@ -7,6 +7,7 @@ export function Modal({
   icon,
   onCancel,
   wide,
+  persistent,
   children,
   testId,
 }: {
@@ -14,6 +15,8 @@ export function Modal({
   icon: LucideIcon;
   onCancel: () => void;
   wide?: boolean;
+  /** No se cierra al hacer clic fuera del cuadro (Escape y los botones sí). */
+  persistent?: boolean;
   children: ReactNode;
   testId: string;
 }) {
@@ -28,7 +31,10 @@ export function Modal({
     return () => window.removeEventListener('keydown', onKey, true);
   }, [onCancel]);
   return (
-    <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onCancel()}>
+    <div
+      className="modal-backdrop"
+      onMouseDown={(e) => !persistent && e.target === e.currentTarget && onCancel()}
+    >
       <div
         className={`modal${wide ? ' modal-wide' : ''}`}
         role="dialog"

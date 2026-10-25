@@ -6,6 +6,7 @@ import {
   replaceNext,
   setSearchQuery,
 } from '@codemirror/search';
+import { EditorSelection } from '@codemirror/state';
 import type { EditorView } from '@codemirror/view';
 import type { FindInfo, FindOptions } from '../wysiwyg/find';
 
@@ -46,6 +47,23 @@ export function setSourceFind(
     ),
   });
   return infoFor(view, opts, replace);
+}
+
+/** Selecciona la primera coincidencia desde el cursor (sin saltarse la que ya está bajo él). */
+export function sourceFindReveal(view: EditorView, opts: FindOptions): FindInfo {
+  const query = toQuery(opts, '');
+  if (query.valid) {
+    const from = view.state.selection.main.from;
+    let r = query.getCursor(view.state, from).next();
+    if (r.done) r = query.getCursor(view.state).next();
+    if (!r.done) {
+      view.dispatch({
+        selection: EditorSelection.range(r.value.from, r.value.to),
+        scrollIntoView: true,
+      });
+    }
+  }
+  return infoFor(view, opts, '');
 }
 
 export function sourceFindMove(view: EditorView, opts: FindOptions, direction: 1 | -1): FindInfo {

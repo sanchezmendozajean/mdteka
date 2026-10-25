@@ -3,6 +3,7 @@ import { formatShortcut, getCommand, shortcutOf } from '../commands/registry';
 import { useAppSettings } from '../app/settings';
 import { useDocs } from '../documents/store';
 import { useProject } from '../project/store';
+import { BtnLabel } from './BtnLabel';
 import { Icon } from './Icon';
 
 interface Props {
@@ -54,7 +55,7 @@ export function CommandButton({ id, large, label, pressed }: Props) {
       onClick={cmd.run}
     >
       <Icon icon={cmd.icon} size={large ? 24 : 18} />
-      {(large || label) && <span className="btn-label">{visibleLabel}</span>}
+      {(large || label) && <BtnLabel split={!!large}>{visibleLabel}</BtnLabel>}
     </button>
   );
 }

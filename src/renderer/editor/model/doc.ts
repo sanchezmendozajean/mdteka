@@ -206,7 +206,12 @@ export function serializeDoc(doc: PmNode): SerializedDoc {
       ranges.push({ from: out.length, to: out.length });
       return;
     }
-    const gap = first ? lead : ((block.attrs['gap'] as string | null) ?? NEW_BLOCK_GAP);
+    let gap = first ? lead : ((block.attrs['gap'] as string | null) ?? NEW_BLOCK_GAP);
+    // Un bloque nacido de partir otro hereda el hueco del original (vacío si era el primero):
+    // sin salto de línea entre bloques se fundirían en una sola línea.
+    if (!first && !gap.includes('\n') && text !== (block.attrs['src'] as string | null)) {
+      gap = NEW_BLOCK_GAP;
+    }
     out += gap;
     ranges.push({ from: out.length, to: out.length + text.length });
     out += text;

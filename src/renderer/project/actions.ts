@@ -340,6 +340,48 @@ export async function removeNode(kind: 'collection' | 'book' | 'item', id: strin
   await commit(kind === 'book' ? removeBook(project, id) : removeCollection(project, id));
 }
 
+/** «Remover»: manda a la papelera todos los archivos del libro o la colección y los quita del índice. */
+export async function deleteNodeFromDisk(kind: 'collection' | 'book', id: string): Promise<void> {
+  const project = currentProject();
+  const books =
+    kind === 'book'
+      ? [findBook(project, id)].filter((b): b is Book => !!b)
+      : (project.collections.find((c) => c.id === id)?.books ?? []);
+  const ids = new Set(books.map((b) => b.id));
+  const files = [
+    ...new Set(
+      flatten(project)
+        .filter((x) => ids.has(x.book.id))
+        .map((x) => x.item.file),
+    ),
+  ];
+  const title =
+    kind === 'book'
+      ? (books[0]?.title ?? '')
+      : (project.collections.find((c) => c.id === id)?.title ?? '');
+  const answer = await askChoose(
+    t('project.removeFromDisk'),
+    [{ id: 'delete', label: t('project.removeFromDisk'), icon: Trash2, danger: true }],
+    t(kind === 'book' ? 'project.removeFromDiskBook' : 'project.removeFromDiskCollection', {
+      name: title,
+      count: files.length,
+    }),
+  );
+  if (answer !== 'delete') return;
+  for (const file of files) {
+    const abs = absolutePath(file);
+    const open = openDocFor(abs);
+    if (open) await closeDocument(open.id, true);
+    try {
+      await api().project.trash(abs);
+    } catch (error) {
+      await showError(`${t('project.deleteError')}\n${String(error)}`);
+      return;
+    }
+  }
+  await commit(kind === 'book' ? removeBook(project, id) : removeCollection(project, id));
+}
+
 // ---------------------------------------------------------------------------------------------
 // Archivos de los capítulos: mover, renombrar, duplicar, eliminar
 // ---------------------------------------------------------------------------------------------
@@ -495,6 +537,13 @@ export async function deleteChapterFile(itemId: string): Promise<void> {
     return;
   }
   await commit(removeItem(project, itemId));
+}
+
+/** Abre el explorador en el proyecto (su archivo `.mdteca`) o, en edición individual, en el documento. */
+export function revealCurrent(): void {
+  const path =
+    store().path ?? useDocs.getState().docs.find((d) => d.id === useDocs.getState().activeId)?.path;
+  if (path) void api().project.reveal(path);
 }
 
 export const revealFile = (file: string) => void api().project.reveal(absolutePath(file));

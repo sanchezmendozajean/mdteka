@@ -11,6 +11,7 @@ import {
   FolderPlus,
   FolderTree,
   Eraser,
+  ExternalLink,
   FilePlus2,
   ScanSearch,
   Settings,
@@ -70,6 +71,7 @@ import {
   ListOrdered,
   Minus,
   Moon,
+  Omega,
   PanelRight,
   PanelTop,
   Pilcrow,
@@ -104,6 +106,7 @@ import {
 } from '../documents/images';
 import { fitZoom, saveViewAsDefault, setView, setZoom, stepZoom } from '../documents/view';
 import { useFind } from '../editor/find-store';
+import { useSymbols } from '../editor/symbol-store';
 import {
   activeBookId,
   cleanOrphanImages,
@@ -115,11 +118,13 @@ import {
   newProjectWizard,
   openAsProject,
   openProjectDialog,
+  revealCurrent,
   showSearch,
 } from '../project/actions';
 import { showPalette, showProjectSettings, showQuickOpen, showSettings } from '../documents/store';
 import { toggleFocusMode } from '../app/focus';
 import { exportProjectPdf } from '../project/export';
+import { useProject } from '../project/store';
 import { editor, type FormatCommand } from '../editor/controller';
 import type { FormatState } from '../editor/wysiwyg/commands';
 import { registerCommand } from './registry';
@@ -189,6 +194,10 @@ def(
   { shortcut: 'Ctrl+W' },
 );
 
+def('file.reveal', ExternalLink, () => revealCurrent(), {
+  when: () => !!(useProject.getState().path ?? activeDoc()?.path),
+});
+
 // ----- Editar / portapapeles ---------------------------------------------------------------------
 def('edit.undo', Undo2, () => void editor.run('undo'), { shortcut: 'Ctrl+Z', native: true });
 def('edit.redo', Redo2, () => void editor.run('redo'), { shortcut: 'Ctrl+Y', native: true });
@@ -252,7 +261,7 @@ for (const [n, icon, command] of headings) {
     active: (f) => f.block === command,
   });
 }
-fmt('block.quote', Quote, 'quote', { shortcut: 'Ctrl+Shift+.', active: (f) => f.quote });
+fmt('block.quote', Quote, 'quote', { shortcut: 'Ctrl+Alt+Q', active: (f) => f.quote });
 fmt('block.codeBlock', SquareCode, 'codeBlock', {
   shortcut: 'Ctrl+Alt+C',
   active: (f) => f.block === 'code',
@@ -280,6 +289,7 @@ fmt('insert.separator', Minus, 'hr');
 fmt('insert.pageBreak', FileMinus, 'pageBreak', { shortcut: 'Ctrl+Enter' });
 fmt('insert.html', CodeXml, 'html');
 fmt('insert.date', Calendar, 'date');
+def('insert.symbol', Omega, () => useSymbols.getState().toggle(), { shortcut: 'Ctrl+Shift+.' });
 // Llegan en la Fase 4 (imágenes) y posteriores (notas al pie): quedan registrados pero no disponibles.
 def('insert.image', Image, () => void insertImageFromDisk());
 def('insert.imageUrl', Link, () => void insertImageFromUrl());

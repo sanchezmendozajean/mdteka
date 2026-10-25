@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { formatShortcut, getCommand, shortcutOf } from '../commands/registry';
 import { useDocs } from '../documents/store';
 import { editor } from '../editor/controller';
+import { BtnLabel } from './BtnLabel';
 import { Icon } from './Icon';
 import { Popover } from './Popover';
 
@@ -96,13 +97,14 @@ export function TableGrid() {
   const SIZE = 8;
   return (
     <Popover
+      large
       label={t(cmd.labelKey)}
       disabled={!hasDoc}
       testId="table-grid"
       trigger={
         <>
           <Icon icon={Table} size={24} />
-          <span className="btn-label">{t(cmd.labelKey)}</span>
+          <BtnLabel>{t(cmd.labelKey)}</BtnLabel>
         </>
       }
     >
@@ -142,13 +144,14 @@ export function ImageMenu() {
   const hasDoc = useDocs((s) => s.activeId !== null);
   return (
     <Popover
+      large
       label={t('ribbon.image')}
       disabled={!hasDoc}
       testId="image-menu"
       trigger={
         <>
           <Icon icon={ImageGlyph} size={24} />
-          <span className="btn-label">{t('ribbon.image')}</span>
+          <BtnLabel>{t('ribbon.image')}</BtnLabel>
         </>
       }
     >

@@ -8,8 +8,10 @@ files:
   - package.json
 win:
   target: nsis
-  # Sin firma de código por ahora (ver ADR/CHANGELOG).
-  signAndEditExecutable: false
+  # Generado desde specs/design/icono.svg con `npm run icons`.
+  icon: build/icon.ico
+  # Sin certificado no se firma, pero hace falta para incrustar el icono y los datos del ejecutable.
+  signAndEditExecutable: true
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true

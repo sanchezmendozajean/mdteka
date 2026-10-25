@@ -27,7 +27,13 @@ import {
   toggleWrap,
   currentLinkHref,
 } from './source/commands';
-import { setSourceFind, sourceFindMove, sourceReplaceAll, sourceReplaceNext } from './source/find';
+import {
+  setSourceFind,
+  sourceFindMove,
+  sourceFindReveal,
+  sourceReplaceAll,
+  sourceReplaceNext,
+} from './source/find';
 import { createSourceState, createSourceView } from './source/view';
 import { pmToSourceOffset, sourceToPmOffset } from './sync/map-position';
 import {
@@ -64,6 +70,7 @@ import {
 } from './wysiwyg/commands';
 import {
   findMove,
+  findReveal as pmFindReveal,
   replaceAll as pmReplaceAll,
   replaceCurrent,
   setFind,
@@ -662,6 +669,11 @@ class EditorController {
     }
   }
 
+  /** Vuelve a ajustar la paginación sin remedir (cambió el zoom: los píxeles ya no son los mismos). */
+  repaginate(): void {
+    this.pager?.schedule(false);
+  }
+
   /** Ruta del documento activo para resolver las imágenes relativas (06). */
   syncDocPath(): void {
     imageContext.docPath =
@@ -827,6 +839,20 @@ class EditorController {
     this.focus();
   }
 
+  /** Inserta texto literal (un símbolo) en el cursor y devuelve el foco al editor. */
+  insertSymbol(text: string): boolean {
+    const rt = this.current();
+    if (!rt) return false;
+    let done = false;
+    if (rt.mode === 'wysiwyg' && this.pm) {
+      done = insertText(text)(this.pm.state, this.pm.dispatch, this.pm);
+    } else if (this.cm) {
+      done = insertAtCursor(this.cm, text);
+    }
+    this.focus();
+    return done;
+  }
+
   /** Pegar como Markdown (ED-14): interpreta la sintaxis del portapapeles. */
   pasteAsMarkdown(text: string): boolean {
     const rt = this.current();
@@ -849,6 +875,14 @@ class EditorController {
     if (!rt) return EditorController.NO_MATCHES;
     if (rt.mode === 'wysiwyg' && this.pm) return setFind(this.pm, opts);
     return this.cm ? setSourceFind(this.cm, opts, replace) : EditorController.NO_MATCHES;
+  }
+
+  /** Lleva el cursor a la coincidencia actual (al escribir la búsqueda). */
+  findReveal(opts: FindOptions): FindInfo {
+    const rt = this.current();
+    if (!rt) return EditorController.NO_MATCHES;
+    if (rt.mode === 'wysiwyg' && this.pm) return pmFindReveal(this.pm);
+    return this.cm ? sourceFindReveal(this.cm, opts) : EditorController.NO_MATCHES;
   }
 
   findStep(opts: FindOptions, direction: 1 | -1): FindInfo {

@@ -52,9 +52,13 @@ import {
 } from './project';
 import { loadSettings, resetSettings, saveDocumentDefaults, saveSettings } from './settings';
 import {
+  addRecent,
+  getLastOpenDir,
   getLastProject,
   getProjectState,
   getViewState,
+  listRecent,
+  setLastOpenDir,
   setLastProject,
   setProjectState,
   setViewState,
@@ -91,20 +95,31 @@ function registerIpc(): void {
     platform: process.platform as 'win32' | 'darwin' | 'linux',
     e2e,
   }));
-  handle('app:launchPaths', () => pendingPaths.splice(0));
+  handle('app:launchPaths', () => {
+    const paths = pendingPaths.splice(0);
+    paths.forEach(addRecent);
+    return paths;
+  });
+  handle('recent:list', () => listRecent().map((p) => grant(p)));
   handle('app:closeNow', () => {
     allowClose = true;
     mainWindow?.close();
   });
   handle('file:openDialog', async () => {
     const result = await dialog.showOpenDialog(mainWindow!, {
+      defaultPath: getLastOpenDir() ?? undefined,
       properties: ['openFile', 'multiSelections'],
       filters: [
+        { name: 'Documentos y proyectos', extensions: ['md', 'markdown', 'mdown', 'mdteca'] },
         { name: 'Markdown', extensions: ['md', 'markdown', 'mdown'] },
+        { name: 'Proyecto MDteca', extensions: ['mdteca'] },
         { name: 'Texto', extensions: ['txt'] },
       ],
     });
-    return result.canceled ? [] : result.filePaths.map((p) => grant(p));
+    if (result.canceled) return [];
+    if (result.filePaths[0]) setLastOpenDir(result.filePaths[0]);
+    result.filePaths.forEach(addRecent);
+    return result.filePaths.map((p) => grant(p));
   });
   handle('file:saveDialog', async (req: { defaultName: string; kind?: 'md' | 'pdf' | 'html' }) => {
     // Las pruebas E2E indican la ruta por variable de entorno (el diálogo nativo no es automatizable).
@@ -220,10 +235,14 @@ function registerIpc(): void {
     const forced = process.env['MDTECA_E2E_OPEN_PATH'];
     if (e2e && forced) return grant(forced);
     const result = await dialog.showOpenDialog(mainWindow!, {
+      defaultPath: getLastOpenDir() ?? undefined,
       properties: ['openFile'],
       filters: [{ name: 'Proyecto MDteca', extensions: ['mdteca'] }],
     });
-    return result.canceled || !result.filePaths[0] ? null : grant(result.filePaths[0]);
+    if (result.canceled || !result.filePaths[0]) return null;
+    setLastOpenDir(result.filePaths[0]);
+    addRecent(result.filePaths[0]);
+    return grant(result.filePaths[0]);
   });
   handle('project:folderDialog', async () => {
     const forced = process.env['MDTECA_E2E_FOLDER_PATH'];
@@ -360,6 +379,8 @@ function createWindow(): BrowserWindow {
     titleBarStyle: 'hidden',
     titleBarOverlay: { color: '#00000000', symbolColor: '#5B5750', height: 40 },
     backgroundColor: '#F3F2EF',
+    // Empaquetada, la ventana toma el icono del ejecutable; en desarrollo se indica aquí.
+    ...(app.isPackaged ? {} : { icon: join(app.getAppPath(), 'build/icon.png') }),
     webPreferences: {
       preload: join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
@@ -412,6 +433,7 @@ if (!app.requestSingleInstanceLock()) {
 } else {
   app.on('second-instance', (_event, argv) => {
     const paths = pathsFromArgv(argv);
+    paths.forEach(addRecent);
     if (paths.length) send('app:openPaths', paths);
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore();

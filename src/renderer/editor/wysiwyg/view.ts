@@ -6,7 +6,7 @@ import { history, redo, undo } from 'prosemirror-history';
 import { keymap } from 'prosemirror-keymap';
 import type { Node as PmNode } from 'prosemirror-model';
 import { liftListItem, sinkListItem, splitListItem } from 'prosemirror-schema-list';
-import { EditorState, TextSelection, type Transaction } from 'prosemirror-state';
+import { EditorState, Plugin, TextSelection, type Transaction } from 'prosemirror-state';
 import { goToNextCell, tableEditing } from 'prosemirror-tables';
 import { EditorView } from 'prosemirror-view';
 import { schema } from '../model/schema';
@@ -23,8 +23,39 @@ import { nodeViews } from './nodeviews';
 const item = schema.nodes['list_item']!;
 
 /**
- * Plugins del editor visual. IMPORTANTE (ED-15): no hay input rules ni autoformato; lo tecleado
- * es siempre texto literal. El formato solo llega por comandos (cinta, atajos, menús).
+ * Única excepción a la regla de «sin autoformato»: dos guiones seguidos (--) pasan a raya (—).
+ * Se ignora en código (bloque o en línea) y tras un tercer guion, para no romper ---.
+ */
+function dashPlugin(): Plugin {
+  return new Plugin({
+    props: {
+      handleTextInput(view, from, to, text) {
+        if (text !== '-' || from !== to) return false;
+        const { state } = view;
+        const $from = state.doc.resolve(from);
+        if (
+          $from.parent.type === schema.nodes['code_block'] ||
+          $from.parent.inlineContent === false
+        ) {
+          return false;
+        }
+        if (state.storedMarks?.some((m) => m.type.name === 'code')) return false;
+        if ($from.marks().some((m) => m.type.name === 'code')) return false;
+        const before = $from.parent.textBetween(
+          Math.max(0, $from.parentOffset - 2),
+          $from.parentOffset,
+        );
+        if (!before.endsWith('-') || before === '--') return false;
+        view.dispatch(state.tr.replaceWith(from - 1, to, schema.text('—', $from.marks())));
+        return true;
+      },
+    },
+  });
+}
+
+/**
+ * Plugins del editor visual. IMPORTANTE (ED-15): no hay input rules ni autoformato (salvo `--` → —, ver dashPlugin);
+ * lo tecleado es texto literal. El formato solo llega por comandos (cinta, atajos, menús).
  */
 function plugins() {
   return [
@@ -72,6 +103,7 @@ function plugins() {
     tableEditing(),
     gapCursor(),
     dropCursor({ color: 'var(--accent)', width: 2 }),
+    dashPlugin(),
     highlightPlugin(),
     findPlugin(),
     pagePlugin(),

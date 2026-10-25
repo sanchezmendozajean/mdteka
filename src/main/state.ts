@@ -1,6 +1,6 @@
 import { app } from 'electron';
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 /**
@@ -83,4 +83,51 @@ export function setViewState(path: string, state: ViewState): void {
   const tmp = `${file()}.tmp`;
   writeFileSync(tmp, JSON.stringify(cache));
   renameSync(tmp, file());
+}
+
+const openDirFile = () => join(app.getPath('userData'), 'state', 'open-dir.json');
+
+/** Carpeta del último archivo abierto con el selector; null si no existe (ya) o no hay ninguna. */
+export function getLastOpenDir(): string | null {
+  try {
+    const dir = (JSON.parse(readFileSync(openDirFile(), 'utf8')) as { dir?: string }).dir;
+    return dir && statSync(dir).isDirectory() ? dir : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setLastOpenDir(filePath: string): void {
+  mkdirSync(dirname(openDirFile()), { recursive: true });
+  writeFileSync(openDirFile(), JSON.stringify({ dir: dirname(filePath) }));
+}
+
+const RECENT_MAX = 20;
+const recentFile = () => join(app.getPath('userData'), 'state', 'recent.json');
+
+function readRecent(): string[] {
+  try {
+    const list = JSON.parse(readFileSync(recentFile(), 'utf8')) as unknown;
+    return Array.isArray(list) ? list.filter((p): p is string => typeof p === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Archivos abiertos a propósito (selector, asociación de archivos), el más reciente primero. */
+export function addRecent(path: string): void {
+  const rest = readRecent().filter((p) => p.toLowerCase() !== path.toLowerCase());
+  mkdirSync(dirname(recentFile()), { recursive: true });
+  writeFileSync(recentFile(), JSON.stringify([path, ...rest].slice(0, RECENT_MAX)));
+}
+
+/** Los recientes que todavía existen. */
+export function listRecent(): string[] {
+  return readRecent().filter((p) => {
+    try {
+      return statSync(p).isFile();
+    } catch {
+      return false;
+    }
+  });
 }

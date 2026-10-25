@@ -1,4 +1,5 @@
 import type { Node as PmNode } from 'prosemirror-model';
+import { TextSelection } from 'prosemirror-state';
 import type { EditorView } from 'prosemirror-view';
 import { SHEET_GAP, type PageGeometry } from '@shared/page';
 import { paginate, type BlockMetrics, type Layout, type Line } from './layout';
@@ -10,6 +11,8 @@ export interface NodeMetrics {
   mb: number;
   wasFirst: boolean;
   lines?: Line[];
+  /** Tablas: dónde empieza cada tramo de `lines` (fila y altura; `inside`: a mitad de fila). */
+  cuts?: { row: number; y: number; inside: boolean; rowTop: number }[];
 }
 
 export interface PaginatorHooks {
@@ -32,6 +35,8 @@ export interface Analysis {
 const TYPING_QUIET_MS = 150;
 const TYPING_MAX_WAIT_MS = 1200;
 const MIN_LINES_TO_SPLIT = 4;
+/** Bloques con párrafos dentro que se pueden cortar entre sus líneas. */
+const CONTAINERS = new Set(['bullet_list', 'ordered_list', 'blockquote']);
 
 /**
  * Paginador incremental de la vista de páginas (07 · VW-10…VW-13). Mide los bloques de primer
@@ -133,10 +138,10 @@ export class Paginator {
   private measure(node: PmNode, dom: HTMLElement, i: number, s: number): NodeMetrics {
     const rect = dom.getBoundingClientRect();
     const cs = getComputedStyle(dom);
-    let inner = 0;
-    dom.querySelectorAll<HTMLElement>('.page-gap-inline').forEach((el) => {
-      inner += Number(el.dataset['gapHeight'] ?? 0);
-    });
+    const inner =
+      node.type.name === 'table'
+        ? this.tableRows(dom).reduce((n, r) => n + r.own, 0)
+        : this.gapSum(dom);
     const m: NodeMetrics = {
       height: rect.height / s - inner,
       mt: parseFloat(cs.marginTop) || 0,
@@ -145,7 +150,161 @@ export class Paginator {
     };
     const name = node.type.name;
     if (name === 'paragraph' || name === 'code_block') this.measureLines(dom, name, m, s);
+    else if (CONTAINERS.has(name)) this.measureNestedLines(dom, m, s);
+    else if (name === 'table') this.measureRows(dom, m, s);
     return m;
+  }
+
+  /** Altura de los huecos dibujados dentro de `el` (en serie: suman). */
+  private gapSum(el: Element): number {
+    let n = 0;
+    el.querySelectorAll<HTMLElement>('.page-gap-inline').forEach((g) => {
+      n += Number(g.dataset['gapHeight'] ?? 0);
+    });
+    return n;
+  }
+
+  /** Filas de una tabla en orden (con las filas-hueco) y lo que cada una creció por huecos. */
+  private tableRows(dom: HTMLElement): { tr: HTMLElement; cells: HTMLElement[]; own: number }[] {
+    const trs = [...dom.querySelectorAll<HTMLElement>(':scope > tbody > tr, :scope > tr')];
+    return trs.map((tr) => {
+      if (tr.classList.contains('page-gap-row')) {
+        return { tr, cells: [], own: Number(tr.dataset['gapHeight'] ?? 0) };
+      }
+      const cells = [...tr.children] as HTMLElement[];
+      // Los huecos de celdas distintas corren en paralelo: la fila crece lo que el mayor.
+      return { tr, cells, own: Math.max(0, ...cells.map((c) => this.gapSum(c))) };
+    });
+  }
+
+  /**
+   * Una tabla se corta entre filas y, como en Word, también dentro de una fila: el texto de cada
+   * celda se parte por donde llegue. Cada tramo (fila o parte de fila) hace de «línea».
+   */
+  private measureRows(dom: HTMLElement, m: NodeMetrics, s: number): void {
+    const origin = dom.getBoundingClientRect().top;
+    const lines: Line[] = [];
+    const cuts: NonNullable<NodeMetrics['cuts']> = [];
+    let extra = 0; // huecos ya dibujados por encima de la fila
+    let rowIndex = 0;
+    for (const { tr, cells, own } of this.tableRows(dom)) {
+      if (tr.classList.contains('page-gap-row')) {
+        extra += own;
+        continue;
+      }
+      const rect = tr.getBoundingClientRect();
+      const rowTop = (rect.top - origin) / s - extra;
+      const rowBottom = rowTop + rect.height / s - own;
+      const cuttable = this.rowCuts(cells, origin, s, extra, rowTop, rowBottom);
+      const bounds = [rowTop, ...cuttable, rowBottom];
+      for (let j = 0; j < bounds.length - 1; j++) {
+        lines.push({ top: bounds[j]!, bottom: bounds[j + 1]! });
+        cuts.push({ row: rowIndex, y: bounds[j]!, inside: j > 0, rowTop });
+      }
+      extra += own;
+      rowIndex++;
+    }
+    // Tramos contiguos: el borde entre filas pertenece a la de arriba.
+    for (let j = 0; j < lines.length - 1; j++) lines[j]!.bottom = lines[j + 1]!.top;
+    if (lines.length) {
+      m.lines = lines;
+      m.cuts = cuts;
+    }
+  }
+
+  /**
+   * Alturas (respecto a la tabla) donde se puede cortar dentro de una fila: inicio de línea en
+   * alguna celda, sin que ninguna línea de otra celda quede a caballo y con al menos dos líneas a
+   * cada lado. Vacío si alguna celda tiene algo que no se mide por líneas (código, imágenes).
+   */
+  private rowCuts(
+    cells: HTMLElement[],
+    origin: number,
+    s: number,
+    extra: number,
+    rowTop: number,
+    rowBottom: number,
+  ): number[] {
+    const all: Line[] = [];
+    let minLh = Infinity;
+    for (const cell of cells) {
+      if (cell.querySelector('pre, table, hr, img, figure')) return [];
+      const cs = getComputedStyle(cell);
+      const lh = parseFloat(cs.lineHeight);
+      if (!Number.isFinite(lh) || lh <= 0) return [];
+      // El texto va directo en la celda (sin párrafos): las líneas se cuentan sobre sus nodos.
+      const guess =
+        cell.getBoundingClientRect().top +
+        ((parseFloat(cs.borderTopWidth) || 0) / 2 + (parseFloat(cs.paddingTop) || 0)) * s;
+      const gaps = [...cell.querySelectorAll<HTMLElement>('.page-gap-inline')].map((g) => ({
+        bottom: g.getBoundingClientRect().bottom,
+        height: Number(g.dataset['gapHeight'] ?? 0) * s,
+      }));
+      const seen: { cy: number; idx: number }[] = [];
+      const walker = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!node.textContent?.trim()) continue;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        for (const r of range.getClientRects()) {
+          if (r.height < 1) continue;
+          const cy = r.top + r.height / 2;
+          const above = gaps.reduce((n, g) => (g.bottom <= cy + 1 ? n + g.height : n), 0);
+          seen.push({ cy: cy - above, idx: Math.floor((cy - above - guess) / (lh * s)) });
+        }
+      }
+      if (!seen.length) continue;
+      // La rejilla de líneas se ancla en el texto real: el centro de cada línea cae a media altura.
+      const devs = seen.map((x) => x.cy - (x.idx + 0.5) * lh * s - guess).sort((x, y) => x - y);
+      const topScreen = guess + devs[devs.length >> 1]!;
+      const last = Math.max(...seen.map((x) => x.idx));
+      const top = (topScreen - origin) / s - extra;
+      minLh = Math.min(minLh, lh);
+      for (let j = 0; j <= last; j++) all.push({ top: top + j * lh, bottom: top + (j + 1) * lh });
+    }
+    if (!all.length) return [];
+    const margin = 2 * minLh - 1;
+    const ys = [...new Set(all.map((l) => Math.round(l.top * 2) / 2))].sort((x, y) => x - y);
+    return ys.filter(
+      (y) =>
+        y - rowTop >= margin &&
+        rowBottom - y >= margin &&
+        !all.some((l) => l.top < y - 1 && l.bottom > y + 1),
+    );
+  }
+
+  /**
+   * Líneas de una lista o cita: las de cada párrafo que contiene, en coordenadas del bloque (no
+   * contiguas: entre elementos queda su separación). Los huecos ya dibujados se descuentan.
+   */
+  private measureNestedLines(dom: HTMLElement, m: NodeMetrics, s: number): void {
+    // Con código, tablas o imágenes dentro el bloque no se corta.
+    if (dom.querySelector('pre, table, hr, img, figure')) return;
+    const origin = dom.getBoundingClientRect().top;
+    const gaps = [...dom.querySelectorAll<HTMLElement>('.page-gap-inline')];
+    const gapHeight = (el: HTMLElement) => Number(el.dataset['gapHeight'] ?? 0);
+    const lines: Line[] = [];
+    for (const box of dom.querySelectorAll<HTMLElement>('p, h1, h2, h3, h4, h5, h6')) {
+      const cs = getComputedStyle(box);
+      const lh = parseFloat(cs.lineHeight);
+      if (!Number.isFinite(lh) || lh <= 0) return;
+      const pt = parseFloat(cs.paddingTop) || 0;
+      const pb = parseFloat(cs.paddingBottom) || 0;
+      const rect = box.getBoundingClientRect();
+      let inner = 0;
+      let above = 0;
+      for (const g of gaps) {
+        if (box.contains(g)) inner += gapHeight(g);
+        else if (box.compareDocumentPosition(g) & Node.DOCUMENT_POSITION_PRECEDING)
+          above += gapHeight(g);
+      }
+      const text = rect.height / s - inner - pt - pb;
+      const n = Math.round(text / lh);
+      if (n < 1 || Math.abs(text - n * lh) > 1.5) return;
+      const top = (rect.top - origin) / s - above + pt;
+      for (let j = 0; j < n; j++) lines.push({ top: top + j * lh, bottom: top + (j + 1) * lh });
+    }
+    if (lines.length >= MIN_LINES_TO_SPLIT) m.lines = lines;
   }
 
   /** Líneas de un párrafo o bloque de código: las alturas son fijas (ED-10), así que se calculan. */
@@ -258,6 +417,7 @@ export class Paginator {
       cutNodes.length === this.lastCutNodes.length &&
       cutNodes.every((n, i) => n === this.lastCutNodes[i]);
     if (same) {
+      this.alignBands(g, s);
       this.hooks.onLayout(layout);
       return;
     }
@@ -308,15 +468,25 @@ export class Paginator {
         const m = metrics[c.block]!;
         const dom = this.view.nodeDOM(positions[c.block]!) as HTMLElement | null;
         const line = m.lines?.[c.line];
-        if (!dom || !line) continue;
+        const prev = m.lines?.[c.line - 1];
+        if (!dom || !line || !prev) continue;
+        if (node.type.name === 'table') {
+          this.tableGaps(gaps, node, positions[c.block]!, dom, m, c, line.top - prev.bottom, s, {
+            chrome,
+            margins: g.margins,
+          });
+          continue;
+        }
         const rect = dom.getBoundingClientRect();
         const start = positions[c.block]! + 1;
         const end = positions[c.block]! + node.nodeSize - 1;
-        const pos = this.lineStart(start, end, rect.top + line.top * s);
-        if (pos === null) continue;
+        const at = this.lineStart(start, end, rect.top + line.top * s);
+        if (at === null) continue;
         gaps.push({
-          pos,
-          height: c.fill + chrome,
+          pos: this.gapPos(at),
+          // La separación natural entre las dos líneas (entre elementos de una lista) ya recorre
+          // parte del salto.
+          height: c.fill + chrome - (line.top - prev.bottom),
           inline: true,
           covers: node.type.name === 'code_block',
           bands: { fill: c.fill, bottom: g.margins.bottom, gap: SHEET_GAP, top: g.margins.top },
@@ -329,6 +499,7 @@ export class Paginator {
     this.lastCutNodes = cutNodes;
     this.lastTokens = tokens;
     applyGaps(this.view, gapDecorations(this.view.state.doc, gaps));
+    this.alignBands(g, s);
     this.hooks.onLayout(layout);
     // El cursor conserva su posición en pantalla aunque su bloque cambie de página.
     if (before !== null) {
@@ -338,6 +509,93 @@ export class Paginator {
         scroller.scrollTop += after - before;
       }
     }
+  }
+
+  /**
+   * Ajusta las franjas de las celdas partidas a las hojas reales: el redondeo de los bordes de las
+   * tablas (sobre todo con zoom) desplaza el contenido unos píxeles respecto al reparto calculado.
+   */
+  private alignBands(g: PageGeometry, s: number): void {
+    const bands = this.view.dom.querySelectorAll<HTMLElement>('.page-gap-band');
+    const origin = document.querySelector('.sheets')?.getBoundingClientRect().top;
+    if (!bands.length || origin === undefined || s <= 0) return;
+    const pitch = g.height + SHEET_GAP;
+    bands.forEach((band) => {
+      const pieces = band.children;
+      if (pieces.length !== 5) return;
+      const bt = band.getBoundingClientRect().top;
+      const page = Math.floor((bt - origin) / (pitch * s));
+      if (page < 0) return;
+      // Todo en px de layout, respecto al borde superior de la franja.
+      const at = (y: number) => (origin + y * s - bt) / s;
+      const textEnd = at(page * pitch + g.height - g.margins.bottom);
+      const sheetEnd = at(page * pitch + g.height);
+      const nextStart = at((page + 1) * pitch);
+      const textStart = at((page + 1) * pitch + g.margins.top);
+      const set = (el: Element, top: number, height: number) => {
+        (el as HTMLElement).style.top = `${top}px`;
+        (el as HTMLElement).style.height = `${Math.max(0, height)}px`;
+      };
+      set(pieces[0]!, textEnd, 1);
+      set(pieces[1]!, textEnd + 1, sheetEnd - textEnd - 1);
+      set(pieces[2]!, sheetEnd, nextStart - sheetEnd);
+      const lower = pieces[2]!.lastElementChild as HTMLElement | null;
+      if (lower) lower.style.top = `${nextStart - sheetEnd}px`;
+      set(pieces[3]!, nextStart, textStart - nextStart - 1);
+      set(pieces[4]!, textStart - 1, 1);
+      band.style.height = `${textStart}px`;
+    });
+  }
+
+  /** Huecos de un corte en una tabla: entre filas (una fila vacía) o dentro de una fila (por celda). */
+  private tableGaps(
+    gaps: GapSpec[],
+    node: PmNode,
+    tablePos: number,
+    dom: HTMLElement,
+    m: NodeMetrics,
+    c: { line: number; fill: number },
+    natural: number,
+    s: number,
+    page: { chrome: number; margins: { top: number; bottom: number } },
+  ): void {
+    const cut = m.cuts?.[c.line];
+    if (!cut) return;
+    const height = c.fill + page.chrome - natural;
+    let rowPos = tablePos + 1;
+    for (let j = 0; j < cut.row; j++) rowPos += node.child(j).nodeSize;
+    const row = node.child(cut.row);
+    if (!cut.inside) {
+      let cols = 0;
+      row.forEach((cell) => {
+        cols += Number(cell.attrs['colspan'] ?? 1);
+      });
+      gaps.push({ pos: rowPos, height, inline: true, row: Math.max(1, cols) });
+      return;
+    }
+    const top = dom.getBoundingClientRect().top + cut.y * s;
+    let cellPos = rowPos + 1;
+    row.forEach((cell) => {
+      const start = cellPos + 1;
+      const end = cellPos + cell.nodeSize - 1;
+      cellPos += cell.nodeSize;
+      const at = this.lineStart(start, end, top);
+      // El texto de la celda que sigue al corte baja a la hoja siguiente.
+      if (at !== null) gaps.push({ pos: at, height, inline: true, inCell: true });
+      // Las franjas cubren los bordes de la celda en el hueco entre hojas.
+      gaps.push({
+        pos: start,
+        height: 0,
+        inline: true,
+        cellBand: {
+          offset: cut.y - cut.rowTop,
+          fill: c.fill,
+          bottom: page.margins.bottom,
+          gap: SHEET_GAP,
+          top: page.margins.top,
+        },
+      });
+    });
   }
 
   /**
@@ -364,6 +622,24 @@ export class Paginator {
     }
     const t = topAt(lo);
     return t !== null && t >= top - 2 ? lo : null;
+  }
+
+  /**
+   * Dónde va el hueco de un corte por línea. A mitad de párrafo, en la línea; al inicio de un
+   * párrafo anidado, delante de él, y delante de su elemento de lista si es el primero: así la
+   * viñeta pasa de página con su texto.
+   */
+  private gapPos(pos: number): number {
+    let $p = this.view.state.doc.resolve(pos);
+    if (!$p.parent.inlineContent) {
+      const sel = TextSelection.findFrom($p, 1, true);
+      if (!sel) return pos;
+      $p = sel.$from;
+    }
+    let d = $p.depth;
+    if ($p.parentOffset > 0 || d < 2) return $p.pos;
+    while (d > 2 && $p.index(d - 1) === 0 && $p.node(d - 1).type.name === 'list_item') d--;
+    return $p.before(d);
   }
 
   /** ¿Cambia algún salto situado antes del bloque del cursor, o en él? */

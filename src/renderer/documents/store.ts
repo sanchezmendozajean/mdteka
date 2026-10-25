@@ -43,6 +43,8 @@ interface DocsState {
   add: (doc: DocInfo) => void;
   update: (id: string, patch: Partial<DocInfo>) => void;
   remove: (id: string) => void;
+  /** Coloca la pestaña `id` en el lugar de `targetId` (antes o después). */
+  move: (id: string, targetId: string, after: boolean) => void;
   setActive: (id: string | null) => void;
   setFormat: (format: FormatState) => void;
 }
@@ -55,6 +57,16 @@ export const useDocs = create<DocsState>((set) => ({
   update: (id, patch) =>
     set((s) => ({ docs: s.docs.map((d) => (d.id === id ? { ...d, ...patch } : d)) })),
   remove: (id) => set((s) => ({ docs: s.docs.filter((d) => d.id !== id) })),
+  move: (id, targetId, after) =>
+    set((s) => {
+      const moving = s.docs.find((d) => d.id === id);
+      if (!moving || id === targetId) return s;
+      const rest = s.docs.filter((d) => d.id !== id);
+      const at = rest.findIndex((d) => d.id === targetId);
+      if (at < 0) return s;
+      rest.splice(after ? at + 1 : at, 0, moving);
+      return { docs: rest };
+    }),
   setActive: (activeId) => set({ activeId }),
   setFormat: (format) => set({ format }),
 }));

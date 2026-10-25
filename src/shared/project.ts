@@ -624,6 +624,31 @@ export function itemTitle(item: ProjectItem, h1: string | undefined): string {
   return item.title ?? h1 ?? basenameOf(item.file);
 }
 
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: ' ',
+};
+
+/** Texto visible de un título: sin escapes `\` ni entidades (`&#x20;`, `&amp;`) del Markdown. */
+export function plainHeading(text: string): string {
+  return text
+    .replace(
+      /&(?:#(\d{1,7})|#[xX]([0-9a-fA-F]{1,6})|([A-Za-z]+));/g,
+      (m, dec?: string, hex?: string, name?: string) => {
+        if (name) return NAMED_ENTITIES[name] ?? m;
+        const code = dec ? Number(dec) : parseInt(hex!, 16);
+        return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : m;
+      },
+    )
+    .replace(/\\([!-/:-@[-`{-~])/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 /** Primer título de nivel 1 de un Markdown (ignora bloques de código y el bloque de configuración). */
 export function firstH1(markdown: string): string | undefined {
   let fenced = false;
@@ -631,7 +656,7 @@ export function firstH1(markdown: string): string | undefined {
     if (/^\s{0,3}(```|~~~)/.test(line)) fenced = !fenced;
     if (fenced) continue;
     const m = /^#\s+(.+?)\s*#*\s*$/.exec(line);
-    if (m) return m[1]!.trim();
+    if (m) return plainHeading(m[1]!);
   }
   return undefined;
 }

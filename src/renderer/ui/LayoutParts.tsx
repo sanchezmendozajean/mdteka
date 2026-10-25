@@ -5,6 +5,7 @@ import { useUi } from '../app/store';
 import { resolveConfig, updateActiveConfig } from '../documents/config';
 import { useDocs } from '../documents/store';
 import { setColumnWidth } from '../documents/view';
+import { BtnLabel } from './BtnLabel';
 import { Icon } from './Icon';
 import { Popover } from './Popover';
 
@@ -28,7 +29,7 @@ export function PaperSizePicker() {
       trigger={
         <>
           <Icon icon={File} size={24} />
-          <span className="btn-label">{size}</span>
+          <BtnLabel>{size}</BtnLabel>
           <Icon icon={ChevronDown} size={14} />
         </>
       }
@@ -85,7 +86,7 @@ export function MarginsPicker() {
       trigger={
         <>
           <Icon icon={SquareDashed} size={24} />
-          <span className="btn-label">{t('ribbon.margins')}</span>
+          <BtnLabel>{t('ribbon.margins')}</BtnLabel>
           <Icon icon={ChevronDown} size={14} />
         </>
       }
@@ -148,7 +149,7 @@ export function ColumnWidthPicker() {
       trigger={
         <>
           <Icon icon={MoveHorizontal} size={24} />
-          <span className="btn-label">{doc?.columnWidth ?? 760} px</span>
+          <BtnLabel>{doc?.columnWidth ?? 760} px</BtnLabel>
           <Icon icon={ChevronDown} size={14} />
         </>
       }

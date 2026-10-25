@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useUi, type RibbonTab } from '../app/store';
 import { useDocs } from '../documents/store';
 import { CommandButton } from './CommandButton';
+import { RecentMenu } from './RecentMenu';
 import {
   FontPicker,
   LineHeightPicker,
@@ -22,9 +23,11 @@ function FileTab() {
       <Group label={t('ribbon.groups.document')}>
         <CommandButton id="file.new" large />
         <CommandButton id="file.open" large />
+        <RecentMenu />
         <CommandButton id="file.save" large />
         <CommandButton id="file.saveAs" large />
         <CommandButton id="file.close" large />
+        <CommandButton id="file.reveal" large />
       </Group>
       <Group label={t('ribbon.groups.app')}>
         <CommandButton id="app.settings" large />
@@ -123,6 +126,7 @@ function InsertTab() {
         <CommandButton id="insert.footnote" large />
         <CommandButton id="list.tasks" large />
         <CommandButton id="insert.date" large />
+        <CommandButton id="insert.symbol" large />
       </Group>
     </>
   );
@@ -140,14 +144,14 @@ function DesignTab() {
         <PresetGallery />
       </Group>
       <Group label={t('ribbon.groups.typography')}>
-        <FontPicker />
         <div className="stack">
-          <SizePicker />
-          <LineHeightPicker />
-        </div>
-        <div className="stack">
-          <SpacingPicker />
+          <div className="inline-row font-row">
+            <FontPicker />
+            <SizePicker />
+          </div>
           <div className="inline-row">
+            <LineHeightPicker />
+            <SpacingPicker />
             <CommandButton id="design.alignLeft" pressed={typo.textAlign === 'left'} />
             <CommandButton id="design.alignJustify" pressed={typo.textAlign === 'justify'} />
           </div>

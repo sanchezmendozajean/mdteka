@@ -11,6 +11,7 @@ import { activeDoc, useDocs } from '../documents/store';
 import { exportPdf, preparePrint } from '../documents/export';
 import { editor } from '../editor/controller';
 import { usePagination } from '../editor/pagination-store';
+import { AppLogo } from '../ui/AppLogo';
 import { CommandButton } from '../ui/CommandButton';
 import { Dialogs } from '../ui/Dialogs';
 import { DocumentPanel } from '../ui/DocumentPanel';
@@ -19,7 +20,9 @@ import { EditorHost } from '../ui/EditorHost';
 import { EditorContextMenu } from '../ui/EditorContextMenu';
 import { FindBar } from '../ui/FindBar';
 import { FloatingToolbar } from '../ui/FloatingToolbar';
+import { PanelRail } from '../ui/HidePanelButton';
 import { ImagePopover } from '../ui/ImagePopover';
+import { SymbolPicker } from '../ui/SymbolPicker';
 import { Icon } from '../ui/Icon';
 import { KeyTips } from '../ui/KeyTips';
 import { Ribbon } from '../ui/Ribbon';
@@ -29,6 +32,7 @@ import { StatusBar } from '../ui/StatusBar';
 import { Welcome } from '../ui/Welcome';
 import { wireAppearance } from './appearance';
 import { wireFocus } from './focus';
+import { wireLayout } from './layout';
 import { useUi } from './store';
 
 const isTextField = (el: EventTarget | null) =>
@@ -56,6 +60,7 @@ export function App() {
     const offProject = wireProject();
     const offAppearance = wireAppearance();
     const offFocus = wireFocus();
+    const offLayout = wireLayout();
     const offBackground = wireBackground();
     const off = wireApp();
     void window.mdteca.app.info().then((info) => {
@@ -75,6 +80,7 @@ export function App() {
       offProject();
       offAppearance();
       offFocus();
+      offLayout();
       offBackground();
     };
   }, []);
@@ -101,7 +107,7 @@ export function App() {
     <div className={`app${focusMode ? ' focus' : ''}`} data-testid="app">
       <header className="titlebar">
         <span className="brand">
-          <Icon icon={FileText} /> {t('app.name')}
+          <AppLogo /> {t('app.name')}
         </span>
         <span className="mode-switch" role="group" aria-label={t('project.modeLabel')}>
           <button
@@ -127,28 +133,33 @@ export function App() {
             — {projectTitle}
           </span>
         )}
-        <CommandButton id="view.toggleNavigator" pressed={navigatorOpen} />
-        <CommandButton id="view.toggleDocumentPanel" pressed={documentPanelOpen} />
-        <CommandButton id="app.palette" />
-        <CommandButton id="app.settings" />
-        <CommandButton id="view.toggleTheme" />
+        <span className="title-tools">
+          <CommandButton id="file.save" />
+          <CommandButton id="edit.undo" />
+          <CommandButton id="edit.redo" />
+          <span className="title-sep" aria-hidden="true" />
+          <CommandButton id="app.palette" />
+          <CommandButton id="app.settings" />
+          <CommandButton id="view.toggleTheme" />
+        </span>
       </header>
       <Ribbon />
       <div className="workspace">
-        {navigatorOpen && <Navigator />}
+        {navigatorOpen ? <Navigator /> : <PanelRail side="left" />}
         <main className="canvas">
           <ProjectBar />
           <DocTabs />
-          {hasDocs && <FindBar />}
           <div className="canvas-body" hidden={!hasDocs}>
             <EditorHost />
+            {hasDocs && <FindBar />}
           </div>
           {!hasDocs && <Welcome />}
         </main>
-        {documentPanelOpen && <DocumentPanel />}
+        {documentPanelOpen ? <DocumentPanel /> : <PanelRail side="right" />}
       </div>
       <StatusBar />
       <ImagePopover />
+      <SymbolPicker />
       <FloatingToolbar />
       <KeyTips />
       <EditorContextMenu />

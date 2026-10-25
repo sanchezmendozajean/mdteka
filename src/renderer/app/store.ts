@@ -25,24 +25,7 @@ interface UiState {
   set: (patch: Partial<Omit<UiState, 'set'>>) => void;
 }
 
-const NAV_KEY = 'mdteca.navigatorWidth';
-export const NAV_MIN = 200;
-export const NAV_MAX = 520;
-const savedNavWidth = (): number => {
-  try {
-    const n = Number(localStorage.getItem(NAV_KEY));
-    return n >= NAV_MIN && n <= NAV_MAX ? n : 260;
-  } catch {
-    return 260;
-  }
-};
-export const saveNavWidth = (n: number): void => {
-  try {
-    localStorage.setItem(NAV_KEY, String(Math.round(n)));
-  } catch {
-    /* sin almacenamiento: el ancho no se recuerda */
-  }
-};
+export { NAV_MAX, NAV_MIN } from '@shared/settings';
 
 export const useUi = create<UiState>((set) => ({
   theme: 'light',
@@ -51,7 +34,7 @@ export const useUi = create<UiState>((set) => ({
   navigatorOpen: true,
   focusMode: false,
   leftTab: 'navigator',
-  navigatorWidth: savedNavWidth(),
+  navigatorWidth: 260,
   documentPanelOpen: true,
   stylesFocus: 0,
   pageFocus: 0,

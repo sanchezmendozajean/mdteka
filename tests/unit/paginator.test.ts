@@ -31,9 +31,14 @@ describe('[VW-12] motor de paginación', () => {
     expect(l.pageOfBlock).toEqual([1, 2, 3]);
   });
 
-  it('un párrafo que no cabe pasa entero si el hueco es pequeño', () => {
-    const l = paginate([block(70), para(4)], opts);
+  it('con un umbral, un párrafo que no cabe pasa entero si el hueco es pequeño', () => {
+    const l = paginate([block(70), para(4)], { ...opts, splitThreshold: 0.4 });
     expect(l.breaks).toEqual([{ kind: 'block', block: 1, fill: 30 }]);
+  });
+
+  it('por defecto un párrafo que no cabe se corta por líneas aunque el hueco sea pequeño', () => {
+    const l = paginate([block(70), para(8)], opts);
+    expect(l.breaks).toEqual([{ kind: 'line', block: 1, line: 2, fill: 0 }]);
   });
 
   it('corta por líneas si dejaría más de un 40 % de la página vacía', () => {
@@ -111,5 +116,26 @@ describe('[VW-14] trozos por página (los usa el PDF)', () => {
       [1, 2],
       [2, 2],
     ]);
+  });
+
+  it('una tabla alta se corta entre filas y sigue al título sin dejar hueco', () => {
+    // Título al pie de la página 1 y una tabla de 15 filas (150) que no cabe en una página.
+    const l = paginate(
+      [block(50), block(10, { keepWithNext: true }), block(150, { lines: lines(15) })],
+      opts,
+    );
+    expect(l.pages).toBe(3);
+    expect(l.pageOfBlock).toEqual([1, 1, 1]);
+    expect(l.breaks.every((b) => b.kind === 'line' && b.block === 2)).toBe(true);
+  });
+
+  it('si no caben dos filas, el título pasa a la página siguiente con la tabla', () => {
+    const l = paginate(
+      [block(80), block(10, { keepWithNext: true }), block(150, { lines: lines(15) })],
+      opts,
+    );
+    expect(l.breaks[0]).toMatchObject({ kind: 'block', block: 1 });
+    expect(l.pageOfBlock[1]).toBe(2);
+    expect(l.pageOfBlock[2]).toBe(2);
   });
 });

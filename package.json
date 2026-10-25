@@ -14,6 +14,7 @@
     "e2e": "node scripts/run-electron-vite.mjs build && playwright test",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "icons": "node scripts/make-icons.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "audit": "vitest run tests/unit/commands.test.ts tests/unit/settings.test.ts && node scripts/run-electron-vite.mjs build && playwright test tests/e2e/a11y.spec.ts",
     "dist": "electron-vite build && electron-builder --win --config electron-builder.yml"

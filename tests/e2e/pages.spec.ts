@@ -71,6 +71,14 @@ async function settled(page: Page): Promise<number> {
   return last;
 }
 
+/** Tabla con filas muy altas (una celda larga por fila), para forzar cortes dentro de una fila. */
+const TABLE = (() => {
+  const cell = 'Texto largo de la celda que ocupa varias líneas dentro de la columna. ';
+  let md = '# Tabla\n\n| Término | Significado | Uso |\n| --- | --- | --- |\n';
+  for (let i = 1; i <= 12; i++) md += `| T${i} | ${cell.repeat(12)} | ${cell.repeat(6)} |\n`;
+  return md;
+})();
+
 test.describe('[Fase 3] vista de páginas', () => {
   test('[VW-01] las hojas tienen el tamaño del papel (A4) y 24 px de separación', async () => {
     const { app, page } = await launch({ 'a.md': `${para(1)}\n\n${para(2)}\n` });
@@ -142,6 +150,48 @@ test.describe('[Fase 3] vista de páginas', () => {
       return { bad: bad.slice(0, 3), inline: document.querySelectorAll('.page-gap-inline').length };
     });
     expect(out.bad).toEqual([]);
+    expect(out.inline).toBeGreaterThanOrEqual(1);
+    await app.close();
+  });
+
+  test('[VW-12] una lista que no cabe se corta por líneas y su título no salta de hoja', async () => {
+    const item = (i: number) =>
+      `- **Elemento ${i}:** ${'Texto de la lista que ocupa más de una línea en la hoja. '.repeat(3)}\n  - Subelemento ${i} con algo de texto.`;
+    const md = `${para(1, 9)}\n\n${para(2, 6)}\n\n### Título de la lista\n\n${Array.from({ length: 14 }, (_, i) => item(i + 1)).join('\n')}\n`;
+    const { app, page } = await launch({ 'a.md': md });
+    await waitForEditor(page);
+    expect(await settled(page)).toBeGreaterThanOrEqual(2);
+    const out = await page.evaluate(() => {
+      const mm = 96 / 25.4;
+      const sheets = [...document.querySelectorAll('.sheet')].map((s) => s.getBoundingClientRect());
+      const sheetOf = (top: number) => sheets.findIndex((s) => top >= s.top - 1 && top < s.bottom);
+      const ul = document.querySelector('.ProseMirror > ul')!;
+      const bad: string[] = [];
+      for (const p of ul.querySelectorAll('p')) {
+        const range = document.createRange();
+        range.selectNodeContents(p);
+        for (const r of range.getClientRects()) {
+          if (r.height < 2 || r.height > 60) continue;
+          const s = sheets[sheetOf(r.top)];
+          if (!s || r.bottom > s.bottom - 25 * mm + 2 || r.top < s.top + 25 * mm - 2)
+            bad.push(`línea fuera: ${Math.round(r.top)}`);
+        }
+      }
+      // La viñeta va con su texto: ningún elemento empieza en una hoja y sigue en otra por su primera línea.
+      const split = [...ul.querySelectorAll('li')].filter((li) => {
+        const first = li.querySelector('p')!.getBoundingClientRect();
+        return sheetOf(li.getBoundingClientRect().top) !== sheetOf(first.top);
+      }).length;
+      return {
+        bad: bad.slice(0, 3),
+        split,
+        heading: sheetOf(document.querySelector('.ProseMirror > h3')!.getBoundingClientRect().top),
+        inline: ul.querySelectorAll('.page-gap-inline').length,
+      };
+    });
+    expect(out.bad).toEqual([]);
+    expect(out.split).toBe(0);
+    expect(out.heading).toBe(0);
     expect(out.inline).toBeGreaterThanOrEqual(1);
     await app.close();
   });
@@ -288,7 +338,7 @@ ${para(4)}
   test('[VW-02] doble clic sobre el encabezado abre la configuración de página', async () => {
     const { app, page } = await launch({ 'a.md': 'Hola\n' });
     await waitForEditor(page);
-    await page.locator('.titlebar [data-command="view.toggleDocumentPanel"]').click();
+    await page.getByTestId('hide-document-panel').click();
     await expect(page.getByTestId('document-panel')).toHaveCount(0);
     const box = (await page.locator('.sheet').first().boundingBox())!;
     await page.mouse.dblclick(box.x + 40, box.y + 20);
@@ -403,8 +453,8 @@ test.describe('[Fase 3] zoom, regla y vista continua', () => {
       'a.md': `${para(1)}\n\n<!-- mdteca:pagebreak -->\n\nDos\n`,
     });
     await waitForEditor(page);
-    await page.locator('.titlebar [data-command="view.toggleNavigator"]').click();
-    await page.locator('.titlebar [data-command="view.toggleDocumentPanel"]').click();
+    await page.getByTestId('hide-navigator').click();
+    await page.getByTestId('hide-document-panel').click();
     await page.getByTestId('view-continuous').click();
     await expect(page.locator('.sheet')).toHaveCount(0);
     const width = () =>
@@ -501,6 +551,43 @@ test.describe('[Fase 3] modo texto y exportación', () => {
     expect(html).toContain('data:font/woff2;base64');
     expect(html).not.toMatch(/<link[^>]+stylesheet/);
     expect(html).not.toContain('contenteditable');
+    await app.close();
+  });
+
+  test('las filas altas de una tabla se parten entre hojas y no dejan hueco grande', async () => {
+    const { app, page } = await launch({ 'tabla.md': TABLE });
+    await waitForEditor(page);
+    const n = await settled(page);
+    expect(n).toBeGreaterThan(1);
+    const report = await page.evaluate(() => {
+      const mm = 96 / 25.4;
+      const mT = 25 * mm;
+      const mB = 25 * mm;
+      const sheets = [...document.querySelectorAll('.sheet')].map((x) => x.getBoundingClientRect());
+      const inside: string[] = [];
+      const bottoms = sheets.map(() => 0);
+      for (const p of document.querySelectorAll('.ProseMirror td')) {
+        const range = document.createRange();
+        range.selectNodeContents(p);
+        for (const r of range.getClientRects()) {
+          if (r.height < 2 || r.height > 40) continue;
+          const i = sheets.findIndex((sh) => r.top >= sh.top - 1 && r.top < sh.bottom);
+          if (i < 0) {
+            inside.push('fuera de hoja');
+            continue;
+          }
+          const sh = sheets[i]!;
+          if (r.top < sh.top + mT - 2 || r.bottom > sh.bottom - mB + 2) inside.push('en el margen');
+          bottoms[i] = Math.max(bottoms[i]!, r.bottom - sh.top);
+        }
+      }
+      return { inside, bottoms, free: sheets.map((sh) => sh.height - mB) };
+    });
+    expect(report.inside).toEqual([]);
+    // Salvo la última, cada hoja se llena casi hasta el pie (como mucho ~4 líneas de hueco).
+    for (let i = 0; i < report.bottoms.length - 1; i++) {
+      expect(report.free[i]! - report.bottoms[i]!).toBeLessThan(110);
+    }
     await app.close();
   });
 });

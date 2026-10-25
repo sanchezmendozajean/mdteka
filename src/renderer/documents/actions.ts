@@ -276,6 +276,17 @@ export async function closeDocument(id: string, force = false): Promise<boolean>
   return true;
 }
 
+/** Cierra las pestañas visibles salvo `keepId`; se detiene si se cancela la pregunta de alguna. */
+export async function closeTabs(keepId: string | null): Promise<void> {
+  const ids = useDocs
+    .getState()
+    .docs.filter((d) => !d.hidden && d.id !== keepId)
+    .map((d) => d.id);
+  for (const id of ids) {
+    if (!(await closeDocument(id))) return;
+  }
+}
+
 /** Cierre de la ventana: recorre los documentos con cambios y pregunta por cada uno. */
 export async function closeWindow(): Promise<void> {
   editor.flush();

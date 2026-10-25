@@ -47,6 +47,35 @@ test.describe('[Fase 6] ajustes de la app', () => {
     await second.app.close();
   });
 
+  test('[PRJ-20] el ancho del navegador y los paneles escondidos se conservan al reiniciar', async () => {
+    const first = await launch({ 'a.md': 'Hola\n' });
+    const handle = (await first.page.getByTestId('navigator-resizer').boundingBox())!;
+    await first.page.mouse.move(handle.x + handle.width / 2, handle.y + 40);
+    await first.page.mouse.down();
+    await first.page.mouse.move(handle.x + handle.width / 2 + 80, handle.y + 40, { steps: 5 });
+    await first.page.mouse.up();
+    await first.page.getByTestId('hide-document-panel').click();
+    // La disposición se guarda con una espera: hasta entonces puede no existir settings.json.
+    const layout = (l: Launched) =>
+      existsSync(join(l.userData, 'settings.json')) ? saved(l).layout : undefined;
+    await expect
+      .poll(() => layout(first))
+      .toMatchObject({ navigatorWidth: 340, navigatorOpen: true, documentPanelOpen: false });
+    const reuse = { dir: first.dir, userData: first.userData };
+    await first.app.close();
+    const second = await launch({}, reuse);
+    await expect(second.page.getByTestId('show-document-panel')).toBeVisible();
+    await expect(second.page.getByTestId('document-panel')).toHaveCount(0);
+    await expect
+      .poll(() =>
+        second.page.getByTestId('navigator').evaluate((n) => n.getBoundingClientRect().width),
+      )
+      .toBe(340);
+    await second.page.getByTestId('hide-navigator').click();
+    await expect.poll(() => layout(second)?.navigatorOpen).toBe(false);
+    await second.app.close();
+  });
+
   test('«seguir al sistema» y el botón de tema', async () => {
     const l = await launch({});
     await l.page.locator('.titlebar [data-command="view.toggleTheme"]').click();

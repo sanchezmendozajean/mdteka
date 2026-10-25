@@ -37,6 +37,17 @@ button {
   border-bottom: 1px solid var(--line);
   background: var(--bg-app);
 }
+/* Botones rápidos de la barra de título: juntos, con un separador entre edición y aplicación. */
+.title-tools {
+  display: flex;
+  align-items: center;
+}
+.title-sep {
+  width: 1px;
+  height: 18px;
+  margin: 0 6px;
+  background: var(--line);
+}
 .titlebar .brand {
   font-weight: 600;
   display: flex;
@@ -91,6 +102,22 @@ button {
   border-right: 1px solid var(--line);
 }
 .panel.right {
+  border-left: 1px solid var(--line);
+}
+/* Carril de un panel escondido: solo el botón para volver a mostrarlo, en la esquina superior. */
+.panel-rail {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 8px;
+  width: 32px;
+  background: var(--panel);
+}
+.panel-rail.left {
+  border-right: 1px solid var(--line);
+}
+.panel-rail.right {
   border-left: 1px solid var(--line);
 }
 .panel-title {
@@ -191,7 +218,7 @@ button {
 .ribbon-group-items {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 0;
   flex: 1;
 }
 .ribbon-group-label {
@@ -518,29 +545,81 @@ kbd {
 
 /* ---------- Buscar y reemplazar ---------- */
 .find-bar {
+  position: absolute;
+  z-index: 20;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 6px 12px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
-  flex: none;
+  width: 340px;
+  max-width: calc(100% - 48px);
+  padding: 6px;
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-pop);
+}
+.find-tl,
+.find-tr {
+  top: 12px;
+}
+.find-bl,
+.find-br {
+  bottom: 12px;
+}
+/* Deja libre la barra de desplazamiento del lienzo. */
+.find-tl,
+.find-bl {
+  left: 16px;
+}
+.find-tr,
+.find-br {
+  right: 28px;
 }
 .find-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0;
+}
+.find-expand {
+  flex: none;
+  width: 24px;
+  padding: 2px;
+  align-self: stretch;
+}
+.find-buttons {
+  justify-content: space-between;
+}
+.find-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.find-group .popover-root {
+  display: inline-flex;
+}
+.find-corners {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 2px;
 }
 .find-input {
   flex: 1;
-  min-width: 160px;
-  max-width: 360px;
+  min-width: 0;
   font: inherit;
   padding: 4px 8px;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius);
   background: var(--field);
   color: var(--text);
+}
+.find-match {
+  background: color-mix(in srgb, #e0a800 35%, transparent);
+  border-radius: 2px;
+}
+.find-current {
+  background: color-mix(in srgb, #e0a800 70%, transparent);
+  border-radius: 2px;
+  outline: 1px solid #b88500;
 }
 .find-input:focus {
   outline: 2px solid var(--accent);
@@ -550,7 +629,9 @@ kbd {
   border-color: var(--danger);
 }
 .find-status {
-  min-width: 96px;
+  min-width: 52px;
+  text-align: center;
+  white-space: nowrap;
   color: var(--text-2);
   font-size: 11px;
 }
@@ -570,7 +651,7 @@ kbd {
 }
 .btn-large {
   gap: 4px;
-  padding: 8px 12px;
+  padding: 8px 6px;
   min-width: 60px;
 }
 .btn-label {
@@ -610,6 +691,16 @@ kbd {
 /* ---------- Diseño y panel Documento (04) ---------- */
 .inline-row {
   display: flex;
+}
+/* Tipografía: el selector de fuente ocupa lo que la fila del tamaño deja libre. */
+.font-row > .popover-root:first-child {
+  flex: 1;
+}
+.font-row > .popover-root:first-child > .btn {
+  width: 100%;
+}
+.font-row > .popover-root:first-child .gallery-current {
+  flex: 1;
 }
 .value-current {
   min-width: 44px;
@@ -864,6 +955,43 @@ kbd {
 }
 
 /* ---------- Imágenes: menú flotante y diálogos (06) ---------- */
+.symbol-picker {
+  width: 232px;
+  outline: none;
+}
+.symbol-grid {
+  display: grid;
+  gap: 4px;
+}
+.symbol-cell {
+  position: relative;
+  height: 44px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+}
+.symbol-cell.on {
+  background: var(--hover);
+  border-color: var(--accent);
+}
+.symbol-char {
+  font-size: 20px;
+}
+.symbol-cell kbd {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 10px;
+  color: var(--text-3);
+}
+.symbol-hint {
+  margin-top: 6px;
+  padding: 0 2px;
+  font-size: 11px;
+  color: var(--text-3);
+}
 .image-popover {
   position: fixed;
   z-index: 90;
@@ -1029,7 +1157,7 @@ kbd {
 .nav-header {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0;
   padding: 0 8px 0 16px;
   border-bottom: 1px solid var(--line);
 }
@@ -1196,7 +1324,7 @@ kbd {
 .nav-empty-actions {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 4px;
   margin-top: 8px;
 }
@@ -1541,6 +1669,7 @@ kbd {
 .app.focus .titlebar,
 .app.focus .ribbon,
 .app.focus .panel,
+.app.focus .panel-rail,
 .app.focus .status-bar,
 .app.focus .doc-tabs,
 .app.focus .project-bar {
@@ -1811,12 +1940,135 @@ kbd {
   flex: none;
 }
 .btn-large {
-  width: 84px;
-  max-width: 84px;
+  width: auto;
+  max-width: 112px;
   min-width: 0;
-  padding-left: 4px;
-  padding-right: 4px;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 .btn-large .btn-label {
-  max-width: 76px;
+  max-width: 96px;
+  text-wrap: balance;
+}
+
+/* Todos los botones grandes tienen la misma altura */
+.btn-large {
+  height: 72px;
+  justify-content: center;
+}
+
+/* Acciones del navegador vacío: una sola línea por botón */
+.nav-empty-actions .btn-label {
+  white-space: nowrap;
+}
+.nav-empty-actions .btn {
+  justify-content: flex-start;
+  width: 100%;
+}
+.nav-empty-actions .btn-label {
+  text-align: left;
+}
+
+/* Bienvenida: texto arriba, línea separadora y los últimos archivos abiertos */
+.welcome {
+  align-self: stretch;
+  justify-self: stretch;
+  justify-content: flex-start;
+  padding: 40px 24px;
+  overflow-y: auto;
+}
+.welcome-sep {
+  width: 100%;
+  max-width: 640px;
+  margin: 28px 0 16px;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+.welcome-recent {
+  width: 100%;
+  max-width: 640px;
+  text-align: left;
+}
+.welcome-recent h2 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+.welcome-recent ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.welcome-recent .btn {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+}
+.welcome-recent-name {
+  flex: none;
+  color: var(--text);
+}
+.welcome-recent-dir {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-3);
+  font-size: 11px;
+}
+.welcome-recent-empty {
+  margin: 0;
+  color: var(--text-3);
+}
+.welcome-actions {
+  flex-wrap: wrap;
+}
+
+/* Menú «Recientes» */
+.recent-list {
+  min-width: 320px;
+  max-width: 460px;
+}
+.recent-list .gallery-item {
+  gap: 8px;
+}
+.popover-empty {
+  margin: 0;
+  padding: 8px 12px;
+  color: var(--text-3);
+}
+
+/* Botones cuadrados de la caja de búsqueda. */
+.find-bar .btn,
+.find-corners .btn {
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+}
+.find-bar .find-expand {
+  width: 24px;
+  height: auto;
+}
+
+/* Reordenar pestañas arrastrando. */
+.doc-tab {
+  position: relative;
+}
+.doc-tab.drop-before::before,
+.doc-tab.drop-after::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--accent);
+}
+.doc-tab.drop-before::before {
+  left: -1px;
+}
+.doc-tab.drop-after::after {
+  right: -1px;
 }

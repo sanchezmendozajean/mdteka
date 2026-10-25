@@ -357,3 +357,11 @@ describe('[PRJ-32] importar una carpeta', () => {
     expect(importProject('Vacío', [], 'General').collections).toEqual([]);
   });
 });
+
+describe('[PRJ] título del navegador', () => {
+  it('quita entidades y escapes del primer H1', () => {
+    expect(firstH1('# Episodio 1&#x20;## El pueblo \* &amp; más')).toBe(
+      'Episodio 1 ## El pueblo * & más',
+    );
+  });
+});

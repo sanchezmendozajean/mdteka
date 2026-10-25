@@ -519,7 +519,7 @@ test.describe('[Fase 5] navegador: ancho, bienvenida y recarga', () => {
   test('la bienvenida ofrece abrir y crear proyectos', async () => {
     const l = await launch({});
     await expect(
-      l.page.locator('[data-testid="welcome"] [data-command="project.open"]'),
+      l.page.locator('[data-testid="welcome"] [data-command="file.open"]'),
     ).toBeVisible();
     await expect(
       l.page.locator('[data-testid="welcome"] [data-command="project.new"]'),
@@ -536,7 +536,8 @@ test.describe('[Fase 5] navegador: ancho, bienvenida y recarga', () => {
     const second = await launch({}, { dir: l.dir, userData: l.userData }, [], {
       MDTECA_E2E_OPEN_PATH: path,
     });
-    await second.page.locator('[data-testid="welcome"] [data-command="project.open"]').click();
+    await second.page.locator('.ribbon').getByRole('tab', { name: 'Proyecto' }).click();
+    await second.page.locator('.ribbon [data-command="project.open"]').click();
     await expect(second.page.getByTestId('nav-header')).toContainText('Manual de prueba');
     await closeApp(second.app);
   });
@@ -659,11 +660,11 @@ test('[UI] los paneles Navegador y Documento se esconden desde su encabezado y s
   const l = await launch({});
   await l.page.getByTestId('hide-navigator').click();
   await expect(l.page.getByTestId('navigator')).toHaveCount(0);
-  await l.page.locator('[data-command="view.toggleNavigator"]').first().click();
+  await l.page.getByTestId('show-navigator').click();
   await expect(l.page.getByTestId('navigator')).toBeVisible();
   await l.page.getByTestId('hide-document-panel').click();
   await expect(l.page.getByTestId('document-panel')).toHaveCount(0);
-  await l.page.locator('[data-command="view.toggleDocumentPanel"]').first().click();
+  await l.page.getByTestId('show-document-panel').click();
   await expect(l.page.getByTestId('document-panel')).toBeVisible();
   await closeApp(l.app);
 });

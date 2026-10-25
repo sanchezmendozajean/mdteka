@@ -78,6 +78,7 @@ const api: MdtecaApi = {
     clearAll: () => invoke('recovery:clearAll'),
     list: () => invoke('recovery:list'),
   },
+  recent: { list: () => invoke('recent:list') },
   lastProject: {
     get: () => invoke('state:getLastProject'),
     set: (path) => invoke('state:setLastProject', { path }),

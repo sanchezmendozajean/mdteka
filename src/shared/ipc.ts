@@ -217,6 +217,8 @@ export const ipcContract = {
       }),
     ),
   },
+  /** Últimos archivos abiertos a propósito (hasta 20); se conceden al leerlos. */
+  'recent:list': { request: z.undefined(), response: z.array(path) },
   /** Último proyecto abierto (Ajustes › Al iniciar). Se concede al leerlo. */
   'state:getLastProject': { request: z.undefined(), response: path.nullable() },
   'state:setLastProject': { request: z.object({ path: path.nullable() }), response: z.undefined() },
@@ -322,6 +324,7 @@ export interface MdtecaApi {
     clearAll(): Promise<void>;
     list(): Promise<IpcResponse<'recovery:list'>>;
   };
+  recent: { list(): Promise<string[]> };
   lastProject: { get(): Promise<string | null>; set(path: string | null): Promise<void> };
   spell: {
     configure(enabled: boolean, languages: string[]): Promise<string[]>;

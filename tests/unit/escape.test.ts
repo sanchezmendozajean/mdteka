@@ -215,3 +215,14 @@ describe('[ED-21] editar un bloque solo cambia ese bloque', () => {
     expect(out).toBe('Uno   con  espacios\n\n*  viñeta rara\n*  otra\n\nTres\n');
   });
 });
+
+describe('bloques nacidos de partir otro', () => {
+  it('un título partido en dos no se funde en una sola línea', () => {
+    const doc = docFromSource('# Episodio 1 y más\n');
+    const first = doc.child(0);
+    const heading = (text: string) =>
+      first.type.create({ ...first.attrs }, schema.text(text));
+    const split = s['doc']!.create(doc.attrs, [heading('Episodio 1'), heading('y más')]);
+    expect(sourceFromDoc(split)).toBe('# Episodio 1\n\n# y más\n');
+  });
+});
