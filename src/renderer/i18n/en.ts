@@ -139,6 +139,9 @@ export const en: Widen<typeof es> = {
   },
   export: {
     error: 'Could not export “{{name}}”.',
+    pdfDone: 'PDF exported successfully.',
+    goToFile: 'Go to file',
+    closeNotice: 'Dismiss notice',
   },
   symbols: {
     title: 'Insert symbol',
@@ -351,6 +354,10 @@ export const en: Widen<typeof es> = {
     modeProject: 'Project',
     settings: 'Project settings',
     filter: 'Filter chapters',
+    moreActions: 'More actions',
+    newFile: 'New file',
+    viewFiles: 'View files',
+    viewChapters: 'View chapters',
     searchPlaceholder: 'Search the project',
     searchResults: '{{count}} matches',
     searchNone: 'No matches',

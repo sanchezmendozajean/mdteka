@@ -35,6 +35,8 @@ export interface ProjectState {
   expanded: string[];
   open: string[];
   active: string | null;
+  /** Vista del navegador: títulos de capítulo o nombres de archivo. */
+  navView: 'chapters' | 'files';
 }
 
 const projectFile = () => join(app.getPath('userData'), 'state', 'projects.json');
@@ -51,7 +53,13 @@ function loadProjects(): Record<string, ProjectState> {
 }
 
 export function getProjectState(path: string): ProjectState {
-  return loadProjects()[key(path)] ?? { expanded: [], open: [], active: null };
+  return {
+    expanded: [],
+    open: [],
+    active: null,
+    navView: 'chapters',
+    ...loadProjects()[key(path)],
+  };
 }
 
 export function setProjectState(path: string, state: ProjectState): void {

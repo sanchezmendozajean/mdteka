@@ -12,7 +12,11 @@ import {
   FileDown,
   FilePlus2,
   FileText,
+  FileSearch,
   FolderSearch,
+  List,
+  MoreVertical,
+  Settings,
   FolderTree,
   Library,
   Pencil,
@@ -28,6 +32,7 @@ import {
 import { useMemo, useRef, useState, type DragEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  basenameOf,
   flatten,
   itemTitle,
   type Book,
@@ -62,6 +67,7 @@ import {
 } from '../project/actions';
 import { exportProjectPdf } from '../project/export';
 import { projectIcon } from '../project/icons';
+import { getCommand } from '../commands/registry';
 import { useProject } from '../project/store';
 import { CommandButton } from './CommandButton';
 import { ContextMenu, type MenuItem } from './ContextMenu';
@@ -105,6 +111,7 @@ function ChapterRow({
   index,
   depth,
   ctx,
+  spacer = true,
 }: {
   item: ProjectItem;
   book: Book;
@@ -112,6 +119,8 @@ function ChapterRow({
   index: number;
   depth: number;
   ctx: Ctx;
+  /** Reserva el hueco del chevron aunque el capítulo no tenga hijos (alinea con sus hermanos). */
+  spacer?: boolean;
 }) {
   const { t } = useTranslation();
   const info = useProject((s) => s.info[item.file]);
@@ -267,7 +276,7 @@ function ChapterRow({
             <Icon icon={isOpen ? ChevronDown : ChevronRight} size={14} />
           </button>
         ) : (
-          <span className="nav-chevron" />
+          spacer && <span className="nav-chevron" />
         )}
         <Icon icon={FileText} size={15} />
         <span className="nav-label">{label}</span>
@@ -721,11 +730,14 @@ export function Navigator() {
   );
   const activePath = norm(docs.find((d) => d.id === activeId)?.path);
   const expanded = useMemo(() => new Set(expandedIds), [expandedIds]);
+  const navView = useProject((s) => s.navView);
+  const [more, setMore] = useState<{ x: number; y: number } | null>(null);
 
   const ctx: Ctx | null = useMemo(() => {
     if (!project) return null;
     const needle = filter.trim().toLowerCase();
-    const title = (item: ProjectItem) => itemTitle(item, info[item.file]?.h1);
+    const title = (item: ProjectItem) =>
+      navView === 'files' ? basenameOf(item.file) : itemTitle(item, info[item.file]?.h1);
     const visible = (item: ProjectItem): boolean =>
       !needle || title(item).toLowerCase().includes(needle) || (item.children ?? []).some(visible);
     return {
@@ -749,7 +761,7 @@ export function Navigator() {
       setDrop,
       dragging,
     };
-  }, [project, info, filter, open, activePath, expanded, expandedIds, drop]);
+  }, [project, info, filter, open, activePath, expanded, expandedIds, drop, navView]);
 
   const background: MenuItem[] = [
     {
@@ -822,8 +834,19 @@ export function Navigator() {
                 <span className="nav-project-title" title={project.description ?? project.title}>
                   {project.title}
                 </span>
-                <CommandButton id="project.search" />
-                <CommandButton id="project.settings" />
+                <button
+                  className="btn nav-more"
+                  title={t('project.moreActions')}
+                  aria-label={t('project.moreActions')}
+                  aria-haspopup="menu"
+                  data-testid="nav-more"
+                  onClick={(e) => {
+                    const r = e.currentTarget.getBoundingClientRect();
+                    setMore({ x: r.left, y: r.bottom + 4 });
+                  }}
+                >
+                  <Icon icon={MoreVertical} size={16} />
+                </button>
               </div>
               {panel === 'search' ? (
                 <SearchPanel />
@@ -854,13 +877,30 @@ export function Navigator() {
                       <div className="panel-empty">{t('project.emptyBody')}</div>
                     )}
                     {/* Con una sola colección el navegador la oculta (PRJ-11). */}
-                    {project.collections.length === 1
-                      ? project.collections[0]!.books.filter(
-                          (b) => !ctx.filter || b.items.some(ctx.visible),
-                        ).map((b) => <BookNode key={b.id} book={b} depth={0} ctx={ctx} />)
-                      : project.collections.map((c) => (
-                          <CollectionNode key={c.id} collection={c} ctx={ctx} />
-                        ))}
+                    {/* Con una sola colección y un solo libro, los capítulos van en el primer nivel. */}
+                    {project.collections.length === 1 && project.collections[0]!.books.length === 1
+                      ? project.collections[0]!.books[0]!.items.filter(ctx.visible).map((item) => {
+                          const book = project.collections[0]!.books[0]!;
+                          return (
+                            <ChapterRow
+                              key={item.id}
+                              item={item}
+                              book={book}
+                              parentId={null}
+                              index={book.items.indexOf(item)}
+                              depth={0}
+                              ctx={ctx}
+                              spacer={book.items.some((i) => i.children?.length)}
+                            />
+                          );
+                        })
+                      : project.collections.length === 1
+                        ? project.collections[0]!.books.filter(
+                            (b) => !ctx.filter || b.items.some(ctx.visible),
+                          ).map((b) => <BookNode key={b.id} book={b} depth={0} ctx={ctx} />)
+                        : project.collections.map((c) => (
+                            <CollectionNode key={c.id} collection={c} ctx={ctx} />
+                          ))}
                   </div>
                   <Unindexed />
                 </>
@@ -868,6 +908,48 @@ export function Navigator() {
             </>
           )}
         </>
+      )}
+      {more && (
+        <ContextMenu
+          x={more.x}
+          y={more.y}
+          onClose={() => setMore(null)}
+          items={[
+            {
+              id: 'new-file',
+              label: t('project.newFile'),
+              icon: FilePlus2,
+              run: () => getCommand('project.newChapter')?.run(),
+            },
+            {
+              id: 'search',
+              label: t(getCommand('project.search')?.labelKey ?? ''),
+              icon: FileSearch,
+              run: () => getCommand('project.search')?.run(),
+            },
+            {
+              id: 'settings',
+              label: t(getCommand('project.settings')?.labelKey ?? ''),
+              icon: Settings,
+              run: () => getCommand('project.settings')?.run(),
+            },
+            {
+              id: 'view-files',
+              label: t('project.viewFiles'),
+              icon: FileText,
+              separator: true,
+              checked: navView === 'files',
+              run: () => useProject.getState().set({ navView: 'files' }),
+            },
+            {
+              id: 'view-chapters',
+              label: t('project.viewChapters'),
+              icon: List,
+              checked: navView === 'chapters',
+              run: () => useProject.getState().set({ navView: 'chapters' }),
+            },
+          ]}
+        />
       )}
       {menu && (
         <ContextMenu x={menu.x} y={menu.y} items={menu.items} onClose={() => setMenu(null)} />

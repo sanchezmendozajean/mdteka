@@ -38,6 +38,8 @@ interface ProjectStore {
   /** Ids de colecciones, libros y capítulos desplegados. */
   expanded: string[];
   filter: string;
+  /** Vista del navegador: títulos de capítulo o nombres de archivo (se recuerda por proyecto). */
+  navView: NavView;
   panel: 'tree' | 'search';
   suggestion: ProjectSuggestion | null;
   search: SearchState;
@@ -52,6 +54,7 @@ export const useProject = create<ProjectStore>((set) => ({
   files: [],
   expanded: [],
   filter: '',
+  navView: 'chapters',
   panel: 'tree',
   suggestion: null,
   search: {
@@ -64,6 +67,8 @@ export const useProject = create<ProjectStore>((set) => ({
   },
   set: (patch) => set(patch),
 }));
+
+export type NavView = 'chapters' | 'files';
 
 const norm = (p: string) => p.replace(/\\/g, '/').toLowerCase();
 

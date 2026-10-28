@@ -317,8 +317,19 @@ function registerIpc(): void {
   handle('state:getProject', (req: { path: string }) => getProjectState(req.path));
   handle(
     'state:setProject',
-    (req: { path: string; expanded: string[]; open: string[]; active: string | null }) => {
-      setProjectState(req.path, { expanded: req.expanded, open: req.open, active: req.active });
+    (req: {
+      path: string;
+      expanded: string[];
+      open: string[];
+      active: string | null;
+      navView: 'chapters' | 'files';
+    }) => {
+      setProjectState(req.path, {
+        expanded: req.expanded,
+        open: req.open,
+        active: req.active,
+        navView: req.navView,
+      });
     },
   );
   handle(
