@@ -179,7 +179,7 @@ test.describe('[Fase 1] editor', () => {
     await expect(page.locator('.cm-content')).toBeVisible();
     const line = await page.evaluate(() => {
       const w = window as unknown as {
-        __mdteca: {
+        __mdtor: {
           editor: {
             debug(): {
               cm: {
@@ -192,7 +192,7 @@ test.describe('[Fase 1] editor', () => {
           };
         };
       };
-      const { cm } = w.__mdteca.editor.debug();
+      const { cm } = w.__mdtor.editor.debug();
       return cm.state.doc.lineAt(cm.state.selection.main.head).text;
     });
     expect(line).toBe('Segundo párrafo.');
@@ -227,10 +227,10 @@ test.describe('[Fase 1] editor', () => {
       const samples: number[] = [];
       const w = window as unknown as {
         __lat: number[];
-        __mdteca: { editor: { debug(): { pm: { updateState(s: unknown): void } } } };
+        __mdtor: { editor: { debug(): { pm: { updateState(s: unknown): void } } } };
       };
       w.__lat = samples;
-      const { pm } = w.__mdteca.editor.debug();
+      const { pm } = w.__mdtor.editor.debug();
       const update = pm.updateState.bind(pm);
       let t0 = 0;
       document.addEventListener('beforeinput', () => (t0 = performance.now()), true);
@@ -343,7 +343,7 @@ test.describe('[Fase 1] formato y archivos', () => {
     const original = Buffer.concat([
       Buffer.from([0xef, 0xbb, 0xbf]),
       Buffer.from(
-        '# T\r\n\r\nUno\r\n\r\n<!-- mdteca:config\r\n{ "version": 1 }\r\n-->\r\n',
+        '# T\r\n\r\nUno\r\n\r\n<!-- mdtor:config\r\n{ "version": 1 }\r\n-->\r\n',
         'utf8',
       ),
     ]);
@@ -356,10 +356,10 @@ test.describe('[Fase 1] formato y archivos', () => {
     const saved = readFileSync(files[0]!);
     expect(saved.subarray(0, 3)).toEqual(Buffer.from([0xef, 0xbb, 0xbf]));
     expect(saved.toString('utf8')).toBe(
-      '﻿# T\r\n\r\nUnos\r\n\r\n<!-- mdteca:config\r\n{ "version": 1 }\r\n-->\r\n',
+      '﻿# T\r\n\r\nUnos\r\n\r\n<!-- mdtor:config\r\n{ "version": 1 }\r\n-->\r\n',
     );
     // El bloque de configuración no se muestra como contenido.
-    expect(await page.locator('.ProseMirror').innerText()).not.toContain('mdteca:config');
+    expect(await page.locator('.ProseMirror').innerText()).not.toContain('mdtor:config');
     await app.close();
   });
 

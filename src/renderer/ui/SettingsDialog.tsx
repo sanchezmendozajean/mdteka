@@ -145,7 +145,7 @@ function Editor() {
   const e = useAppSettings((s) => s.settings.editor);
   const [available, setAvailable] = useState<string[]>(SPELL_CHOICES);
   useEffect(() => {
-    void window.mdteca.spell.configure(e.spellcheck, e.spellLanguages).then((list) => {
+    void window.mdtor.spell.configure(e.spellcheck, e.spellLanguages).then((list) => {
       setAvailable(SPELL_CHOICES.filter((l) => list.length === 0 || list.includes(l)));
     });
     // Solo al abrir la sección: consultar los idiomas disponibles.
@@ -461,7 +461,7 @@ function FilesSection() {
         <button
           className="btn"
           data-testid="set-associate"
-          onClick={() => void window.mdteca.appUi.openDefaultApps()}
+          onClick={() => void window.mdtor.appUi.openDefaultApps()}
         >
           {t('settings.associateButton')}
         </button>

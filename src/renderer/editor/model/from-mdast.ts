@@ -3,7 +3,7 @@ import type { Mark, Node as PmNode } from 'prosemirror-model';
 import type { PhrasingContent, RootContent } from 'mdast';
 import { schema } from './schema';
 
-export const PAGE_BREAK_COMMENT = '<!-- mdteca:pagebreak -->';
+export const PAGE_BREAK_COMMENT = '<!-- mdtor:pagebreak -->';
 
 type Align = 'left' | 'right' | 'center' | null;
 
@@ -90,7 +90,7 @@ function inlineToPm(nodes: PhrasingContent[], ctx: Ctx, marks: readonly Mark[]):
   const out: PmNode[] = [];
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]!;
-    // Un comentario `mdteca:caption` pegado a una imagen la marca con pie de foto visible.
+    // Un comentario `mdtor:caption` pegado a una imagen la marca con pie de foto visible.
     const captioned = () => {
       const next = nodes[i + 1];
       if (next?.type !== 'html' || next.value.trim() !== CAPTION_MARK) return false;

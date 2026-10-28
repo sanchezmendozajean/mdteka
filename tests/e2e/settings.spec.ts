@@ -308,8 +308,8 @@ test.describe('[Fase 6] autoguardado, recuperación y arranque', () => {
     await typeAtEnd(first.page, ' perdido');
     await first.page.evaluate(() =>
       (
-        window as unknown as { __mdteca: { writeRecoveryNow(): Promise<void> } }
-      ).__mdteca.writeRecoveryNow(),
+        window as unknown as { __mdtor: { writeRecoveryNow(): Promise<void> } }
+      ).__mdtor.writeRecoveryNow(),
     );
     const recovery = join(first.userData, 'recovery');
     await expect.poll(() => existsSync(recovery) && readdirSync(recovery).length).toBe(1);
@@ -334,8 +334,8 @@ test.describe('[Fase 6] autoguardado, recuperación y arranque', () => {
     await first.page.keyboard.type('Borrador');
     await first.page.evaluate(() =>
       (
-        window as unknown as { __mdteca: { writeRecoveryNow(): Promise<void> } }
-      ).__mdteca.writeRecoveryNow(),
+        window as unknown as { __mdtor: { writeRecoveryNow(): Promise<void> } }
+      ).__mdtor.writeRecoveryNow(),
     );
     await crash(first);
     const second = await launch({}, { dir: first.dir, userData: first.userData }, []);
@@ -351,8 +351,8 @@ test.describe('[Fase 6] autoguardado, recuperación y arranque', () => {
     await typeAtEnd(first.page, '!');
     await first.page.evaluate(() =>
       (
-        window as unknown as { __mdteca: { writeRecoveryNow(): Promise<void> } }
-      ).__mdteca.writeRecoveryNow(),
+        window as unknown as { __mdtor: { writeRecoveryNow(): Promise<void> } }
+      ).__mdtor.writeRecoveryNow(),
     );
     // Cierre normal de la ventana, descartando los cambios.
     await first.app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]!.close());
@@ -366,12 +366,12 @@ test.describe('[Fase 6] autoguardado, recuperación y arranque', () => {
 
   test('«Abrir el último proyecto» al iniciar', async () => {
     const project = JSON.stringify({
-      format: 'mdteca-project',
+      format: 'mdtor-project',
       version: 1,
       title: 'Último',
       collections: [],
     });
-    const first = await launch({ 'p.mdteca': project });
+    const first = await launch({ 'p.mdtor': project });
     await expect(first.page.getByTestId('nav-header')).toContainText('Último');
     await openSettings(first.page, 'general');
     await first.page.getByTestId('set-open-on-start').selectOption('lastProject');

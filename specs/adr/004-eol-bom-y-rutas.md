@@ -10,7 +10,7 @@
    de fin de línea (LF o CRLF). Un archivo con EOL **mezclados** se unifica al dominante la primera vez
    que se guarda con cambios; no se guarda si no está sucio (GIT-01).
 2. **BOM**: se detecta, se aparta del texto y se vuelve a escribir.
-3. **Bloque de configuración**: la Fase 1 solo lo aparta (último `<!-- mdteca:config` al final del
+3. **Bloque de configuración**: la Fase 1 solo lo aparta (último `<!-- mdtor:config` al final del
    archivo) y lo vuelve a unir idéntico; su lectura y validación son de la Fase 2.
 4. **Concesiones de ruta**: el renderer solo puede leer o escribir rutas elegidas en un diálogo o
    recibidas por línea de comandos / asociación de archivos. Las rutas se canonicalizan con

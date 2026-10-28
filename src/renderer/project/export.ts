@@ -19,11 +19,11 @@ import { absolutePath, useProject } from './store';
 
 const t = (key: string, options?: Record<string, unknown>) => i18next.t(key, options);
 
-const PAGE_BREAK = '<!-- mdteca:pagebreak -->';
+const PAGE_BREAK = '<!-- mdtor:pagebreak -->';
 
 /** Un capítulo del libro en el PDF: su texto con los enlaces relativos reescritos a la raíz. */
 async function chapterText(item: ProjectItem): Promise<string> {
-  const raw = await window.mdteca.file.read(absolutePath(item.file));
+  const raw = await window.mdtor.file.read(absolutePath(item.file));
   const { body } = splitConfigBlock(detectFormat(raw).text);
   const dir = dirnameOf(item.file);
   // Las imágenes (y enlaces) relativos al capítulo pasan a ser relativos a la carpeta del proyecto.

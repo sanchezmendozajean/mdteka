@@ -34,17 +34,17 @@ function canonical(raw: string): string {
   }
 }
 
-/** Carpetas de los documentos abiertos: lo único que sirve `mdteca-asset://` (02). */
+/** Carpetas de los documentos abiertos: lo único que sirve `mdtor-asset://` (02). */
 const docDirs = new Set<string>();
 
-/** Carpetas de proyectos abiertos: sus documentos (y el `.mdteca`) se pueden leer y escribir (05). */
+/** Carpetas de proyectos abiertos: sus documentos (y el `.mdtor`) se pueden leer y escribir (05). */
 const trees = new Set<string>();
-const TREE_FILES = /\.(md|markdown|mdown|txt|mdteca)$/i;
+const TREE_FILES = /\.(md|markdown|mdown|txt|mdtor)$/i;
 
 export function grantTree(raw: string): string {
   const p = canonical(raw);
   trees.add(key(p));
-  // Las imágenes de cualquier documento del proyecto se pueden mostrar (mdteca-asset://).
+  // Las imágenes de cualquier documento del proyecto se pueden mostrar (mdtor-asset://).
   docDirs.add(key(p));
   return p;
 }
@@ -162,7 +162,7 @@ export async function closeAllWatchers(): Promise<void> {
   watchers.clear();
 }
 
-const OPENABLE = /\.(md|markdown|mdown|txt|mdteca)$/i;
+const OPENABLE = /\.(md|markdown|mdown|txt|mdtor)$/i;
 
 /** Rutas de archivo útiles dentro de una lista de argumentos de línea de comandos. */
 export function pathsFromArgv(argv: string[]): string[] {

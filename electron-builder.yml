@@ -1,5 +1,5 @@
-appId: app.mdteca
-productName: MDteca
+appId: app.mdtor
+productName: MDTor
 electronDist: node_modules/electron/dist
 directories:
   output: release
@@ -16,9 +16,9 @@ nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
 fileAssociations:
-  - ext: mdteca
-    name: Proyecto MDteca
-    description: Proyecto MDteca
+  - ext: mdtor
+    name: Proyecto MDTor
+    description: Proyecto MDTor
     role: Editor
   - ext: md
     name: Documento Markdown

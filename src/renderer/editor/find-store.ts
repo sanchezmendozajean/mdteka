@@ -3,7 +3,7 @@ import type { FindInfo, FindOptions } from './wysiwyg/find';
 
 export type FindCorner = 'tl' | 'tr' | 'bl' | 'br';
 
-const CORNER_KEY = 'mdteca.findCorner';
+const CORNER_KEY = 'mdtor.findCorner';
 
 function loadCorner(): FindCorner {
   try {

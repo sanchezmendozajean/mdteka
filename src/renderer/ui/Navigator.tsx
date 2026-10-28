@@ -69,7 +69,7 @@ import { HidePanelButton } from './HidePanelButton';
 import { Outline } from './Outline';
 import { Icon } from './Icon';
 
-const DRAG_TYPE = 'application/x-mdteca-item';
+const DRAG_TYPE = 'application/x-mdtor-item';
 type Zone = 'before' | 'inside' | 'after';
 type Drop = { id: string; zone: Zone } | null;
 

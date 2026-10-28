@@ -7,7 +7,7 @@ import { imgTag, parseImgTag } from '@renderer/editor/model/image-html';
 import { nextImageName } from '../../src/main/images';
 
 describe('[IMG-02] nombres de imagen', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'mdteca-img-'));
+  const dir = mkdtempSync(join(tmpdir(), 'mdtor-img-'));
   const touch = (name: string) => writeFileSync(join(dir, name), 'x');
   const doc = join(dir, 'manual.md');
 
@@ -95,7 +95,7 @@ describe('[IMG] <img> sola en su línea', () => {
   });
 });
 
-describe('[IMG] título visible como pie de foto (marcador mdteca:caption)', () => {
+describe('[IMG] título visible como pie de foto (marcador mdtor:caption)', () => {
   const imageOf = (src: string) => {
     let found: Record<string, unknown> | null = null;
     docFromSource(src).descendants((n) => {
@@ -106,9 +106,9 @@ describe('[IMG] título visible como pie de foto (marcador mdteca:caption)', () 
 
   it('el comentario pegado a la imagen activa el pie y el documento se guarda idéntico', () => {
     for (const src of [
-      '![a](m.001.png "Figura 1")<!-- mdteca:caption -->\n',
-      'Antes ![a](m.001.png "Figura 1")<!-- mdteca:caption --> después\n',
-      '<img src="m.001.png" alt="a" title="Figura 1" width="300"><!-- mdteca:caption -->\n',
+      '![a](m.001.png "Figura 1")<!-- mdtor:caption -->\n',
+      'Antes ![a](m.001.png "Figura 1")<!-- mdtor:caption --> después\n',
+      '<img src="m.001.png" alt="a" title="Figura 1" width="300"><!-- mdtor:caption -->\n',
     ]) {
       expect(imageOf(src)).toMatchObject({ title: 'Figura 1', caption: true });
       expect(sourceFromDoc(docFromSource(src))).toBe(src);
@@ -126,9 +126,9 @@ describe('[IMG] título visible como pie de foto (marcador mdteca:caption)', () 
       const img = para.child(0).type.create({ ...para.child(0).attrs, caption: true, ...extra });
       return sourceFromDoc(doc.type.create(doc.attrs, [para.type.create(null, [img])]));
     };
-    expect(withCaption({})).toBe('![a](m.001.png "Figura 1")<!-- mdteca:caption -->\n');
+    expect(withCaption({})).toBe('![a](m.001.png "Figura 1")<!-- mdtor:caption -->\n');
     expect(withCaption({ width: 300 })).toBe(
-      '<img src="m.001.png" alt="a" title="Figura 1" width="300"><!-- mdteca:caption -->\n',
+      '<img src="m.001.png" alt="a" title="Figura 1" width="300"><!-- mdtor:caption -->\n',
     );
   });
 

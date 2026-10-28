@@ -11,7 +11,7 @@ export interface Launched {
   files: string[];
 }
 
-/** Crea archivos en un directorio temporal y lanza MDteca abriéndolos (como la asociación de archivos). */
+/** Crea archivos en un directorio temporal y lanza MDTor abriéndolos (como la asociación de archivos). */
 export async function launch(
   files: Record<string, string | Buffer> = {},
   reuse?: { dir: string; userData: string },
@@ -20,9 +20,9 @@ export async function launch(
   /** Variables de entorno extra (diálogos nativos simulados). */
   extraEnv: Record<string, string> = {},
 ): Promise<Launched> {
-  const dir = reuse?.dir ?? mkdtempSync(join(realpathSync.native(tmpdir()), 'mdteca-e2e-'));
+  const dir = reuse?.dir ?? mkdtempSync(join(realpathSync.native(tmpdir()), 'mdtor-e2e-'));
   const userData =
-    reuse?.userData ?? mkdtempSync(join(realpathSync.native(tmpdir()), 'mdteca-ud-'));
+    reuse?.userData ?? mkdtempSync(join(realpathSync.native(tmpdir()), 'mdtor-ud-'));
   const all = Object.entries(files).map(([name, content]) => {
     const path = join(dir, name);
     mkdirSync(dirname(path), { recursive: true });
@@ -33,8 +33,8 @@ export async function launch(
   // VS Code define ELECTRON_RUN_AS_NODE=1, lo que impediría arrancar Electron como app.
   const env = {
     ...process.env,
-    MDTECA_E2E: '1',
-    MDTECA_USER_DATA: userData,
+    MDTOR_E2E: '1',
+    MDTOR_USER_DATA: userData,
     ...extraEnv,
   } as Record<string, string>;
   delete env['ELECTRON_RUN_AS_NODE'];
@@ -52,8 +52,8 @@ export async function waitForEditor(page: Page): Promise<void> {
 export function source(page: Page): Promise<string> {
   return page.evaluate(() =>
     (
-      window as unknown as { __mdteca: { editor: { getSource(): string } } }
-    ).__mdteca.editor.getSource(),
+      window as unknown as { __mdtor: { editor: { getSource(): string } } }
+    ).__mdtor.editor.getSource(),
   );
 }
 

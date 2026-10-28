@@ -192,7 +192,7 @@ class EditorController {
         this.publishSelection(state);
       },
     });
-    window.addEventListener('mdteca-layout', (e) =>
+    window.addEventListener('mdtor-layout', (e) =>
       this.pager?.invalidateAt((e as CustomEvent<Element>).detail),
     );
     this.pager = new Paginator(this.pm, {
@@ -653,7 +653,7 @@ class EditorController {
       case 'hr':
         return insertBlockText(view, '---\n');
       case 'pageBreak':
-        return insertBlockText(view, '<!-- mdteca:pagebreak -->\n');
+        return insertBlockText(view, '<!-- mdtor:pagebreak -->\n');
       case 'html':
         return insertBlockText(view, '<div></div>\n');
       case 'hardBreak':

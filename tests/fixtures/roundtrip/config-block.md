@@ -2,7 +2,7 @@
 
 Texto.
 
-<!-- mdteca:config
+<!-- mdtor:config
 {
   "version": 1,
   "typography": { "size": 12 },

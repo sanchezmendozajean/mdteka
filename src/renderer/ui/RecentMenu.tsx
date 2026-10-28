@@ -16,7 +16,7 @@ export const splitPath = (path: string): { name: string; dir: string } => {
 export function useRecentFiles(): string[] {
   const [recent, setRecent] = useState<string[]>([]);
   useEffect(() => {
-    void window.mdteca.recent
+    void window.mdtor.recent
       .list()
       .then(setRecent)
       .catch(() => undefined);
@@ -24,7 +24,7 @@ export function useRecentFiles(): string[] {
   return recent;
 }
 
-export const recentIcon = (name: string) => (/\.mdteca$/i.test(name) ? FolderKanban : FileText);
+export const recentIcon = (name: string) => (/\.mdtor$/i.test(name) ? FolderKanban : FileText);
 
 function RecentList({ close }: { close: () => void }) {
   const { t } = useTranslation();

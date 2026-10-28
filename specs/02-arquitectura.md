@@ -28,7 +28,7 @@
 └───────────────▲─────────────────────────────────────────────────────┘
                 │ IPC tipado (contextBridge, canales con esquema)
 ┌───────────────┴──────────── preload ────────────────────────────────┐
-│ expone window.mdteca.{fs, project, dialog, settings, export, shell} │
+│ expone window.mdtor.{fs, project, dialog, settings, export, shell} │
 └───────────────▲─────────────────────────────────────────────────────┘
                 │
 ┌───────────────┴──────────── renderer (React) ───────────────────────┐
@@ -38,7 +38,7 @@
 
 - `contextIsolation: true`, `sandbox: true`, `nodeIntegration: false`.
 - El renderer **nunca** accede a `fs` directamente. Todo pasa por la API del preload, validada en main (rutas normalizadas, sin escapar del directorio del proyecto salvo diálogos explícitos).
-- CSP estricta. Imágenes locales servidas mediante un protocolo propio `mdteca-asset://` registrado en main, limitado a las carpetas abiertas.
+- CSP estricta. Imágenes locales servidas mediante un protocolo propio `mdtor-asset://` registrado en main, limitado a las carpetas abiertas.
 - Enlaces externos se abren con `shell.openExternal` tras validar el esquema (`http`, `https`, `mailto`).
 
 ## Módulos (renderer)
@@ -47,9 +47,9 @@
 src/
   main/                 proceso principal
     fs/                 lectura/escritura atómica, watcher (chokidar)
-    project/            carga/guardado de .mdteca
+    project/            carga/guardado de .mdtor
     export/             PDF / HTML
-    protocol/           mdteca-asset://
+    protocol/           mdtor-asset://
   preload/
   renderer/
     app/                shell de la app, layout, rutas de paneles

@@ -168,7 +168,7 @@ export function createWysiwygView(
       );
       if (!link) return false;
       const href = link.attrs['href'] as string;
-      if (!linkHooks.open?.(href)) void window.mdteca.shell.openExternal(href);
+      if (!linkHooks.open?.(href)) void window.mdtor.shell.openExternal(href);
       return true;
     },
     dispatchTransaction(tr) {

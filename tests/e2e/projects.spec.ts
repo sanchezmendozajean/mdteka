@@ -10,8 +10,8 @@ import { launch, source, waitForEditor, type Launched } from './helpers';
 /** Proyecto de prueba: un libro con tres capítulos y otro libro vacío, en una sola colección. */
 const PROJECT = (extra: Record<string, unknown> = {}) =>
   serializeProject({
-    $schema: 'https://mdteca.app/schemas/project-v1.json',
-    format: 'mdteca-project',
+    $schema: 'https://mdtor.app/schemas/project-v1.json',
+    format: 'mdtor-project',
     version: 1,
     title: 'Manual de prueba',
     collections: [
@@ -38,7 +38,7 @@ const PROJECT = (extra: Record<string, unknown> = {}) =>
   } as Project);
 
 const FILES = (extra: Record<string, string> = {}): Record<string, string> => ({
-  'manual.mdteca': PROJECT(),
+  'manual.mdtor': PROJECT(),
   'uso/01-uno.md': '# Uno\n\nPrimer capítulo con alfa.\n',
   'uso/02-dos.md': '# Dos\n\nSegundo capítulo con alfa y beta.\n',
   'uso/03-tres.md': '# Tres\n\nTercero.\n',
@@ -46,15 +46,15 @@ const FILES = (extra: Record<string, string> = {}): Record<string, string> => ({
 });
 
 const open = (files: Record<string, string | Buffer>, extraEnv: Record<string, string> = {}) =>
-  launch(files, undefined, ['manual.mdteca'], extraEnv);
+  launch(files, undefined, ['manual.mdtor'], extraEnv);
 
 const chapters = (page: Page) => page.getByTestId('nav-chapter');
 const names = (page: Page) => chapters(page).locator('.nav-label').allTextContents();
-const projectText = (l: Launched) => readFileSync(join(l.dir, 'manual.mdteca'), 'utf8');
+const projectText = (l: Launched) => readFileSync(join(l.dir, 'manual.mdtor'), 'utf8');
 const closeApp = (app: ElectronApplication) => app.close();
 
 test.describe('[Fase 5] abrir un proyecto', () => {
-  test('[PRJ-01][PRJ-31] el .mdteca recibido por la línea de comandos abre el proyecto', async () => {
+  test('[PRJ-01][PRJ-31] el .mdtor recibido por la línea de comandos abre el proyecto', async () => {
     const l = await open(FILES());
     await expect(l.page.getByTestId('nav-header')).toContainText('Manual de prueba');
     // Los títulos salen del primer H1 del archivo (05).
@@ -69,7 +69,7 @@ test.describe('[Fase 5] abrir un proyecto', () => {
 
   test('[PRJ-22] con varias colecciones se muestran como secciones con su contador', async () => {
     const two = serializeProject({
-      format: 'mdteca-project',
+      format: 'mdtor-project',
       version: 1,
       title: 'Dos colecciones',
       collections: [
@@ -77,7 +77,7 @@ test.describe('[Fase 5] abrir un proyecto', () => {
         { id: 'c-3333', title: 'Usuario', books: [] },
       ],
     } as Project);
-    const l = await launch({ 'manual.mdteca': two }, undefined, ['manual.mdteca']);
+    const l = await launch({ 'manual.mdtor': two }, undefined, ['manual.mdtor']);
     await expect(l.page.getByTestId('nav-collection')).toHaveCount(2);
     await expect(l.page.getByTestId('nav-collection').first()).toContainText('Técnico');
     await closeApp(l.app);
@@ -108,7 +108,7 @@ test.describe('[Fase 5] abrir un proyecto', () => {
   });
 
   test('un proyecto inválido avisa y no abre el navegador', async () => {
-    const l = await open({ 'manual.mdteca': '{ "format": "otro" }' });
+    const l = await open({ 'manual.mdtor': '{ "format": "otro" }' });
     await expect(l.page.getByTestId('dialog-error')).toBeVisible();
     await expect(l.page.getByTestId('nav-header')).toHaveCount(0);
     await closeApp(l.app);
@@ -122,7 +122,7 @@ test.describe('[Fase 5] reordenar y mover [PRJ-24]', () => {
       .filter((x) => x.kind !== 'same')
       .map((x) => x.text.trim().replace(/,$/, ''));
 
-  test('arrastrar un capítulo antes de otro cambia solo las líneas de ese ítem en el .mdteca', async () => {
+  test('arrastrar un capítulo antes de otro cambia solo las líneas de ese ítem en el .mdtor', async () => {
     const l = await open(FILES());
     await expect.poll(() => names(l.page)).toEqual(['Uno', 'Dos', 'Tres']);
     const before = projectText(l);
@@ -186,9 +186,9 @@ test.describe('[Fase 5] menú contextual [PRJ-25][PRJ-26]', () => {
 
   test('nuevo capítulo crea el archivo con slug del título y prefijo numérico si el proyecto lo pide', async () => {
     const l = await launch(
-      { ...FILES(), 'manual.mdteca': PROJECT({ naming: { numbered: true } }) },
+      { ...FILES(), 'manual.mdtor': PROJECT({ naming: { numbered: true } }) },
       undefined,
-      ['manual.mdteca'],
+      ['manual.mdtor'],
     );
     await l.page.getByTestId('nav-book').first().click({ button: 'right' });
     await l.page.getByTestId('menu-new-chapter').click();
@@ -297,10 +297,10 @@ test.describe('[Fase 5] sin indexar [PRJ-27]', () => {
     const l = await launch(
       {
         ...FILES({ 'borradores/x.md': '# X\n', 'uso/_nota.md': '# N\n' }),
-        'manual.mdteca': PROJECT({ ignore: ['borradores/**', '**/_*.md'] }),
+        'manual.mdtor': PROJECT({ ignore: ['borradores/**', '**/_*.md'] }),
       },
       undefined,
-      ['manual.mdteca'],
+      ['manual.mdtor'],
     );
     await expect(l.page.getByTestId('nav-unindexed')).toHaveCount(0);
     await closeApp(l.app);
@@ -341,7 +341,7 @@ test.describe('[Fase 5] modo archivo ⇄ proyecto [PRJ-30…33]', () => {
     await closeApp(l.app);
   });
 
-  test('[PRJ-32] sin .mdteca cercano ofrece crear el proyecto aquí e importa los .md por carpeta', async () => {
+  test('[PRJ-32] sin .mdtor cercano ofrece crear el proyecto aquí e importa los .md por carpeta', async () => {
     const l = await launch(
       {
         'libro/a.md': '# A\n',
@@ -359,7 +359,7 @@ test.describe('[Fase 5] modo archivo ⇄ proyecto [PRJ-30…33]', () => {
     // La carpeta sugerida es la del documento; se cambia a la raíz con el selector (simulado).
     await l.page.getByTestId('wizard-accept').click();
     await expect(l.page.getByTestId('nav-header')).toContainText('Mi proyecto');
-    const file = join(l.dir, 'libro', 'mi-proyecto.mdteca');
+    const file = join(l.dir, 'libro', 'mi-proyecto.mdtor');
     await expect.poll(() => existsSync(file)).toBe(true);
     const parsed = parseProject(readFileSync(file, 'utf8'));
     expect(parsed.ok).toBe(true);
@@ -377,12 +377,12 @@ test.describe('[Fase 5] defaults del proyecto [04]', () => {
     const l = await launch(
       {
         ...FILES(),
-        'manual.mdteca': PROJECT({
+        'manual.mdtor': PROJECT({
           defaults: { typography: { font: 'Lora', size: 13 }, images: { pasteMode: 'file' } },
         }),
       },
       undefined,
-      ['manual.mdteca'],
+      ['manual.mdtor'],
     );
     await chapters(l.page).first().click();
     await waitForEditor(l.page);
@@ -399,7 +399,7 @@ test.describe('[Fase 5] defaults del proyecto [04]', () => {
     );
     expect(font).toContain('Lora');
     // Un documento sin cambios no recibe bloque de configuración (DOC-04).
-    expect(await source(l.page)).not.toContain('mdteca:config');
+    expect(await source(l.page)).not.toContain('mdtor:config');
     await closeApp(l.app);
   });
 
@@ -445,7 +445,7 @@ test.describe('[Fase 5] búsqueda y salto rápido', () => {
 });
 
 test.describe('[Fase 5] formato y sesión [PRJ-04][PRJ-05]', () => {
-  test('el .mdteca queda en forma canónica y sin datos de sesión', async () => {
+  test('el .mdtor queda en forma canónica y sin datos de sesión', async () => {
     const l = await open(FILES());
     await chapters(l.page)
       .nth(2)
@@ -471,7 +471,7 @@ test.describe('[Fase 5] formato y sesión [PRJ-04][PRJ-05]', () => {
     await closeApp(first.app);
     const second = await launch({}, reuse, undefined);
     await second.app.close();
-    const third = await launch({ 'manual.mdteca': before }, reuse, ['manual.mdteca']);
+    const third = await launch({ 'manual.mdtor': before }, reuse, ['manual.mdtor']);
     await expect(third.page.getByTestId('doc-tab')).toContainText('02-dos.md');
     // «Uso» seguía plegado: sus capítulos no se ven.
     await expect(chapters(third.page)).toHaveCount(0);
@@ -527,14 +527,14 @@ test.describe('[Fase 5] navegador: ancho, bienvenida y recarga', () => {
     await closeApp(l.app);
   });
 
-  test('«Abrir proyecto…» elige el .mdteca con el diálogo y lo abre', async () => {
+  test('«Abrir proyecto…» elige el .mdtor con el diálogo y lo abre', async () => {
     const l = await launch(FILES(), undefined, [], {
-      MDTECA_E2E_OPEN_PATH: join(tmpdir(), 'no-existe.mdteca'),
+      MDTOR_E2E_OPEN_PATH: join(tmpdir(), 'no-existe.mdtor'),
     });
     await closeApp(l.app);
-    const path = join(l.dir, 'manual.mdteca');
+    const path = join(l.dir, 'manual.mdtor');
     const second = await launch({}, { dir: l.dir, userData: l.userData }, [], {
-      MDTECA_E2E_OPEN_PATH: path,
+      MDTOR_E2E_OPEN_PATH: path,
     });
     await second.page.locator('.ribbon').getByRole('tab', { name: 'Proyecto' }).click();
     await second.page.locator('.ribbon [data-command="project.open"]').click();
@@ -542,29 +542,29 @@ test.describe('[Fase 5] navegador: ancho, bienvenida y recarga', () => {
     await closeApp(second.app);
   });
 
-  test('un cambio del .mdteca fuera de MDteca se recoge sin reiniciar', async () => {
+  test('un cambio del .mdtor fuera de MDTor se recoge sin reiniciar', async () => {
     const l = await open(FILES());
     await expect.poll(() => names(l.page)).toEqual(['Uno', 'Dos', 'Tres']);
     const parsed = parseProject(projectText(l));
     if (!parsed.ok) throw new Error(parsed.error);
     parsed.project.collections[0]!.books[0]!.items.reverse();
-    writeFileSync(join(l.dir, 'manual.mdteca'), serializeProject(parsed.project));
+    writeFileSync(join(l.dir, 'manual.mdtor'), serializeProject(parsed.project));
     await expect.poll(() => names(l.page), { timeout: 10000 }).toEqual(['Tres', 'Dos', 'Uno']);
     await closeApp(l.app);
   });
 
-  test('[PRJ-01] con la aplicación abierta, abrir un .mdteca (doble clic) abre ese proyecto', async () => {
+  test('[PRJ-01] con la aplicación abierta, abrir un .mdtor (doble clic) abre ese proyecto', async () => {
     const l = await launch(FILES(), undefined, []);
     await expect(l.page.getByTestId('welcome')).toBeVisible();
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const electronPath = require('electron') as unknown as string;
-    const env = { ...process.env, MDTECA_E2E: '1', MDTECA_USER_DATA: l.userData } as Record<
+    const env = { ...process.env, MDTOR_E2E: '1', MDTOR_USER_DATA: l.userData } as Record<
       string,
       string
     >;
     delete env['ELECTRON_RUN_AS_NODE'];
     // Es lo que hace Windows al abrir el archivo asociado con la aplicación ya en marcha.
-    const second = spawn(electronPath, ['.', join(l.dir, 'manual.mdteca')], {
+    const second = spawn(electronPath, ['.', join(l.dir, 'manual.mdtor')], {
       cwd: process.cwd(),
       env,
       stdio: 'ignore',
@@ -632,8 +632,8 @@ test.describe('[Fase 5] exportar el proyecto a PDF', () => {
     ).length;
 
   test('portada, índice y un capítulo por página en un PDF único', async () => {
-    const out = join(tmpdir(), `mdteca-proyecto-${Date.now()}.pdf`);
-    const l = await open(FILES(), { MDTECA_E2E_SAVE_PATH: out });
+    const out = join(tmpdir(), `mdtor-proyecto-${Date.now()}.pdf`);
+    const l = await open(FILES(), { MDTOR_E2E_SAVE_PATH: out });
     await l.page.getByTestId('tab-project').click();
     await l.page.locator('[data-command="project.exportPdf"]').click();
     await l.page.getByTestId('choose-full').click();
@@ -645,8 +645,8 @@ test.describe('[Fase 5] exportar el proyecto a PDF', () => {
   });
 
   test('«Todo seguido» no inserta saltos de página entre capítulos', async () => {
-    const out = join(tmpdir(), `mdteca-proyecto-seguido-${Date.now()}.pdf`);
-    const l = await open(FILES(), { MDTECA_E2E_SAVE_PATH: out });
+    const out = join(tmpdir(), `mdtor-proyecto-seguido-${Date.now()}.pdf`);
+    const l = await open(FILES(), { MDTOR_E2E_SAVE_PATH: out });
     await l.page.getByTestId('nav-book').first().click({ button: 'right' });
     await l.page.getByTestId('menu-export').click();
     await l.page.getByTestId('choose-flow').click();

@@ -26,17 +26,17 @@ export function applyFormat(text: string, eol: Eol, bom: boolean): string {
   return bom ? BOM + body : body;
 }
 
-const CONFIG_START = '<!-- mdteca:config';
+const CONFIG_START = '<!-- mdtor:config';
 
 export interface SplitConfig {
   /** Markdown sin el bloque de configuración. */
   body: string;
-  /** Texto literal del bloque (desde `<!-- mdteca:config` hasta el final), o ''. */
+  /** Texto literal del bloque (desde `<!-- mdtor:config` hasta el final), o ''. */
   configRaw: string;
 }
 
 /**
- * Aparta el último bloque `<!-- mdteca:config … -->` si está al final del archivo (DOC-03).
+ * Aparta el último bloque `<!-- mdtor:config … -->` si está al final del archivo (DOC-03).
  * La lectura y validación del JSON llegan en la Fase 2; aquí solo se aparta el texto para que
  * ningún editor lo muestre y se vuelva a unir idéntico al guardar.
  */

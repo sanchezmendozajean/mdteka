@@ -95,8 +95,8 @@ describe('estructura del documento', () => {
   });
 
   it('el salto de página es un bloque propio y se escribe como comentario HTML', () => {
-    const d = docFromSource('a\n\n<!-- mdteca:pagebreak -->\n\nb\n');
+    const d = docFromSource('a\n\n<!-- mdtor:pagebreak -->\n\nb\n');
     expect(d.child(1).type.name).toBe('page_break');
-    expect(sourceFromDoc(d)).toBe('a\n\n<!-- mdteca:pagebreak -->\n\nb\n');
+    expect(sourceFromDoc(d)).toBe('a\n\n<!-- mdtor:pagebreak -->\n\nb\n');
   });
 });

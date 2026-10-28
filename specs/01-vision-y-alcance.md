@@ -4,7 +4,7 @@
 
 > Escribir Markdown con la sensación de un procesador de textos profesional, sin renunciar a archivos de texto plano que viven felices en Git.
 
-MDteca es para quien documenta sistemas, escribe manuales o libros técnicos y quiere:
+MDTor es para quien documenta sistemas, escribe manuales o libros técnicos y quiere:
 
 - un editor visual **limpio y estable**, donde el texto no salta y nunca aparecen asteriscos ni almohadillas mientras edita en modo visual;
 - ver el documento **en páginas** como en OnlyOffice/Word, o como una hoja continua;
@@ -26,7 +26,7 @@ MDteca es para quien documenta sistemas, escribe manuales o libros técnicos y q
 2. **Vista de páginas** con tamaño de papel y márgenes, y **vista continua** de hoja larga (`07`).
 3. **Configuración por documento** guardada en un comentario HTML dentro del `.md` (`04`).
 4. **Modo archivo** y **modo proyecto**, elegibles por el usuario durante la edición (`05`).
-5. **Archivo índice de proyecto** `*.mdteca` (JSON) asociado al programa (`05`).
+5. **Archivo índice de proyecto** `*.mdtor` (JSON) asociado al programa (`05`).
 6. **Pegado de imágenes** con tres modos: base64, archivo, preguntar (`06`).
 7. **Interfaz elegante** estilo OnlyOffice: cinta de opciones, **todas las opciones con ícono** (`08`).
 8. Exportación a **PDF** y **HTML**; impresión.
@@ -38,7 +38,7 @@ MDteca es para quien documenta sistemas, escribe manuales o libros técnicos y q
 - **No** hay color/tamaño de letra por selección. El formato en línea se limita a lo que Markdown expresa (negrita, cursiva, tachado, código, enlace).
 - **No** es un cliente Git: no hace commits ni push. Solo garantiza que sus archivos sean amigables con Git (`10`). (Mostrar el estado Git de los archivos es un PUEDE de fases posteriores.)
 - **No** hay colaboración en tiempo real ni sincronización en la nube.
-- **No** se inventan extensiones propietarias de Markdown que rompan el renderizado en GitHub/GitLab. Todo lo propio de MDteca vive en comentarios HTML, que otros visores ignoran.
+- **No** se inventan extensiones propietarias de Markdown que rompan el renderizado en GitHub/GitLab. Todo lo propio de MDTor vive en comentarios HTML, que otros visores ignoran.
 
 ## Principios de producto
 

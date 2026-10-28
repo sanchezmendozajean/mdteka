@@ -5,7 +5,7 @@ import { ipcContract } from '@shared/ipc';
 
 describe('seguridad (02)', () => {
   it('[SEC] solo http, https y mailto se abren externamente', () => {
-    expect(isSafeExternalUrl('https://mdteca.app')).toBe(true);
+    expect(isSafeExternalUrl('https://mdtor.app')).toBe(true);
     expect(isSafeExternalUrl('mailto:a@b.c')).toBe(true);
     expect(isSafeExternalUrl('file:///C:/Windows/System32/calc.exe')).toBe(false);
     expect(isSafeExternalUrl('javascript:alert(1)')).toBe(false);

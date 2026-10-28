@@ -2,11 +2,11 @@
 
 Un **proyecto** es una carpeta con muchos `.md` organizados en subcarpetas, más un **archivo índice** que los ordena, clasifica y es el punto de entrada para abrir el proyecto.
 
-## Archivo índice: `*.mdteca`
+## Archivo índice: `*.mdtor`
 
-- **PRJ-01** Extensión **`.mdteca`**, contenido **JSON** UTF-8. Un nombre de extensión propio permite asociarlo al programa (doble clic abre el proyecto) y el JSON lo hace legible y mergeable en Git.
-- **PRJ-02** Ubicación: raíz de la carpeta del proyecto. Nombre sugerido: `<nombre-del-proyecto>.mdteca` (ej. `manual-planillas.mdteca`). Solo se admite un `.mdteca` por carpeta; si hay varios, se pregunta cuál abrir.
-- **PRJ-03** Todas las rutas son **relativas** al `.mdteca`, con `/` como separador (también en Windows), sin `./` inicial.
+- **PRJ-01** Extensión **`.mdtor`**, contenido **JSON** UTF-8. Un nombre de extensión propio permite asociarlo al programa (doble clic abre el proyecto) y el JSON lo hace legible y mergeable en Git.
+- **PRJ-02** Ubicación: raíz de la carpeta del proyecto. Nombre sugerido: `<nombre-del-proyecto>.mdtor` (ej. `manual-planillas.mdtor`). Solo se admite un `.mdtor` por carpeta; si hay varios, se pregunta cuál abrir.
+- **PRJ-03** Todas las rutas son **relativas** al `.mdtor`, con `/` como separador (también en Windows), sin `./` inicial.
 - **PRJ-04** Sin datos de máquina ni de sesión: ni rutas absolutas, ni fechas de apertura, ni pestañas abiertas, ni nodos expandidos. Ese estado va a `userData` de la app (ver `09`).
 - **PRJ-05** Serialización determinista: 2 espacios, orden de claves canónico, EOL `\n`, salto de línea final. Los `id` son estables (slug corto + 4 caracteres aleatorios, ej. `cap-instalacion-k3f9`) para que reordenar no genere diffs gigantes.
 
@@ -14,8 +14,8 @@ Un **proyecto** es una carpeta con muchos `.md` organizados en subcarpetas, más
 
 ```json
 {
-  "$schema": "https://mdteca.app/schemas/project-v1.json",
-  "format": "mdteca-project",
+  "$schema": "https://mdtor.app/schemas/project-v1.json",
+  "format": "mdtor-project",
   "version": 1,
   "title": "Manual del Sistema de Planillas",
   "description": "Documentación funcional y técnica",
@@ -91,14 +91,14 @@ Proyecto
 - **PRJ-26** Al crear un capítulo, el archivo se nombra con slug del título y prefijo numérico opcional (`03-configuracion.md`), según ajuste del proyecto.
 - **PRJ-27** Sección inferior **"Sin indexar"**: lista los `.md` de la carpeta que no están en el índice (excluyendo `ignore`), con acción "Añadir al libro…".
 - **PRJ-28** Archivos faltantes (indexados pero no existentes) se muestran con alerta y acciones "Localizar…" / "Quitar del índice".
-- **PRJ-29** Enlaces entre documentos del proyecto (`[ver](../otro.md)`) se abren dentro de MDteca en una pestaña.
+- **PRJ-29** Enlaces entre documentos del proyecto (`[ver](../otro.md)`) se abren dentro de MDTor en una pestaña.
 
 ## Modo archivo vs modo proyecto (decide el usuario)
 
 - **PRJ-30** **Modo archivo**: un `.md` suelto; sin navegador; pestañas de documentos independientes.
-- **PRJ-31** **Modo proyecto**: abierto desde un `.mdteca`; navegador visible; pestañas de documentos del proyecto.
+- **PRJ-31** **Modo proyecto**: abierto desde un `.mdtor`; navegador visible; pestañas de documentos del proyecto.
 - **PRJ-32** El usuario puede cambiar **durante la edición** con un selector en la barra de título (`Archivo ⇄ Proyecto`, cada uno con ícono):
-  - Desde modo archivo → *Abrir como proyecto*: busca un `.mdteca` en la carpeta del archivo o carpetas superiores (hasta la raíz del repo Git o 5 niveles). Si existe, abre el proyecto y selecciona el documento. Si no, ofrece *Crear proyecto aquí* (asistente: título, carpeta raíz, importar `.md` existentes agrupados por carpeta → libros).
+  - Desde modo archivo → *Abrir como proyecto*: busca un `.mdtor` en la carpeta del archivo o carpetas superiores (hasta la raíz del repo Git o 5 niveles). Si existe, abre el proyecto y selecciona el documento. Si no, ofrece *Crear proyecto aquí* (asistente: título, carpeta raíz, importar `.md` existentes agrupados por carpeta → libros).
   - Desde modo proyecto → *Editar solo este archivo*: cierra el navegador y deja el documento actual como archivo suelto (sin cerrar pestañas con cambios).
 - **PRJ-33** Al abrir un `.md` que pertenece a un proyecto conocido, se muestra una barra informativa no intrusiva: "Este archivo forma parte de *Manual de Planillas* · Abrir proyecto".
 - **PRJ-34** Se permite una ventana por proyecto; varias ventanas simultáneas.

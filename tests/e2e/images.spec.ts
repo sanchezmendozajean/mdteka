@@ -8,9 +8,9 @@ const PNG =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 
 const FILE_MODE = (text: string) =>
-  `${text}\n\n<!-- mdteca:config\n{\n  "version": 1,\n  "images": {\n    "pasteMode": "file"\n  }\n}\n-->\n`;
+  `${text}\n\n<!-- mdtor:config\n{\n  "version": 1,\n  "images": {\n    "pasteMode": "file"\n  }\n}\n-->\n`;
 const BASE64_MODE = (text: string) =>
-  `${text}\n\n<!-- mdteca:config\n{\n  "version": 1,\n  "images": {\n    "pasteMode": "base64"\n  }\n}\n-->\n`;
+  `${text}\n\n<!-- mdtor:config\n{\n  "version": 1,\n  "images": {\n    "pasteMode": "base64"\n  }\n}\n-->\n`;
 
 /** Simula el pegado de un archivo de imagen (el portapapeles real no es accesible desde la prueba). */
 const pasteImage = (page: Page, b64 = PNG, name = 'captura.png', mime = 'image/png') =>
@@ -62,7 +62,7 @@ test.describe('[Fase 4] pegado de imágenes', () => {
     await app.close();
   });
 
-  test('[IMG-02] la imagen se muestra desde mdteca-asset:// y el enlace es relativo', async () => {
+  test('[IMG-02] la imagen se muestra desde mdtor-asset:// y el enlace es relativo', async () => {
     const { app, page } = await launch({ 'Mi manual.md': FILE_MODE('Texto') });
     await waitForEditor(page);
     await caretToEnd(page);
@@ -70,7 +70,7 @@ test.describe('[Fase 4] pegado de imágenes', () => {
     // El nombre lleva un espacio: el enlace lo codifica.
     await expect.poll(() => source(page)).toContain('![](Mi%20manual.001.png)');
     const img = page.locator('.ProseMirror .image-wrap img');
-    await expect(img).toHaveAttribute('src', /^mdteca-asset:\/\/local\//);
+    await expect(img).toHaveAttribute('src', /^mdtor-asset:\/\/local\//);
     await expect.poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBe(1);
     await app.close();
   });
@@ -151,11 +151,11 @@ test.describe('[Fase 4] pegado de imágenes', () => {
     const { app, page } = await launch();
     await app.evaluate(
       (_e, p) => {
-        process.env['MDTECA_E2E_SAVE_PATH'] = p;
+        process.env['MDTOR_E2E_SAVE_PATH'] = p;
       },
-      join(process.env['TEMP'] ?? '.', `mdteca-nuevo-${Date.now()}.md`),
+      join(process.env['TEMP'] ?? '.', `mdtor-nuevo-${Date.now()}.md`),
     );
-    await page.evaluate(`window.__mdteca ? 0 : 0`);
+    await page.evaluate(`window.__mdtor ? 0 : 0`);
     await page.getByTestId('tab-file').click();
     await page.locator('.ribbon [data-command="file.new"]').click();
     await waitForEditor(page);
@@ -165,7 +165,7 @@ test.describe('[Fase 4] pegado de imágenes', () => {
     await page.getByTestId('image-as-file').waitFor();
     await expect(page.getByTestId('image-as-file')).toContainText(/guardará antes/i);
     await page.getByTestId('image-as-file').click();
-    await expect.poll(() => source(page)).toMatch(/!\[\]\(mdteca-nuevo-\d+\.001\.png\)/);
+    await expect.poll(() => source(page)).toMatch(/!\[\]\(mdtor-nuevo-\d+\.001\.png\)/);
     await app.close();
   });
 });
@@ -203,7 +203,7 @@ test.describe('[Fase 4] otras formas de insertar', () => {
     await waitForEditor(page);
     mkdirImg(dir, 'img/dibujo.png');
     const rel = await page.evaluate(
-      ([doc, src]) => window.mdteca.image.importFile(doc!, src!),
+      ([doc, src]) => window.mdtor.image.importFile(doc!, src!),
       [files[0], join(dir, 'img', 'dibujo.png')],
     );
     expect(rel.rel).toBe('img/dibujo.png');
@@ -212,7 +212,7 @@ test.describe('[Fase 4] otras formas de insertar', () => {
     const other = join(process.env['TEMP'] ?? '.', `externa-${Date.now()}.png`);
     writeFileSync(other, Buffer.from(PNG, 'base64'));
     const copied = await page.evaluate(
-      ([doc, src]) => window.mdteca.image.importFile(doc!, src!),
+      ([doc, src]) => window.mdtor.image.importFile(doc!, src!),
       [files[0], other],
     );
     expect(copied.rel).toBe('a.001.png');
@@ -294,10 +294,10 @@ test.describe('[Fase 4] edición de una imagen', () => {
     await expect(page.locator('.ProseMirror .image-caption')).toHaveText('Figura 1');
     await expect
       .poll(() => source(page))
-      .toContain('![](a.001.png "Figura 1")<!-- mdteca:caption -->');
+      .toContain('![](a.001.png "Figura 1")<!-- mdtor:caption -->');
     await page.getByTestId('image-caption').uncheck();
     await expect(page.locator('.ProseMirror .image-caption')).toBeHidden();
-    await expect.poll(() => source(page)).not.toContain('mdteca:caption');
+    await expect.poll(() => source(page)).not.toContain('mdtor:caption');
     await app.close();
   });
 
@@ -405,7 +405,7 @@ test.describe('[Fase 4] modo texto, exportación y seguridad', () => {
     await waitForEditor(first.page);
     const html = join(first.dir, 'salida.html');
     await first.app.evaluate((_e, p) => {
-      process.env['MDTECA_E2E_SAVE_PATH'] = p;
+      process.env['MDTOR_E2E_SAVE_PATH'] = p;
     }, html);
     await first.page.getByTestId('tab-file').click();
     await first.page.locator('[data-command="file.exportHtml"]').click();
@@ -418,7 +418,7 @@ test.describe('[Fase 4] modo texto, exportación y seguridad', () => {
     await waitForEditor(second.page);
     const html2 = join(second.dir, 'otra.html');
     await second.app.evaluate((_e, p) => {
-      process.env['MDTECA_E2E_SAVE_PATH'] = p;
+      process.env['MDTOR_E2E_SAVE_PATH'] = p;
     }, html2);
     await second.page.getByTestId('tab-file').click();
     await second.page.locator('[data-command="file.exportHtml"]').click();
@@ -429,7 +429,7 @@ test.describe('[Fase 4] modo texto, exportación y seguridad', () => {
     await second.app.close();
   });
 
-  test('[SEC] mdteca-asset:// solo sirve imágenes de la carpeta del documento', async () => {
+  test('[SEC] mdtor-asset:// solo sirve imágenes de la carpeta del documento', async () => {
     const { app, page, dir } = await launch({
       'a.md': 'Texto\n',
       'a.001.png': Buffer.from(PNG, 'base64'),
@@ -443,7 +443,7 @@ test.describe('[Fase 4] modo texto, exportación y seguridad', () => {
             const img = new Image();
             img.onload = () => resolve(img.naturalWidth);
             img.onerror = () => resolve(-1);
-            img.src = `mdteca-asset://local/${encodeURIComponent(p)}`;
+            img.src = `mdtor-asset://local/${encodeURIComponent(p)}`;
           }),
         path,
       );
@@ -488,9 +488,9 @@ test.describe('[Fase 4] imágenes y páginas', () => {
     expect(tallest).toBeLessThanOrEqual(933.6); // área de texto de una página A4 con márgenes de 25 mm
     const path = join(dir, 'salida.pdf');
     await app.evaluate((_e, p) => {
-      process.env['MDTECA_E2E_SAVE_PATH'] = p;
+      process.env['MDTOR_E2E_SAVE_PATH'] = p;
     }, path);
-    await page.evaluate(`window.__mdteca.exportPdf(window.__mdteca.activeDoc().id)`);
+    await page.evaluate(`window.__mdtor.exportPdf(window.__mdtor.activeDoc().id)`);
     const pdfPages = (
       readFileSync(path)
         .toString('latin1')

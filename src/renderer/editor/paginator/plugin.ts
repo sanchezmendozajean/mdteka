@@ -2,7 +2,7 @@ import { Plugin, PluginKey } from 'prosemirror-state';
 import { Decoration, DecorationSet, type EditorView } from 'prosemirror-view';
 
 /** Saltos de página dibujados como decoraciones: el documento no cambia (VW-10). */
-export const pageKey = new PluginKey<DecorationSet>('mdteca-pages');
+export const pageKey = new PluginKey<DecorationSet>('mdtor-pages');
 
 export const pagePlugin = (): Plugin<DecorationSet> =>
   new Plugin<DecorationSet>({

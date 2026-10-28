@@ -21,7 +21,7 @@ async function audit(page: Page) {
 }
 
 const PROJECT = serializeProject({
-  format: 'mdteca-project',
+  format: 'mdtor-project',
   version: 1,
   title: 'Manual',
   collections: [
@@ -55,7 +55,7 @@ test.describe('[Fase 6] auditoría de accesibilidad', () => {
   });
 
   test('navegador de libros y esquema', async () => {
-    const l = await launch({ 'p.mdteca': PROJECT, 'a.md': '# Uno\n' }, undefined, ['p.mdteca']);
+    const l = await launch({ 'p.mdtor': PROJECT, 'a.md': '# Uno\n' }, undefined, ['p.mdtor']);
     await expect(l.page.getByTestId('nav-header')).toBeVisible();
     expect(await audit(l.page)).toEqual([]);
     await l.page.getByTestId('left-tab-outline').click();

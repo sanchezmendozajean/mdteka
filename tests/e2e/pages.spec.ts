@@ -17,7 +17,7 @@ const MIXED = (() => {
   for (let i = 1; i <= 9; i++) md += `${para(i)}\n\n`;
   md += '## Código\n\n```ts\n';
   md += Array.from({ length: 90 }, (_, i) => `const linea${i} = ${i};`).join('\n');
-  md += '\n```\n\n<!-- mdteca:pagebreak -->\n\n## Otra sección\n\n';
+  md += '\n```\n\n<!-- mdtor:pagebreak -->\n\n## Otra sección\n\n';
   for (let i = 10; i <= 16; i++) md += `${para(i, 9)}\n\n`;
   md += '- uno\n- dos\n- tres\n\n> Una cita final.\n';
   return md;
@@ -30,15 +30,15 @@ type Hook = {
   pages: () => number;
 };
 
-/** Ejecuta una función en la página con el gancho de pruebas (`window.__mdteca`). */
+/** Ejecuta una función en la página con el gancho de pruebas (`window.__mdtor`). */
 const inPage = <T>(page: Page, fn: (h: Hook) => Promise<T> | T): Promise<T> =>
-  page.evaluate(`(${fn.toString()})(window.__mdteca)`) as Promise<T>;
+  page.evaluate(`(${fn.toString()})(window.__mdtor)`) as Promise<T>;
 
 /** Exporta a PDF indicando la ruta por variable de entorno (el diálogo nativo no se automatiza). */
 async function exportPdf(app: ElectronApplication, page: Page, dir: string): Promise<string> {
   const path = join(dir, 'salida.pdf');
   await app.evaluate((_electron, p) => {
-    process.env['MDTECA_E2E_SAVE_PATH'] = p;
+    process.env['MDTOR_E2E_SAVE_PATH'] = p;
   }, path);
   const written = await inPage(page, (h) => h.exportPdf(h.activeDoc().id));
   expect(written).toBeTruthy();
@@ -235,7 +235,7 @@ test.describe('[Fase 3] vista de páginas', () => {
   });
 
   test('[VW-12] un salto de página manual fuerza una página nueva', async () => {
-    const { app, page } = await launch({ 'a.md': 'Uno\n\n<!-- mdteca:pagebreak -->\n\nDos\n' });
+    const { app, page } = await launch({ 'a.md': 'Uno\n\n<!-- mdtor:pagebreak -->\n\nDos\n' });
     await waitForEditor(page);
     expect(await settled(page)).toBe(2);
     await app.close();
@@ -311,7 +311,7 @@ ${para(4)}
       const w = window as unknown as { __long: { d: number; t: number }[]; __typing: number[] };
       w.__long = [];
       w.__typing = [];
-      performance.clearMeasures('mdteca:paginate');
+      performance.clearMeasures('mdtor:paginate');
       new PerformanceObserver((list) => {
         for (const e of list.getEntries()) w.__long.push({ d: e.duration, t: e.startTime });
       }).observe({ entryTypes: ['longtask'] });
@@ -325,7 +325,7 @@ ${para(4)}
     await page.waitForTimeout(800);
     const r = await page.evaluate(() => ({
       long: (window as unknown as { __long: { d: number; t: number }[] }).__long,
-      paginate: performance.getEntriesByName('mdteca:paginate').map((e) => e.duration),
+      paginate: performance.getEntriesByName('mdtor:paginate').map((e) => e.duration),
     }));
     // Ninguna tarea larga mientras se escribe; el volcado a texto ocurre al pausar (ED-12).
     expect(r.long.filter((e) => e.t >= from && e.t <= to)).toEqual([]);
@@ -450,7 +450,7 @@ test.describe('[Fase 3] zoom, regla y vista continua', () => {
 
   test('[VW-20][VW-21] la vista continua usa el ancho de columna y se guarda como predeterminada', async () => {
     const { app, page, files } = await launch({
-      'a.md': `${para(1)}\n\n<!-- mdteca:pagebreak -->\n\nDos\n`,
+      'a.md': `${para(1)}\n\n<!-- mdtor:pagebreak -->\n\nDos\n`,
     });
     await waitForEditor(page);
     await page.getByTestId('hide-navigator').click();
@@ -476,7 +476,7 @@ test.describe('[Fase 3] zoom, regla y vista continua', () => {
   test('[VW-20] un documento con view.default continuous se abre en vista continua', async () => {
     const { app, page } = await launch({
       'a.md':
-        'Hola\n\n<!-- mdteca:config\n{\n  "version": 1,\n  "view": {\n    "default": "continuous"\n  }\n}\n-->\n',
+        'Hola\n\n<!-- mdtor:config\n{\n  "version": 1,\n  "view": {\n    "default": "continuous"\n  }\n}\n-->\n',
     });
     await waitForEditor(page);
     await expect(page.locator('.sheet')).toHaveCount(0);
@@ -538,7 +538,7 @@ test.describe('[Fase 3] modo texto y exportación', () => {
     await waitForEditor(page);
     const path = join(dir, 'salida.html');
     await app.evaluate((_electron, p) => {
-      process.env['MDTECA_E2E_SAVE_PATH'] = p;
+      process.env['MDTOR_E2E_SAVE_PATH'] = p;
     }, path);
     await page.getByTestId('tab-file').click();
     await page.locator('[data-command="file.exportHtml"]').click();

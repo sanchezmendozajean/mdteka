@@ -23,7 +23,7 @@ export function setZoom(id: string, zoom: number): void {
   clearTimeout(saveTimers.get(id));
   saveTimers.set(
     id,
-    setTimeout(() => void window.mdteca.state.setView(path, value).catch(() => undefined), 400),
+    setTimeout(() => void window.mdtor.state.setView(path, value).catch(() => undefined), 400),
   );
 }
 

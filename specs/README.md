@@ -1,6 +1,6 @@
-# MDteca — Especificaciones
+# MDTor — Especificaciones
 
-MDteca es un editor de escritorio de Markdown, construido con Electron, que combina la comodidad de un procesador de textos tipo **OnlyOffice Document** (páginas, estilos, barra de herramientas con íconos) con la portabilidad de archivos `.md` puros, pensados para versionarse en Git.
+MDTor es un editor de escritorio de Markdown, construido con Electron, que combina la comodidad de un procesador de textos tipo **OnlyOffice Document** (páginas, estilos, barra de herramientas con íconos) con la portabilidad de archivos `.md` puros, pensados para versionarse en Git.
 
 Esta carpeta es la fuente de verdad del producto. Está escrita para que **Claude Code** (implementación) y **Claude Design** (diseño visual) construyan el programa sin ambigüedades.
 
@@ -12,7 +12,7 @@ Esta carpeta es la fuente de verdad del producto. Está escrita para que **Claud
 | 02 | [Arquitectura técnica](02-arquitectura.md) | Stack, procesos de Electron, módulos, seguridad |
 | 03 | [Editor](03-editor.md) | WYSIWYG y texto plano, fluidez, fidelidad del Markdown |
 | 04 | [Formato del documento](04-formato-documento.md) | Configuración embebida en comentario HTML |
-| 05 | [Proyectos](05-proyectos.md) | Archivo `.mdteca`, navegador de libros, modo archivo vs proyecto |
+| 05 | [Proyectos](05-proyectos.md) | Archivo `.mdtor`, navegador de libros, modo archivo vs proyecto |
 | 06 | [Imágenes](06-imagenes.md) | Pegado de imágenes: base64, archivo, preguntar |
 | 07 | [Vistas y paginación](07-vistas-y-paginacion.md) | Vista de páginas, hoja continua, zoom, impresión |
 | 08 | [Interfaz](08-interfaz.md) | Layout estilo OnlyOffice, cinta, paneles, íconos, temas |
@@ -33,7 +33,7 @@ Esta carpeta es la fuente de verdad del producto. Está escrita para que **Claud
 
 - **Documento**: un archivo `.md`.
 - **Configuración de documento**: bloque JSON dentro de un comentario HTML al final del `.md` (ver `04`).
-- **Proyecto**: carpeta con muchos `.md` y un archivo índice `*.mdteca` (ver `05`).
+- **Proyecto**: carpeta con muchos `.md` y un archivo índice `*.mdtor` (ver `05`).
 - **Libro**: agrupación de primer nivel dentro de un proyecto (p. ej. "Manual de usuario"). Contiene capítulos.
 - **Colección**: clasificación de libros en el navegador (p. ej. "Técnico", "Negocio").
 - **Modo WYSIWYG**: edición visual, sin marcas de Markdown visibles.

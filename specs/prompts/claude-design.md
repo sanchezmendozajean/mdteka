@@ -4,7 +4,7 @@
 
 ---
 
-Eres el diseñador de producto de **MDteca**, un editor de Markdown de escritorio (Electron) que se siente como un procesador de textos profesional. La referencia de estructura es **OnlyOffice Document Editor** (cinta de opciones con pestañas, lienzo gris con hojas de papel, regla, barra de estado con zoom), pero la estética debe ser **más sobria y elegante**: mucho aire, pocos bordes, tipografía de interfaz cuidada (Inter), íconos de trazo fino (**Lucide**), un único color de acento.
+Eres el diseñador de producto de **MDTor**, un editor de Markdown de escritorio (Electron) que se siente como un procesador de textos profesional. La referencia de estructura es **OnlyOffice Document Editor** (cinta de opciones con pestañas, lienzo gris con hojas de papel, regla, barra de estado con zoom), pero la estética debe ser **más sobria y elegante**: mucho aire, pocos bordes, tipografía de interfaz cuidada (Inter), íconos de trazo fino (**Lucide**), un único color de acento.
 
 Los documentos adjuntos son la especificación. Respeta en especial:
 
@@ -37,7 +37,7 @@ Los documentos adjuntos son la especificación. Respeta en especial:
 
 3. **Especificaciones de interacción** breves: estados hover/activo/foco/deshabilitado de los controles, comportamiento del redimensionado de paneles, animaciones permitidas (nunca dentro del texto), KeyTips con `Alt`.
 
-4. **Íconos de la app**: ícono de aplicación y dos íconos de tipo de archivo (`.mdteca` para proyecto y `.md` para documento), originales, coherentes entre sí.
+4. **Íconos de la app**: ícono de aplicación y dos íconos de tipo de archivo (`.mdtor` para proyecto y `.md` para documento), originales, coherentes entre sí.
 
 ## Formato de entrega
 

@@ -1,5 +1,5 @@
 export const es = {
-  app: { name: 'MDteca' },
+  app: { name: 'MDTor' },
   ribbon: {
     file: 'Archivo',
     recent: 'Recientes',
@@ -213,7 +213,7 @@ export const es = {
     source: 'Texto',
   },
   welcome: {
-    title: 'Bienvenido a MDteca',
+    title: 'Bienvenido a MDTor',
     subtitle: 'Escribe Markdown con la sensación de un procesador de textos.',
     recent: 'Abiertos recientemente',
     noRecent: 'Aún no has abierto ningún archivo.',
@@ -275,7 +275,7 @@ export const es = {
     linkTitleField: 'Título (opcional)',
     linkRemove: 'Quitar enlace',
     externalTitle: 'El archivo cambió en disco',
-    externalBody: '«{{name}}» se modificó fuera de MDteca y tienes cambios locales.',
+    externalBody: '«{{name}}» se modificó fuera de MDTor y tienes cambios locales.',
     reload: 'Recargar',
     keep: 'Mantener los míos',
     compare: 'Comparar',
@@ -463,7 +463,7 @@ export const es = {
     eolCrlf: 'CRLF (Windows)',
     serializationNote:
       'La serialización de Markdown usa convenciones fijas para que los diffs de Git sean estables.',
-    associate: 'Asociar .md y .mdteca con MDteca',
+    associate: 'Asociar .md y .mdtor con MDTor',
     associateButton: 'Abrir aplicaciones predeterminadas…',
     associateHelp: 'Windows pide elegir la aplicación predeterminada de cada tipo de archivo.',
     shortcutsHint:
@@ -481,7 +481,7 @@ export const es = {
   },
   recovery: {
     title: 'Recuperar documentos',
-    body: 'MDteca se cerró de forma inesperada y quedaron cambios sin guardar.',
+    body: 'MDTor se cerró de forma inesperada y quedaron cambios sin guardar.',
     restore: 'Recuperar {{count}} documento(s)',
     discard: 'Descartar los respaldos',
   },

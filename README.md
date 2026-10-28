@@ -1,4 +1,4 @@
-# MDteca
+# MDTor
 
 Editor de Markdown de escritorio (Electron) con vista de páginas, configuración por documento y proyectos. Las especificaciones están en [`specs/`](specs/README.md).
 
@@ -28,7 +28,7 @@ Notas de entorno:
 ```
 src/
   main/       proceso principal: ventana, CSP, IPC validado, archivos con concesiones
-  preload/    puente tipado `window.mdteca`
+  preload/    puente tipado `window.mdtor`
   renderer/
     app/        shell y estado de la interfaz
     commands/   registro central de comandos y atajos

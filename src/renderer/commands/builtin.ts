@@ -203,7 +203,7 @@ def('edit.undo', Undo2, () => void editor.run('undo'), { shortcut: 'Ctrl+Z', nat
 def('edit.redo', Redo2, () => void editor.run('redo'), { shortcut: 'Ctrl+Y', native: true });
 const clip = (action: 'cut' | 'copy' | 'paste' | 'pastePlain') => () => {
   editor.focus();
-  void window.mdteca.edit.action(action);
+  void window.mdtor.edit.action(action);
 };
 def('clipboard.paste', ClipboardPaste, clip('paste'), { shortcut: 'Ctrl+V', native: true });
 def('clipboard.cut', Scissors, clip('cut'), { shortcut: 'Ctrl+X', native: true });
@@ -215,7 +215,7 @@ def('clipboard.pastePlain', ClipboardType, clip('pastePlain'), {
 def(
   'clipboard.pasteMarkdown',
   ClipboardCheck,
-  () => void window.mdteca.clipboard.readText().then((text) => editor.pasteAsMarkdown(text)),
+  () => void window.mdtor.clipboard.readText().then((text) => editor.pasteAsMarkdown(text)),
   { shortcut: 'Ctrl+Alt+V' },
 );
 

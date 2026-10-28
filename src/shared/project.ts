@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { orderKeys } from './document-config';
 
 /**
- * Proyecto MDteca (05): archivo índice `*.mdteca` en JSON. Todo lo de este módulo es puro (sin
+ * Proyecto MDTor (05): archivo índice `*.mdtor` en JSON. Todo lo de este módulo es puro (sin
  * `fs` ni `path`) para que lo usen el proceso principal y el renderer y se pruebe sin Electron.
  */
 
@@ -30,7 +30,7 @@ export interface Collection {
 }
 export interface Project {
   $schema?: string;
-  format: 'mdteca-project';
+  format: 'mdtor-project';
   version: 1;
   title: string;
   description?: string;
@@ -43,10 +43,10 @@ export interface Project {
   [extra: string]: unknown;
 }
 
-export const SCHEMA_URL = 'https://mdteca.app/schemas/project-v1.json';
+export const SCHEMA_URL = 'https://mdtor.app/schemas/project-v1.json';
 
 // ---------------------------------------------------------------------------------------------
-// Rutas (PRJ-03): relativas al `.mdteca`, con `/`, sin `./` inicial
+// Rutas (PRJ-03): relativas al `.mdtor`, con `/`, sin `./` inicial
 // ---------------------------------------------------------------------------------------------
 
 /** ¿Es una ruta de proyecto válida? Relativa, con `/`, sin `./` ni `..` ni unidades. */
@@ -85,7 +85,7 @@ const CollectionSchema = z.looseObject({
 
 export const ProjectSchema = z.looseObject({
   $schema: z.string().optional(),
-  format: z.literal('mdteca-project'),
+  format: z.literal('mdtor-project'),
   version: z.literal(1),
   title: z.string(),
   description: z.string().optional(),
@@ -97,7 +97,7 @@ export const ProjectSchema = z.looseObject({
 
 export type ReadProject = { ok: true; project: Project } | { ok: false; error: string };
 
-/** Lee y valida el texto de un `.mdteca` (PRJ-01). */
+/** Lee y valida el texto de un `.mdtor` (PRJ-01). */
 export function parseProject(text: string): ReadProject {
   // Un merge sin resolver deja marcadores de conflicto: se avisa con la línea y no se toca (10 · Merge).
   const conflict = /^(<{7}|={7}|>{7})(\s|$)/m.exec(text);
@@ -226,7 +226,7 @@ export function serializeProject(project: Project): string {
 export function newProject(title: string): Project {
   return {
     $schema: SCHEMA_URL,
-    format: 'mdteca-project',
+    format: 'mdtor-project',
     version: 1,
     title,
     collections: [],

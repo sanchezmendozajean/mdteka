@@ -21,7 +21,7 @@ import {
   searchFiles,
 } from '../../src/main/project';
 
-const root = mkdtempSync(join(realpathSync.native(tmpdir()), 'mdteca-prj-'));
+const root = mkdtempSync(join(realpathSync.native(tmpdir()), 'mdtor-prj-'));
 grantTree(root);
 afterAll(() => rmSync(root, { recursive: true, force: true }));
 const put = (rel: string, content = 'x') => {
@@ -125,7 +125,7 @@ describe('[PRJ-27] exploración y búsqueda', () => {
   });
 
   it('busca texto, sin contar el bloque de configuración', async () => {
-    put('s/a.md', 'Hola mundo\n\nOtro hola\n\n<!-- mdteca:config\n{ "x": "hola" }\n-->\n');
+    put('s/a.md', 'Hola mundo\n\nOtro hola\n\n<!-- mdtor:config\n{ "x": "hola" }\n-->\n');
     const hits = await searchFiles(root, ['s/a.md'], {
       query: 'hola',
       caseSensitive: false,
@@ -146,28 +146,28 @@ describe('[PRJ-27] exploración y búsqueda', () => {
   });
 });
 
-describe('[PRJ-32] buscar el .mdteca de un archivo', () => {
+describe('[PRJ-32] buscar el .mdtor de un archivo', () => {
   it('sube por las carpetas hasta encontrarlo', async () => {
-    put('proy/p.mdteca', '{}');
+    put('proy/p.mdtor', '{}');
     put('proy/a/b/doc.md');
     expect(await findProjectFiles(join(root, 'proy', 'a', 'b', 'doc.md'))).toEqual([
-      join(root, 'proy', 'p.mdteca'),
+      join(root, 'proy', 'p.mdtor'),
     ]);
   });
 
   it('devuelve todos si hay varios en la misma carpeta y se detiene en la raíz de Git', async () => {
-    put('dos/uno.mdteca', '{}');
-    put('dos/otro.mdteca', '{}');
+    put('dos/uno.mdtor', '{}');
+    put('dos/otro.mdtor', '{}');
     put('dos/d.md');
     expect(await findProjectFiles(join(root, 'dos', 'd.md'))).toHaveLength(2);
     put('repo/.git/HEAD');
     put('repo/src/x.md');
-    put('p.mdteca', '{}');
+    put('p.mdtor', '{}');
     expect(await findProjectFiles(join(root, 'repo', 'src', 'x.md'))).toEqual([]);
   });
 
   it('no sube más de 5 niveles', async () => {
-    put('lejos.mdteca', '{}');
+    put('lejos.mdtor', '{}');
     put('n1/n2/n3/n4/n5/n6/doc.md');
     expect(
       await findProjectFiles(join(root, 'n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'doc.md')),

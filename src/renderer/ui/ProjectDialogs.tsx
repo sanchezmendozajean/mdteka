@@ -117,7 +117,7 @@ export function WizardDialog({
   const [folder, setFolder] = useState(req.initial.folder);
   const [importExisting, setImport] = useState(req.initial.importExisting);
   const pick = async () => {
-    const chosen = await window.mdteca.project.folderDialog();
+    const chosen = await window.mdtor.project.folderDialog();
     if (chosen) setFolder(chosen);
   };
   const ok = title.trim() !== '' && folder !== null;

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { basenameOf, dirnameOf, joinPath, type Project } from '@shared/project';
 
-/** Estado del proyecto abierto (05). El texto del `.mdteca` es la fuente; esto es su lectura. */
+/** Estado del proyecto abierto (05). El texto del `.mdtor` es la fuente; esto es su lectura. */
 export interface FileInfo {
   exists: boolean;
   h1?: string;
@@ -10,7 +10,7 @@ export interface FileInfo {
 export interface ProjectSuggestion {
   /** Documento que se abrió suelto. */
   docPath: string;
-  /** `.mdteca` al que pertenece. */
+  /** `.mdtor` al que pertenece. */
   projectPath: string;
   title: string;
 }
@@ -27,7 +27,7 @@ export interface SearchState {
 
 interface ProjectStore {
   project: Project | null;
-  /** Ruta absoluta del `.mdteca`. */
+  /** Ruta absoluta del `.mdtor`. */
   path: string | null;
   /** Carpeta del proyecto (ruta absoluta). */
   root: string | null;

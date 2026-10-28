@@ -17,11 +17,11 @@ test('[Fase 0] la ventana abre con el layout vacío y aislamiento activo', async
   const probe = await page.evaluate(() => ({
     require: typeof (window as unknown as { require?: unknown }).require,
     process: typeof (window as unknown as { process?: unknown }).process,
-    api: typeof window.mdteca?.app.info,
+    api: typeof window.mdtor?.app.info,
   }));
   expect(probe).toEqual({ require: 'undefined', process: 'undefined', api: 'function' });
-  const info = await page.evaluate(() => window.mdteca.app.info());
-  expect(info.name.toLowerCase()).toContain('mdteca');
+  const info = await page.evaluate(() => window.mdtor.app.info());
+  expect(info.name.toLowerCase()).toContain('mdtor');
 
   // Comando del registro: ocultar navegador.
   await page.getByRole('button', { name: /navegador/i }).click();

@@ -29,7 +29,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-/** Íconos de Lucide que se pueden elegir para colecciones y libros (`icon` en el `.mdteca`). */
+/** Íconos de Lucide que se pueden elegir para colecciones y libros (`icon` en el `.mdtor`). */
 export const PROJECT_ICONS: Record<string, LucideIcon> = {
   book: Book,
   'book-open': BookOpen,

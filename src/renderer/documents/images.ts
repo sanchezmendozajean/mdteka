@@ -16,7 +16,7 @@ import {
 
 /** Flujo de inserción de imágenes (06): pegar, soltar, *Insertar › Imagen* y edición. */
 
-const api = () => window.mdteca;
+const api = () => window.mdtor;
 
 /** Aviso al incrustar una imagen más pesada que esto (IMG-01). */
 /** Umbral de aviso al pegar como base64 (Ajustes › Imágenes). */

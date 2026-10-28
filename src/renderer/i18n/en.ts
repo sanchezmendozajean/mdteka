@@ -3,7 +3,7 @@ import type { es } from './es';
 type Widen<T> = T extends string ? string : { [K in keyof T]: Widen<T[K]> };
 
 export const en: Widen<typeof es> = {
-  app: { name: 'MDteca' },
+  app: { name: 'MDTor' },
   ribbon: {
     file: 'File',
     recent: 'Recent',
@@ -217,7 +217,7 @@ export const en: Widen<typeof es> = {
     source: 'Text',
   },
   welcome: {
-    title: 'Welcome to MDteca',
+    title: 'Welcome to MDTor',
     subtitle: 'Write Markdown with the feel of a word processor.',
     recent: 'Recently opened',
     noRecent: 'You have not opened any file yet.',
@@ -279,7 +279,7 @@ export const en: Widen<typeof es> = {
     linkTitleField: 'Title (optional)',
     linkRemove: 'Remove link',
     externalTitle: 'The file changed on disk',
-    externalBody: '“{{name}}” was modified outside MDteca and you have local changes.',
+    externalBody: '“{{name}}” was modified outside MDTor and you have local changes.',
     reload: 'Reload',
     keep: 'Keep mine',
     compare: 'Compare',
@@ -467,7 +467,7 @@ export const en: Widen<typeof es> = {
     eolCrlf: 'CRLF (Windows)',
     serializationNote:
       'Markdown serialization uses fixed conventions so that Git diffs stay stable.',
-    associate: 'Associate .md and .mdteca with MDteca',
+    associate: 'Associate .md and .mdtor with MDTor',
     associateButton: 'Open default apps…',
     associateHelp: 'Windows asks you to choose the default app for each file type.',
     shortcutsHint:
@@ -484,7 +484,7 @@ export const en: Widen<typeof es> = {
   },
   recovery: {
     title: 'Recover documents',
-    body: 'MDteca closed unexpectedly and some changes were not saved.',
+    body: 'MDTor closed unexpectedly and some changes were not saved.',
     restore: 'Recover {{count}} document(s)',
     discard: 'Discard the backups',
   },

@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { launch, save, source, waitForEditor } from './helpers';
 
-const BLOCK = `<!-- mdteca:config
+const BLOCK = `<!-- mdtor:config
 {
   "version": 1,
   "typography": {
@@ -33,7 +33,7 @@ test.describe('[Fase 2] configuración del documento', () => {
     await page.keyboard.type(' mundo');
     await save(page);
     expect(readFileSync(files[0]!, 'utf8')).toContain(' mundo');
-    expect(readFileSync(files[0]!, 'utf8')).not.toContain('mdteca:config');
+    expect(readFileSync(files[0]!, 'utf8')).not.toContain('mdtor:config');
     await app.close();
   });
 
@@ -44,7 +44,7 @@ test.describe('[Fase 2] configuración del documento', () => {
     await expect(page.getByTestId('dirty-dot')).toBeVisible();
     await save(page);
     expect(readFileSync(files[0]!, 'utf8')).toBe(
-      'Hola\n\n<!-- mdteca:config\n{\n  "version": 1,\n  "typography": {\n    "size": 14\n  }\n}\n-->\n',
+      'Hola\n\n<!-- mdtor:config\n{\n  "version": 1,\n  "typography": {\n    "size": 14\n  }\n}\n-->\n',
     );
     // El bloque no es contenido: ni el editor ni la fuente lo muestran (DOC-05).
     expect(await source(page)).toBe('Hola\n');
@@ -109,7 +109,7 @@ test.describe('[Fase 2] configuración del documento', () => {
     expect(await family(page)).toContain('Source Serif 4');
     await save(page);
     expect(readFileSync(files[0]!, 'utf8')).toBe(
-      'Hola\n\n<!-- mdteca:config\n{\n  "version": 1,\n  "theme": "clasico"\n}\n-->\n',
+      'Hola\n\n<!-- mdtor:config\n{\n  "version": 1,\n  "theme": "clasico"\n}\n-->\n',
     );
     await page.getByTestId('cfg-reset').click();
     await save(page);
@@ -141,7 +141,7 @@ test.describe('[Fase 2] configuración del documento', () => {
 
   test('[DOC-03] un bloque inválido se ignora, avisa y se puede reparar', async () => {
     const { app, page, files } = await launch({
-      'a.md': 'Hola\n\n<!-- mdteca:config\n{ roto\n-->\n',
+      'a.md': 'Hola\n\n<!-- mdtor:config\n{ roto\n-->\n',
     });
     await waitForEditor(page);
     await expect(page.getByTestId('config-invalid')).toBeVisible();
@@ -168,7 +168,7 @@ test.describe('[Fase 2] configuración del documento', () => {
 
 test('[DOC-13] una fuente ausente avisa en la barra de estado y no modifica el archivo', async () => {
   const original =
-    'Hola\n\n<!-- mdteca:config\n{\n  "version": 1,\n  "typography": {\n    "font": "Fuente Que No Existe XYZ"\n  }\n}\n-->\n';
+    'Hola\n\n<!-- mdtor:config\n{\n  "version": 1,\n  "typography": {\n    "font": "Fuente Que No Existe XYZ"\n  }\n}\n-->\n';
   const { app, page, files } = await launch({ 'a.md': original });
   await waitForEditor(page);
   await expect(page.getByTestId('font-fallback')).toContainText('Fuente Que No Existe XYZ');

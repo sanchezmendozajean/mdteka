@@ -6,7 +6,7 @@ export function buildCsp(dev: boolean): string {
     "default-src 'none'",
     `script-src ${script}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: mdteca-asset: https:",
+    "img-src 'self' data: mdtor-asset: https:",
     "font-src 'self' data:",
     `connect-src ${connect}`,
     "object-src 'none'",

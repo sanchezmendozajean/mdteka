@@ -39,14 +39,14 @@ export async function scanMarkdown(rootRaw: string, ignore: string[] = []): Prom
 }
 
 /**
- * Busca `.mdteca` en la carpeta del archivo y en las superiores, hasta la raíz del repositorio Git
+ * Busca `.mdtor` en la carpeta del archivo y en las superiores, hasta la raíz del repositorio Git
  * o 5 niveles (PRJ-32). Devuelve los de la primera carpeta que tenga alguno.
  */
 export async function findProjectFiles(docRaw: string): Promise<string[]> {
   let dir = dirname(resolve(docRaw));
   for (let level = 0; level <= 5; level++) {
     try {
-      const names = (await fs.readdir(dir)).filter((n) => /\.mdteca$/i.test(n)).sort();
+      const names = (await fs.readdir(dir)).filter((n) => /\.mdtor$/i.test(n)).sort();
       if (names.length) return names.map((n) => join(dir, n));
       // Raíz del repositorio: no se sube más.
       if (
@@ -285,7 +285,7 @@ export async function searchFiles(
     for (let i = 0; i < lines.length && hits.length < 500; i++) {
       const line = lines[i]!;
       // El bloque de configuración no es contenido del documento.
-      if (line.startsWith('<!-- mdteca:config')) inConfig = true;
+      if (line.startsWith('<!-- mdtor:config')) inConfig = true;
       if (inConfig) {
         if (line.includes('-->')) inConfig = false;
         continue;

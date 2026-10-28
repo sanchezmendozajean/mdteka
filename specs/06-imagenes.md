@@ -50,4 +50,4 @@ Diálogo compacto, centrado, con miniatura de la imagen, peso y dimensiones:
 
 ## Renombrar y mover documentos
 
-- **IMG-20** Al renombrar `manual.md` → `guia.md` desde MDteca, se ofrece renombrar sus imágenes (`manual.001.png` → `guia.001.png`) y actualizar los enlaces. Al mover el documento a otra carpeta, se ofrece mover sus imágenes con él.
+- **IMG-20** Al renombrar `manual.md` → `guia.md` desde MDTor, se ofrece renombrar sus imágenes (`manual.001.png` → `guia.001.png`) y actualizar los enlaces. Al mover el documento a otra carpeta, se ofrece mover sus imágenes con él.

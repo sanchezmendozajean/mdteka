@@ -17,7 +17,7 @@ export interface ImgAttrs {
  * Marcador que sigue a la imagen para mostrar su título como pie de foto. Es un comentario HTML:
  * otros visores de Markdown lo ocultan y solo muestran el título como tooltip.
  */
-export const CAPTION_MARK = '<!-- mdteca:caption -->';
+export const CAPTION_MARK = '<!-- mdtor:caption -->';
 
 const ATTR = /([a-zA-Z-]+)\s*=\s*("([^"]*)"|'([^']*)')/g;
 const KNOWN = new Set(['src', 'alt', 'title', 'width']);

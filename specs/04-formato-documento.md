@@ -10,7 +10,7 @@ Cada `.md` puede llevar su propia configuración visual dentro del mismo archivo
 ```markdown
 …último párrafo del documento.
 
-<!-- mdteca:config
+<!-- mdtor:config
 {
   "version": 1,
   "page": { "size": "A4", "orientation": "portrait", "margins": { "top": 25, "right": 25, "bottom": 25, "left": 25 } },
@@ -23,7 +23,7 @@ Cada `.md` puede llevar su propia configuración visual dentro del mismo archivo
 ```
 
 - **DOC-03** Reglas de lectura:
-  - Se busca el **último** comentario que empiece por `<!-- mdteca:config`. Debe estar al final del archivo (solo se admiten espacios en blanco después). Si aparece en otra posición, se respeta tal cual pero se trata como contenido (no como configuración) y se muestra una advertencia.
+  - Se busca el **último** comentario que empiece por `<!-- mdtor:config`. Debe estar al final del archivo (solo se admiten espacios en blanco después). Si aparece en otra posición, se respeta tal cual pero se trata como contenido (no como configuración) y se muestra una advertencia.
   - JSON inválido → se ignora, se usan valores heredados y se avisa con opción "Reparar".
   - Claves desconocidas se **conservan** al reescribir (compatibilidad hacia adelante).
   - La secuencia `--` dentro del JSON se escapa como `--` para no cerrar el comentario.
@@ -106,4 +106,4 @@ Galería de presets en la cinta (*Diseño › Estilos del documento*), con minia
 
 ## Herencia
 
-`valores de fábrica` → `ajustes de la app` → `defaults del proyecto (.mdteca)` → `bloque del documento`. El panel Documento muestra cada valor con un indicador de origen (ícono de app / proyecto / documento) y permite "volver al heredado" valor por valor.
+`valores de fábrica` → `ajustes de la app` → `defaults del proyecto (.mdtor)` → `bloque del documento`. El panel Documento muestra cada valor con un indicador de origen (ícono de app / proyecto / documento) y permite "volver al heredado" valor por valor.

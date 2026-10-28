@@ -27,6 +27,6 @@ Un [enlace][ref] y una ![imagen](a.png "t").
 Setext
 ======
 
-<!-- mdteca:pagebreak -->
+<!-- mdtor:pagebreak -->
 
 Fin sin salto final

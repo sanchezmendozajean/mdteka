@@ -12,7 +12,7 @@ import { resolveConfig } from './config';
 import { imageKind } from './images';
 import { askExportImages, showError, useDocs, type DocInfo } from './store';
 
-const api = () => window.mdteca;
+const api = () => window.mdtor;
 const CANCELLED = 'exportación cancelada';
 
 /** Espera a que las imágenes del contenedor terminen de cargar (su altura cambia el reparto). */
@@ -296,14 +296,14 @@ ${tokensCss}
 ${fonts}
 ${editorCss}
 html, body { margin: 0; background: var(--canvas); }
-.mdteca-page { box-sizing: border-box; max-width: ${width}px; margin: 24px auto; padding: 64px 72px; background: var(--paper); color: var(--ink); box-shadow: var(--sheet-shadow); }
-@media (max-width: 720px) { .mdteca-page { margin: 0; padding: 32px 20px; } }
-@media print { html, body { background: #fff; } .mdteca-page { box-shadow: none; margin: 0; max-width: none; } }
+.mdtor-page { box-sizing: border-box; max-width: ${width}px; margin: 24px auto; padding: 64px 72px; background: var(--paper); color: var(--ink); box-shadow: var(--sheet-shadow); }
+@media (max-width: 720px) { .mdtor-page { margin: 0; padding: 32px 20px; } }
+@media print { html, body { background: #fff; } .mdtor-page { box-shadow: none; margin: 0; max-width: none; } }
 ${css}
 </style>
 </head>
 <body>
-<main class="mdteca-page" data-doc-id="${id}">
+<main class="mdtor-page" data-doc-id="${id}">
 ${body.outerHTML}
 </main>
 </body>

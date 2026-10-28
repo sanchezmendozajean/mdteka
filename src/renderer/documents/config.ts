@@ -23,7 +23,7 @@ export const useSettings = create<{ documentDefaults: Json; set: (d: Json) => vo
 }));
 
 export async function loadSettings(): Promise<void> {
-  const settings = await window.mdteca.settings.get();
+  const settings = await window.mdtor.settings.get();
   useAppSettings.getState().set(settings);
 }
 
@@ -105,7 +105,7 @@ export async function saveAsAppDefaults(id: string): Promise<void> {
   delete rest['version'];
   delete rest['theme'];
   const merged = { ...appDefaults(), ...rest, ...(cfg.theme ? { theme: cfg.theme } : {}) };
-  const saved = await window.mdteca.settings.setDocumentDefaults(merged);
+  const saved = await window.mdtor.settings.setDocumentDefaults(merged);
   useSettings.getState().set(saved.documentDefaults);
 }
 

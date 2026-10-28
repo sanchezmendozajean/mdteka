@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 /**
- * Configuración por documento (04): esquema, lectura/escritura del bloque `<!-- mdteca:config -->`,
+ * Configuración por documento (04): esquema, lectura/escritura del bloque `<!-- mdtor:config -->`,
  * herencia y presets. Sin dependencias de Electron ni del DOM: lo usan renderer, main y pruebas.
  */
 
@@ -160,7 +160,7 @@ export function orderKeys(value: unknown, path: string): unknown {
 // Lectura y escritura del bloque
 // ---------------------------------------------------------------------------------------------
 
-export const CONFIG_START = '<!-- mdteca:config';
+export const CONFIG_START = '<!-- mdtor:config';
 
 export type ConfigStatus = 'none' | 'ok' | 'invalid';
 export interface ReadConfig {
@@ -170,7 +170,7 @@ export interface ReadConfig {
   error?: string;
 }
 
-/** Interpreta el texto literal del bloque (de `<!-- mdteca:config` a `-->`). */
+/** Interpreta el texto literal del bloque (de `<!-- mdtor:config` a `-->`). */
 export function readConfigBlock(raw: string): ReadConfig {
   if (!raw.trim()) return { status: 'none', config: null };
   const start = raw.indexOf(CONFIG_START);

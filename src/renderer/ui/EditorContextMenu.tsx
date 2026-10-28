@@ -21,7 +21,7 @@ export function EditorContextMenu() {
   const [menu, setMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null);
 
   useEffect(() => {
-    return window.mdteca.on('editor:contextMenu', (raw) => {
+    return window.mdtor.on('editor:contextMenu', (raw) => {
       const p = raw as ContextPayload;
       const target = document.elementFromPoint(p.x, p.y);
       // Solo dentro de los editores: el resto de la interfaz tiene sus propios menús.
@@ -36,13 +36,13 @@ export function EditorContextMenu() {
               id: `spell-${word}`,
               label: word,
               icon: SpellCheck,
-              run: () => void window.mdteca.spell.replace(word),
+              run: () => void window.mdtor.spell.replace(word),
             })),
             {
               id: 'spell-add',
               label: t('editor.addToDictionary', { word: p.misspelledWord }),
               icon: BookPlus,
-              run: () => void window.mdteca.spell.addWord(p.misspelledWord),
+              run: () => void window.mdtor.spell.addWord(p.misspelledWord),
             },
           ]
         : [];

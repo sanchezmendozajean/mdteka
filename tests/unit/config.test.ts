@@ -20,7 +20,7 @@ import {
 } from '../../src/shared/document-config';
 import { splitConfigBlock } from '../../src/renderer/editor/model/text-format';
 
-const BLOCK = `<!-- mdteca:config
+const BLOCK = `<!-- mdtor:config
 {
   "version": 1,
   "typography": {
@@ -51,7 +51,7 @@ describe('[DOC-03] lectura del bloque', () => {
   });
 
   it('JSON inválido → se ignora y se avisa', () => {
-    const r = readConfigBlock('<!-- mdteca:config\n{ roto\n-->\n');
+    const r = readConfigBlock('<!-- mdtor:config\n{ roto\n-->\n');
     expect(r.status).toBe('invalid');
     expect(r.config).toBeNull();
     expect(r.error).toBeTruthy();
@@ -59,9 +59,9 @@ describe('[DOC-03] lectura del bloque', () => {
 
   it('valores fuera del esquema → inválido', () => {
     expect(
-      readConfigBlock('<!-- mdteca:config\n{"version":1,"typography":{"size":999}}\n-->\n').status,
+      readConfigBlock('<!-- mdtor:config\n{"version":1,"typography":{"size":999}}\n-->\n').status,
     ).toBe('invalid');
-    expect(readConfigBlock('<!-- mdteca:config\n{"version":2}\n-->\n').status).toBe('invalid');
+    expect(readConfigBlock('<!-- mdtor:config\n{"version":2}\n-->\n').status).toBe('invalid');
   });
 
   it('se busca el último bloque al final y solo ahí', () => {
@@ -99,7 +99,7 @@ describe('[DOC-03][DOC-04] escritura', () => {
     } as unknown as DocumentConfig;
     const out = writeConfigBlock(cfg);
     expect(out).toBe(
-      '<!-- mdteca:config\n{\n  "version": 1,\n  "typography": {\n    "font": "Lora",\n    "size": 12\n  },\n  "theme": "clasico",\n  "x-extra": 1\n}\n-->\n',
+      '<!-- mdtor:config\n{\n  "version": 1,\n  "typography": {\n    "font": "Lora",\n    "size": 12\n  },\n  "theme": "clasico",\n  "x-extra": 1\n}\n-->\n',
     );
   });
 
@@ -176,7 +176,7 @@ describe('[DOC-13] fuentes', () => {
 describe('JSON Schema publicado', () => {
   it('specs/schemas/document-config.schema.json está al día', () => {
     const schema = z.toJSONSchema(DocumentConfigSchema, { io: 'input' });
-    const text = `${JSON.stringify({ $id: 'https://mdteca.app/schemas/document-config.schema.json', title: 'DocumentConfig', ...schema }, null, 2)}\n`;
+    const text = `${JSON.stringify({ $id: 'https://mdtor.app/schemas/document-config.schema.json', title: 'DocumentConfig', ...schema }, null, 2)}\n`;
     const file = resolve(__dirname, '../../specs/schemas/document-config.schema.json');
     if (process.env['UPDATE_SCHEMA'] === '1' || !existsSync(file)) {
       mkdirSync(dirname(file), { recursive: true });

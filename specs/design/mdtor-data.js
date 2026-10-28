@@ -80,14 +80,14 @@
     ],
     UNINDEXED: ['borrador-integraciones.md', 'notas-reunion.md'],
     RECENT_PROJECTS: [
-      { title: 'Manual del Sistema de Planillas', path: 'D:\\docs\\planillas\\manual-planillas.mdteca', when: 'Hoy' },
-      { title: 'Tesis de maestría', path: 'C:\\Users\\ana\\tesis\\tesis.mdteca', when: 'Ayer' },
-      { title: 'API Pagos v3', path: '~/repos/api-pagos/docs/api.mdteca', when: '12 oct' }
+      { title: 'Manual del Sistema de Planillas', path: 'D:\\docs\\planillas\\manual-planillas.mdtor', when: 'Hoy' },
+      { title: 'Tesis de maestría', path: 'C:\\Users\\ana\\tesis\\tesis.mdtor', when: 'Ayer' },
+      { title: 'API Pagos v3', path: '~/repos/api-pagos/docs/api.mdtor', when: '12 oct' }
     ],
     RECENT_FILES: [
       { title: 'manual.md', path: 'D:\\docs\\planillas\\tecnico\\pagos', when: 'Hoy' },
       { title: 'notas-reunion.md', path: 'D:\\docs\\planillas', when: 'Hoy' },
-      { title: 'README.md', path: '~/repos/mdteca', when: '15 oct' },
+      { title: 'README.md', path: '~/repos/mdtor', when: '15 oct' },
       { title: 'apuntes-calculo.md', path: 'C:\\Users\\ana\\uni\\2026-2', when: '9 oct' }
     ]
   };

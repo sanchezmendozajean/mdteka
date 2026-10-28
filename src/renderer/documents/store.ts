@@ -25,7 +25,7 @@ export interface DocInfo {
   columnWidth: number;
   eol: Eol;
   bom: boolean;
-  /** Bloque `<!-- mdteca:config … -->` literal, apartado del cuerpo (04). */
+  /** Bloque `<!-- mdtor:config … -->` literal, apartado del cuerpo (04). */
   configRaw: string;
   /** Bloque tal como está en el archivo en disco (para saber si la configuración cambió). */
   savedConfigRaw: string;

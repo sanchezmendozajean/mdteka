@@ -158,7 +158,7 @@ const nodes: Record<string, NodeSpec> = {
         },
       ] as DOMOutputSpec,
   },
-  /** Inline que Markdown conoce pero MDteca no edita (HTML en línea, referencias…): se conserva literal. */
+  /** Inline que Markdown conoce pero MDTor no edita (HTML en línea, referencias…): se conserva literal. */
   raw_inline: {
     inline: true,
     group: 'inline',

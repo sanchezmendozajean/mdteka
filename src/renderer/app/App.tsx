@@ -53,7 +53,7 @@ export function App() {
   }, [theme]);
 
   useEffect(() => {
-    document.title = doc ? `${doc.dirty ? '• ' : ''}${doc.name} — MDteca` : 'MDteca';
+    document.title = doc ? `${doc.dirty ? '• ' : ''}${doc.name} — MDTor` : 'MDTor';
   }, [doc]);
 
   useEffect(() => {
@@ -63,9 +63,9 @@ export function App() {
     const offLayout = wireLayout();
     const offBackground = wireBackground();
     const off = wireApp();
-    void window.mdteca.app.info().then((info) => {
+    void window.mdtor.app.info().then((info) => {
       if (info.e2e)
-        (window as unknown as { __mdteca: unknown }).__mdteca = {
+        (window as unknown as { __mdtor: unknown }).__mdtor = {
           editor,
           activeDoc,
           exportPdf,

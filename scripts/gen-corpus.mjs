@@ -50,5 +50,5 @@ writeFileSync(
 );
 writeFileSync(
   join(out, 'config-block.md'),
-  '# Con configuración\n\nTexto.\n\n<!-- mdteca:config\n{\n  "version": 1,\n  "typography": { "size": 12 },\n  "x-futuro": { "a": 1 }\n}\n-->\n',
+  '# Con configuración\n\nTexto.\n\n<!-- mdtor:config\n{\n  "version": 1,\n  "typography": { "size": 12 },\n  "x-futuro": { "a": 1 }\n}\n-->\n',
 );

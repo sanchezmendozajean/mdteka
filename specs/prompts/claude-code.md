@@ -1,10 +1,10 @@
 # Prompt para Claude Code
 
-> Abre Claude Code en la raíz del repositorio (`C:\Coding\mdteca`) y pega todo lo que está debajo de la línea. Idealmente, ten ya el resultado de Claude Design en `specs/design/`.
+> Abre Claude Code en la raíz del repositorio (`C:\Coding\mdtor`) y pega todo lo que está debajo de la línea. Idealmente, ten ya el resultado de Claude Design en `specs/design/`.
 
 ---
 
-Vas a construir **MDteca**, un editor de Markdown de escritorio con Electron. La especificación completa está en `specs/`. Es la fuente de verdad: léela entera antes de escribir código, empezando por `specs/README.md` y `specs/03-editor.md` (el editor tiene prioridad sobre todo lo demás). Si existe `specs/design/`, úsala como referencia visual obligatoria (tokens, componentes, pantallas, mapeo de íconos).
+Vas a construir **MDTor**, un editor de Markdown de escritorio con Electron. La especificación completa está en `specs/`. Es la fuente de verdad: léela entera antes de escribir código, empezando por `specs/README.md` y `specs/03-editor.md` (el editor tiene prioridad sobre todo lo demás). Si existe `specs/design/`, úsala como referencia visual obligatoria (tokens, componentes, pantallas, mapeo de íconos).
 
 ## Cómo trabajar
 
@@ -30,11 +30,11 @@ Vas a construir **MDteca**, un editor de Markdown de escritorio con Electron. La
 - **El editor es la estrella**: latencia tecla→pintado < 16 ms p95; nada que salte; nada de sintaxis Markdown visible en WYSIWYG, ni siquiera al posar el cursor (se rechaza el estilo "live preview" que revela marcas).
 - **En WYSIWYG lo tecleado es texto, no Markdown** (ED-15, ED-25): sin input rules ni autoformato; escribir `#` o `**` deja esos caracteres literales y el serializador los escapa en el `.md` (`\#`, `\*\*`). El formato solo se aplica con cinta, atajos o menús. En modo texto, en cambio, el Markdown se interpreta normalmente (ED-16).
 - **Fidelidad**: abrir y guardar sin cambios = archivo idéntico byte a byte; editar un bloque cambia solo ese bloque en el diff.
-- **Configuración en el documento**: bloque `<!-- mdteca:config … -->` al final del `.md` (`specs/04-formato-documento.md`), JSON con orden de claves canónico, solo diferencias respecto a lo heredado, nunca visible como contenido.
-- **Proyectos**: archivo índice `*.mdteca` (JSON, rutas relativas con `/`, ids estables, serialización determinista) — `specs/05-proyectos.md`. El usuario puede pasar de modo archivo a modo proyecto y viceversa durante la edición.
+- **Configuración en el documento**: bloque `<!-- mdtor:config … -->` al final del `.md` (`specs/04-formato-documento.md`), JSON con orden de claves canónico, solo diferencias respecto a lo heredado, nunca visible como contenido.
+- **Proyectos**: archivo índice `*.mdtor` (JSON, rutas relativas con `/`, ids estables, serialización determinista) — `specs/05-proyectos.md`. El usuario puede pasar de modo archivo a modo proyecto y viceversa durante la edición.
 - **Imágenes**: modos base64 / archivo / preguntar; los archivos se guardan junto al `.md` como `<nombre>.001.png`, `<nombre>.002.png`… — `specs/06-imagenes.md`.
 - **Todo comando tiene ícono** (Lucide). Implementa un registro central de comandos (`id`, etiqueta i18n, ícono, atajo, `when`, `run`) del que se alimentan cinta, menús, menú contextual, paleta de comandos y atajos; añade un test que falle si algún comando no tiene ícono o traducción.
-- **Seguridad Electron**: `contextIsolation`, `sandbox`, sin `nodeIntegration`, CSP estricta, IPC tipado y validado con zod, protocolo `mdteca-asset://` para imágenes locales, HTML sanitizado con DOMPurify.
+- **Seguridad Electron**: `contextIsolation`, `sandbox`, sin `nodeIntegration`, CSP estricta, IPC tipado y validado con zod, protocolo `mdtor-asset://` para imágenes locales, HTML sanitizado con DOMPurify.
 - **Git-friendly**: nada de estado de sesión dentro del repo del usuario; respetar EOL/BOM; nombres de archivo en slug.
 - **Una fuente por documento**: no implementes selector de fuente/color por selección.
 - **i18n desde el día uno** (es por defecto, en). Ningún texto en duro.
@@ -42,7 +42,7 @@ Vas a construir **MDteca**, un editor de Markdown de escritorio con Electron. La
 
 ## Entorno
 
-- Node LTS, npm. Scripts mínimos: `dev`, `build`, `test`, `e2e`, `lint`, `typecheck`, `dist` (instaladores con electron-builder, asociando `.mdteca` y opcionalmente `.md`).
+- Node LTS, npm. Scripts mínimos: `dev`, `build`, `test`, `e2e`, `lint`, `typecheck`, `dist` (instaladores con electron-builder, asociando `.mdtor` y opcionalmente `.md`).
 - `README.md` en la raíz con cómo ejecutar, compilar y la estructura del código.
 - `.gitattributes` con `* text=auto eol=lf` y binarios marcados.
 

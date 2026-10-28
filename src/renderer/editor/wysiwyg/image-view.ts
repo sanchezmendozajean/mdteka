@@ -31,13 +31,13 @@ export function resolveImageUrl(src: string): string | null {
   } catch {
     /* enlace mal codificado: se usa tal cual */
   }
-  return `mdteca-asset://local/${encodeURIComponent(joinPath(dir, rel))}`;
+  return `mdtor-asset://local/${encodeURIComponent(joinPath(dir, rel))}`;
 }
 
 const MIN_WIDTH = 24;
 
 /**
- * Imagen: se muestra (archivo local por `mdteca-asset://`, remota o data URL), se selecciona con un
+ * Imagen: se muestra (archivo local por `mdtor-asset://`, remota o data URL), se selecciona con un
  * clic y se redimensiona con el tirador; al soltarlo el ancho se escribe en el documento.
  */
 export class ImageView implements NodeView {
@@ -60,11 +60,11 @@ export class ImageView implements NodeView {
     this.img.addEventListener('load', () => {
       this.dom.classList.remove('image-broken');
       // La altura de la imagen cambia el reparto de páginas.
-      window.dispatchEvent(new CustomEvent('mdteca-layout', { detail: this.dom }));
+      window.dispatchEvent(new CustomEvent('mdtor-layout', { detail: this.dom }));
     });
     this.img.addEventListener('error', () => {
       this.dom.classList.add('image-broken');
-      window.dispatchEvent(new CustomEvent('mdteca-layout', { detail: this.dom }));
+      window.dispatchEvent(new CustomEvent('mdtor-layout', { detail: this.dom }));
     });
     this.handle = document.createElement('span');
     this.handle.className = 'image-handle';
@@ -115,7 +115,7 @@ export class ImageView implements NodeView {
     this.render();
     // El pie cambia la altura del bloque: se vuelve a medir para repaginar.
     if (captionChanged)
-      window.dispatchEvent(new CustomEvent('mdteca-layout', { detail: this.dom }));
+      window.dispatchEvent(new CustomEvent('mdtor-layout', { detail: this.dom }));
     return true;
   }
 
@@ -147,7 +147,7 @@ export class ImageView implements NodeView {
       current = width;
       this.img.style.width = `${width}px`;
       useImageUi.getState().set({ draftWidth: width });
-      window.dispatchEvent(new CustomEvent('mdteca-layout', { detail: this.dom }));
+      window.dispatchEvent(new CustomEvent('mdtor-layout', { detail: this.dom }));
     };
     const up = () => {
       this.handle.removeEventListener('pointermove', move);

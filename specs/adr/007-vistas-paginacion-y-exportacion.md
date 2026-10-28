@@ -13,7 +13,7 @@
 2. **Motor puro (`paginator/layout.ts`).** `paginate(bloques, {contentHeight, chrome})` reparte según
    VW-12: corte entre bloques, párrafos y código por línea (huérfanas y viudas de 2 líneas; si
    mover el bloque dejaría más de un 40 % de página vacía), títulos con el bloque siguiente,
-   `<!-- mdteca:pagebreak -->` y bloques indivisibles más altos que la página (desbordan). Devuelve
+   `<!-- mdtor:pagebreak -->` y bloques indivisibles más altos que la página (desbordan). Devuelve
    los cortes y los *trozos* de cada página. Lo usan la pantalla, el modo texto y el PDF (VW-14).
 3. **Medición incremental (VW-11).** `Paginator` guarda en un `WeakMap` las medidas por nodo de
    ProseMirror (inmutable): tras editar solo se vuelve a medir el bloque editado y el reparto de

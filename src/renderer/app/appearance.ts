@@ -21,13 +21,13 @@ export function wireAppearance(): () => void {
     root.dataset['accent'] = appearance.accent;
     root.dataset['density'] = appearance.density;
     root.dataset['sheet'] = appearance.lightSheetInDark ? 'light' : 'dark';
-    window.mdteca.appUi.setScale(appearance.uiScale);
+    window.mdtor.appUi.setScale(appearance.uiScale);
     if (i18next.language !== general.language) void i18next.changeLanguage(general.language);
     root.lang = general.language;
     const spell = JSON.stringify([editor.spellcheck, editor.spellLanguages]);
     if (spell !== lastSpell) {
       lastSpell = spell;
-      void window.mdteca.spell.configure(editor.spellcheck, editor.spellLanguages);
+      void window.mdtor.spell.configure(editor.spellcheck, editor.spellLanguages);
     }
   };
 

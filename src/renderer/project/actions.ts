@@ -54,7 +54,7 @@ import {
 } from '../documents/store';
 import { absolutePath, inProject, projectRelative, useProject, type SearchState } from './store';
 
-const api = () => window.mdteca;
+const api = () => window.mdtor;
 const t = (key: string, options?: Record<string, unknown>) => i18next.t(key, options);
 const store = () => useProject.getState();
 
@@ -161,7 +161,7 @@ export function closeProject(): void {
   });
 }
 
-/** El `.mdteca` cambió fuera de MDteca: se vuelve a leer (el proyecto no tiene cambios sin guardar). */
+/** El `.mdtor` cambió fuera de MDTor: se vuelve a leer (el proyecto no tiene cambios sin guardar). */
 export async function reloadProject(): Promise<void> {
   const { path } = store();
   if (!path) return;
@@ -539,7 +539,7 @@ export async function deleteChapterFile(itemId: string): Promise<void> {
   await commit(removeItem(project, itemId));
 }
 
-/** Abre el explorador en el proyecto (su archivo `.mdteca`) o, en edición individual, en el documento. */
+/** Abre el explorador en el proyecto (su archivo `.mdtor`) o, en edición individual, en el documento. */
 export function revealCurrent(): void {
   const path =
     store().path ?? useDocs.getState().docs.find((d) => d.id === useDocs.getState().activeId)?.path;
@@ -690,9 +690,9 @@ export async function updateSettings(patch: Partial<Project>): Promise<void> {
 // Crear un proyecto (asistente) y pasar de archivo a proyecto (PRJ-32)
 // ---------------------------------------------------------------------------------------------
 
-/** Crea el `.mdteca` en una carpeta y lo abre. Devuelve false si se cancela o falla. */
+/** Crea el `.mdtor` en una carpeta y lo abre. Devuelve false si se cancela o falla. */
 export async function createProject(result: WizardResult): Promise<boolean> {
-  const name = `${slugify(result.title) || 'proyecto'}.mdteca`;
+  const name = `${slugify(result.title) || 'proyecto'}.mdtor`;
   const path = absolutePath(name, result.folder);
   let files: string[] = [];
   try {
@@ -718,7 +718,7 @@ export async function newProjectWizard(docPath: string | null = null): Promise<b
 }
 
 /**
- * «Abrir como proyecto»: busca un `.mdteca` junto al documento o en carpetas superiores y lo abre;
+ * «Abrir como proyecto»: busca un `.mdtor` junto al documento o en carpetas superiores y lo abre;
  * si no hay, ofrece crear uno aquí (PRJ-32).
  */
 export async function openAsProject(): Promise<void> {
@@ -797,7 +797,7 @@ export async function acceptSuggestion(): Promise<void> {
 
 export const dismissSuggestion = () => store().set({ suggestion: null });
 
-/** Guarda en `userData` los nodos desplegados y las pestañas del proyecto (no va al `.mdteca`, PRJ-04). */
+/** Guarda en `userData` los nodos desplegados y las pestañas del proyecto (no va al `.mdtor`, PRJ-04). */
 let timer: ReturnType<typeof setTimeout> | undefined;
 function persistSession(): void {
   const { path, expanded } = store();

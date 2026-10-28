@@ -5,7 +5,7 @@
 
 ## Decisiones
 
-1. **`mdteca-asset://` limitado a las carpetas de los documentos abiertos.** El proceso principal
+1. **`mdtor-asset://` limitado a las carpetas de los documentos abiertos.** El proceso principal
    registra el esquema (`standard`, `secure`) y lo atiende con `protocol.handle`: decodifica la ruta,
    la canonicaliza con `realpath`, exige extensión de imagen y que esté dentro de la carpeta de un
    documento concedido, y limita el tamaño. Un `.txt` junto al documento o `..` no se sirven; un SVG
@@ -42,10 +42,10 @@
     (Guardar como), para que la ruta concedida coincida con la que tendrá después (nombres cortos
     8.3 en Windows).
 12. **Título visible como pie de foto (extensión de 06).** Por defecto el título es solo el tooltip
-    estándar. Para mostrarlo se escribe `<!-- mdteca:caption -->` inmediatamente después de la
-    imagen (`![a](f.png "T")<!-- mdteca:caption -->`, o tras la etiqueta `<img … width>`). Es un
+    estándar. Para mostrarlo se escribe `<!-- mdtor:caption -->` inmediatamente después de la
+    imagen (`![a](f.png "T")<!-- mdtor:caption -->`, o tras la etiqueta `<img … width>`). Es un
     comentario HTML: no lo muestra ningún otro renderizador y sigue la convención de
-    `mdteca:config` y `mdteca:pagebreak`. Descartadas: listas de atributos `{.caption}` (otros visores
+    `mdtor:config` y `mdtor:pagebreak`. Descartadas: listas de atributos `{.caption}` (otros visores
     muestran el texto), prefijos en el título (ensucian el tooltip) y una clave en el bloque de
     configuración (no se ligaría a la imagen). Sin título no se escribe el marcador.
 

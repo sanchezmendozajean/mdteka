@@ -14,7 +14,7 @@ export interface BlockMetrics {
   height: number;
   /** Separación natural con el bloque anterior (se descarta al inicio de página). */
   gapBefore: number;
-  /** Fuerza una página nueva tras este bloque (`<!-- mdteca:pagebreak -->`). */
+  /** Fuerza una página nueva tras este bloque (`<!-- mdtor:pagebreak -->`). */
   breakAfter?: boolean;
   /** No se deja solo al pie de página (títulos). */
   keepWithNext?: boolean;

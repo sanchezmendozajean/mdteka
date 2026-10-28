@@ -38,16 +38,16 @@
 
 **Decisiones**: ADR 010.
 
-**Pendiente**: actualizaciones automáticas (hay que decidir dónde se publican las versiones y firmar el instalador), íconos propios de `.md` y `.mdteca`, notas al pie, menú del Dock y _jump list_ de recientes, modo máquina de escribir en modo texto, y una ventana por proyecto (PRJ-34, Fase 5).
+**Pendiente**: actualizaciones automáticas (hay que decidir dónde se publican las versiones y firmar el instalador), íconos propios de `.md` y `.mdtor`, notas al pie, menú del Dock y _jump list_ de recientes, modo máquina de escribir en modo texto, y una ventana por proyecto (PRJ-34, Fase 5).
 
 ## [Fase 5] — Proyectos
 
-**Formato `.mdteca`** (`05`)
+**Formato `.mdtor`** (`05`)
 
 - JSON con esquema zod y JSON Schema publicado en `specs/schemas/project.schema.json`; rutas relativas con `/` (sin `./` ni `..`), ids estables `slug-xxxx`, claves desconocidas conservadas [PRJ-01, PRJ-03, PRJ-05].
 - Serialización determinista: 2 espacios, orden de claves fijo, `\n` y salto final, **una línea por capítulo**. Reordenar un capítulo cambia solo las líneas de ese ítem [PRJ-05, GIT-05].
 - Sin datos de máquina ni de sesión: nodos desplegados, pestañas abiertas y zoom van a `userData` [PRJ-04].
-- Un `.mdteca` con marcadores de conflicto de Git se rechaza con la línea y no se toca.
+- Un `.mdtor` con marcadores de conflicto de Git se rechaza con la línea y no se toca.
 
 **Navegador de libros** (panel izquierdo)
 
@@ -61,9 +61,9 @@
 
 **Modo archivo ⇄ proyecto**
 
-- Selector _Archivo | Proyecto_ en la barra de título [PRJ-30…32]. _Abrir como proyecto_ busca el `.mdteca` junto al archivo y en las carpetas superiores (hasta la raíz de Git o 5 niveles) y, si no hay, ofrece el asistente de proyecto nuevo, que puede importar los `.md` existentes (cada carpeta es un libro). _Editar solo este archivo_ vuelve al modo archivo sin cerrar pestañas.
+- Selector _Archivo | Proyecto_ en la barra de título [PRJ-30…32]. _Abrir como proyecto_ busca el `.mdtor` junto al archivo y en las carpetas superiores (hasta la raíz de Git o 5 niveles) y, si no hay, ofrece el asistente de proyecto nuevo, que puede importar los `.md` existentes (cada carpeta es un libro). _Editar solo este archivo_ vuelve al modo archivo sin cerrar pestañas.
 - Un `.md` suelto que pertenece a un proyecto muestra «Este archivo forma parte de … · Abrir proyecto» [PRJ-33].
-- Abrir un `.mdteca` (línea de comandos, asociación de archivos o con la aplicación ya abierta) abre el proyecto [PRJ-01].
+- Abrir un `.mdtor` (línea de comandos, asociación de archivos o con la aplicación ya abierta) abre el proyecto [PRJ-01].
 
 **Ajustes y herencia**
 
@@ -95,13 +95,13 @@
 
 **Edición en WYSIWYG**
 
-- Las imágenes locales se muestran por el protocolo `mdteca-asset://`, limitado a las carpetas de los documentos abiertos y solo para imágenes; las remotas se muestran sin descargarse [IMG-12].
+- Las imágenes locales se muestran por el protocolo `mdtor-asset://`, limitado a las carpetas de los documentos abiertos y solo para imágenes; las remotas se muestran sin descargarse [IMG-12].
 - Clic selecciona la imagen y abre su menú: texto alternativo, título, reemplazar, convertir a archivo o a base64, guardar localmente una remota, abrir carpeta y quitar (no borra el archivo).
 - Redimensionado con tirador: al soltar el tirador se escribe `<img src="…" width="N">`; _Quitar tamaño_ vuelve a la sintaxis Markdown.
 - En modo texto las data URL largas se pliegan (`…·48 KB`) sin cambiar el texto.
 - Las imágenes se escalan para caber en la página y entran en el reparto de páginas y en el PDF; el HTML exportado las incrusta o las copia a una carpeta.
 
-- **Título visible** (a voluntad): la casilla «Visible en el documento» del menú de la imagen muestra el título como pie de foto bajo la imagen (también en PDF y HTML). Se guarda como un comentario pegado a la imagen, `![alt](foto.png "Título")<!-- mdteca:caption -->`; otros visores de Markdown lo ocultan y solo muestran el tooltip. Requiere título.
+- **Título visible** (a voluntad): la casilla «Visible en el documento» del menú de la imagen muestra el título como pie de foto bajo la imagen (también en PDF y HTML). Se guarda como un comentario pegado a la imagen, `![alt](foto.png "Título")<!-- mdtor:caption -->`; otros visores de Markdown lo ocultan y solo muestran el tooltip. Requiere título.
 
 **Decisiones**: ADR 008.
 
@@ -112,7 +112,7 @@
 **Vista de páginas** (`07`)
 
 - Hojas del tamaño del papel (A4, A5, Letter, Legal, B5, orientación vertical u horizontal) con sombra y 24 px de separación; el área editable respeta los márgenes. Un solo editor: los saltos de página son decoraciones, el documento no cambia [VW-01, VW-10].
-- Motor de paginación puro (`paginator/layout.ts`): corte entre bloques; párrafos y código se cortan por líneas (viudas y huérfanas de 2 líneas, o si mover el bloque dejaría más del 40 % vacío); los títulos no quedan solos al pie; `<!-- mdteca:pagebreak -->` fuerza página; los bloques indivisibles más altos que una página desbordan [VW-12].
+- Motor de paginación puro (`paginator/layout.ts`): corte entre bloques; párrafos y código se cortan por líneas (viudas y huérfanas de 2 líneas, o si mover el bloque dejaría más del 40 % vacío); los títulos no quedan solos al pie; `<!-- mdtor:pagebreak -->` fuerza página; los bloques indivisibles más altos que una página desbordan [VW-12].
 - Medición incremental con caché por nodo: tras editar solo se vuelve a medir el bloque editado. Un documento de ~134 páginas se repagina en menos de 40 ms y escribir no produce tareas largas [VW-11].
 - El cursor no salta: lo que mueve su bloque espera a una pausa al escribir y el desplazamiento se compensa para que conserve su posición en pantalla [VW-13].
 - Encabezado y pie con `{title}`, `{page}`, `{pages}` y `{date}` (pie `{page}` centrado por defecto, «primera página distinta»); doble clic sobre ellos abre su configuración [VW-02].
@@ -137,7 +137,7 @@
 
 ## [Fase 2] — Configuración del documento y tipografía
 
-**Bloque `mdteca:config`** (`04`)
+**Bloque `mdtor:config`** (`04`)
 
 - Lectura y escritura del bloque al final del archivo, con esquema zod y JSON Schema publicado en `specs/schemas/document-config.schema.json` [DOC-01, DOC-02].
 - Claves desconocidas conservadas. JSON inválido o fuera de esquema se ignora, avisa en el panel y se puede _Reparar_. La secuencia `--` se escapa dentro del JSON [DOC-03].

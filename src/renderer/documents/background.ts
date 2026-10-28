@@ -10,7 +10,7 @@ import { askChoose, useDocs } from './store';
 /** Tareas en segundo plano: autoguardado (02) y respaldo de recuperación cada 30 s (09). */
 
 export const RECOVERY_MS = 30_000;
-const api = () => window.mdteca;
+const api = () => window.mdtor;
 
 /** Documentos con ruta y cambios sin guardar: lo único que el autoguardado puede escribir sin preguntar. */
 const dirtySavable = () =>

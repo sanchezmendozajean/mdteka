@@ -390,7 +390,7 @@ export class Paginator {
       this.runInner();
     } finally {
       // Medida visible en las pruebas y en el perfilador (VW-11).
-      performance.measure('mdteca:paginate', { start, end: performance.now() });
+      performance.measure('mdtor:paginate', { start, end: performance.now() });
     }
   }
 

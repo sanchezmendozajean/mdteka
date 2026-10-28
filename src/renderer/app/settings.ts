@@ -16,13 +16,13 @@ export const appSettings = (): Settings => useAppSettings.getState().settings;
 
 /** Aplica un parche a los ajustes: main lo valida y lo guarda, y el renderer lo adopta. */
 export async function updateAppSettings(patch: Record<string, unknown>): Promise<Settings> {
-  const next = await window.mdteca.settings.set(patch);
+  const next = await window.mdtor.settings.set(patch);
   useAppSettings.getState().set(next);
   return next;
 }
 
 export async function resetAppSettings(): Promise<Settings> {
-  const next = await window.mdteca.settings.reset();
+  const next = await window.mdtor.settings.reset();
   useAppSettings.getState().set(next);
   return next;
 }

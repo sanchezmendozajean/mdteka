@@ -1,6 +1,6 @@
 {
-  "$id": "https://mdteca.app/schemas/project-v1.json",
-  "title": "MDtecaProject",
+  "$id": "https://mdtor.app/schemas/project-v1.json",
+  "title": "MDTorProject",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
@@ -9,7 +9,7 @@
     },
     "format": {
       "type": "string",
-      "const": "mdteca-project"
+      "const": "mdtor-project"
     },
     "version": {
       "type": "number",

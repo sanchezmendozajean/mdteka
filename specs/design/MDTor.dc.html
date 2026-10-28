@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Literata:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
 <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
 <script src="./lc-icon.js"></script>
-<script src="./mdteca-data.js"></script>
+<script src="./mdtor-data.js"></script>
 <style>
 body{--bg-app:#F3F2EF;--surface:#FBFAF8;--surface-raised:#FFFFFF;--panel:#F8F7F4;--field:#FFFFFF;--canvas:#E7E5E1;--line:#E4E1DB;--line-strong:#D2CEC6;--text:#1E1D1B;--text-2:#5B5750;--text-3:#7F7A72;--hover:rgba(40,32,20,0.055);--active:rgba(40,32,20,0.09);--accent:#1D6A72;--on-accent:#FFFFFF;--danger:#C0402C;--warn:#A86A12;--success:#2F7D4F;--overlay:rgba(24,22,19,0.28);--shadow-pop:0 8px 28px rgba(30,24,16,0.14),0 1px 3px rgba(30,24,16,0.08);--shadow-lg:0 24px 64px rgba(30,24,16,0.22),0 2px 6px rgba(30,24,16,0.08);--sheet-shadow:0 0 0 1px rgba(30,24,16,0.04),0 1px 2px rgba(30,24,16,0.06),0 6px 20px rgba(30,24,16,0.07);--toast-bg:#2A2926;--toast-fg:#F3F2EF;--kbd-bg:rgba(40,32,20,0.06);--paper:#FFFFFF;--ink:#1F1E1C;--ink-2:#5A564F;--ink-3:#97928A;--ink-rule:#DDD9D2;--code-bg:#F5F3EF;--doc-link:#1D6A72;--ph-a:#F1EFEB;--ph-b:#E9E6E0;--ruler-margin:#ECEAE5}
 body{--accent-soft:color-mix(in oklch,var(--accent) 12%,var(--surface));--accent-ink:color-mix(in oklch,var(--accent) 82%,var(--text));--selection:color-mix(in srgb,var(--accent) 22%,transparent)}
@@ -141,7 +141,7 @@ a:hover{text-decoration:underline}
     <sc-if value="{{ isNavTab }}" hint-placeholder-val="{{ true }}">
       <div style="padding:12px 10px 8px 12px; display:flex; flex-direction:column; gap:10px; flex:none;">
         <div style="display:flex; align-items:center; gap:8px;">
-          <div style="flex:1; min-width:0;"><div style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Manual del Sistema de Planillas</div><div style="font-size:11.5px; color:var(--text-3); margin-top:2px;">manual-planillas.mdteca</div></div>
+          <div style="flex:1; min-width:0;"><div style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Manual del Sistema de Planillas</div><div style="font-size:11.5px; color:var(--text-3); margin-top:2px;">manual-planillas.mdtor</div></div>
           <button title="Ajustes del proyecto" style="width:26px; height:26px; border:none; border-radius:6px; background:transparent; color:var(--text-2); cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background: var(--hover)"><lc-i n="settings-2" s="15"></lc-i></button>
         </div>
         <div style="display:flex; align-items:center; gap:7px; height:28px; padding:0 9px; border:1px solid var(--line); border-radius:6px; background:var(--field); color:var(--text-3);"><lc-i n="search" s="14"></lc-i><input placeholder="Filtrar capítulos" style="flex:1; min-width:0; border:none; outline:none; background:transparent; font-size:12.5px;"></div>
@@ -234,7 +234,7 @@ a:hover{text-decoration:underline}
                 </sc-if>
                 <sc-if value="{{ p.isText }}">
                   <sc-for list="{{ p.lines }}" as="ln"><div style="min-height:1.65em;"><sc-for list="{{ ln.tks }}" as="tk"><span style="{{ tk.css }}">{{ tk.t }}</span></sc-for></div></sc-for>
-                  <sc-if value="{{ p.chip }}"><button onClick="{{ openPanel }}" title="El bloque mdteca:config está plegado y no es editable aquí" style="margin-top:0.6em; display:inline-flex; align-items:center; gap:7px; height:26px; padding:0 10px; border:1px solid var(--ink-rule); border-radius:13px; background:var(--code-bg); color:var(--ink-2); font-family:Inter, sans-serif; font-size:11.5px; cursor:pointer;"><lc-i n="braces" s="13"></lc-i>Configuración del documento<span style="color:var(--ink-3);">·</span><span style="color:var(--doc-link); font-weight:500;">abrir panel</span></button></sc-if>
+                  <sc-if value="{{ p.chip }}"><button onClick="{{ openPanel }}" title="El bloque mdtor:config está plegado y no es editable aquí" style="margin-top:0.6em; display:inline-flex; align-items:center; gap:7px; height:26px; padding:0 10px; border:1px solid var(--ink-rule); border-radius:13px; background:var(--code-bg); color:var(--ink-2); font-family:Inter, sans-serif; font-size:11.5px; cursor:pointer;"><lc-i n="braces" s="13"></lc-i>Configuración del documento<span style="color:var(--ink-3);">·</span><span style="color:var(--doc-link); font-weight:500;">abrir panel</span></button></sc-if>
                 </sc-if>
               </div>
               <sc-if value="{{ p.handles }}">
@@ -305,7 +305,7 @@ a:hover{text-decoration:underline}
       </div>
     </div>
     <div style="flex:none; padding:10px 14px; border-top:1px solid var(--line); display:flex; gap:6px;">
-      <button onClick="{{ pinAll }}" title="Escribe todas las claves en el bloque mdteca:config" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; height:30px; border:1px solid var(--line); border-radius:6px; background:var(--surface-raised); cursor:pointer; font-size:12px;" style-hover="border-color: var(--line-strong)"><lc-i n="pin" s="14"></lc-i>Fijar todo</button>
+      <button onClick="{{ pinAll }}" title="Escribe todas las claves en el bloque mdtor:config" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; height:30px; border:1px solid var(--line); border-radius:6px; background:var(--surface-raised); cursor:pointer; font-size:12px;" style-hover="border-color: var(--line-strong)"><lc-i n="pin" s="14"></lc-i>Fijar todo</button>
       <button onClick="{{ resetAll }}" title="Elimina el bloque de configuración" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; height:30px; border:1px solid var(--line); border-radius:6px; background:var(--surface-raised); cursor:pointer; font-size:12px;" style-hover="border-color: var(--line-strong)"><lc-i n="rotate-ccw" s="14"></lc-i>Restablecer</button>
     </div>
   </div>
@@ -358,7 +358,7 @@ a:hover{text-decoration:underline}
           <sc-for list="{{ recentFiles }}" as="rf" hint-placeholder-count="4"><button onClick="{{ rf.onClick }}" style="width:100%; display:flex; align-items:center; gap:12px; padding:10px; border:none; border-radius:8px; background:transparent; cursor:pointer; text-align:left;" style-hover="background: var(--hover)"><span style="color:var(--text-2); display:flex;"><lc-i n="file-text" s="18"></lc-i></span><span style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;"><span style="font-weight:500;">{{ rf.title }}</span><span style="font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--text-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ rf.path }}</span></span><span style="font-size:11.5px; color:var(--text-3);">{{ rf.when }}</span></button></sc-for>
         </div>
       </div>
-      <div style="display:flex; align-items:center; justify-content:center; gap:8px; height:56px; border:1px dashed var(--line-strong); border-radius:10px; color:var(--text-3); font-size:12.5px;"><lc-i n="file-down" s="16"></lc-i>Arrastra aquí un .md o un .mdteca para abrirlo</div>
+      <div style="display:flex; align-items:center; justify-content:center; gap:8px; height:56px; border:1px dashed var(--line-strong); border-radius:10px; color:var(--text-3); font-size:12.5px;"><lc-i n="file-down" s="16"></lc-i>Arrastra aquí un .md o un .mdtor para abrirlo</div>
     </div>
   </div>
 </div>
@@ -677,7 +677,7 @@ class Component extends DCLogic {
       else if (b.k === 'task') L([T(b.done ? '- [x] ' : '- [ ] ', 'm'), ...mdr(b.runs)], p);
       else if (b.k === 'quote') L([T('> ', 'm'), ...mdr(b.runs)], p);
       else if (b.k === 'img') L([T('![', 'm'), T(b.alt), T('](' + b.src + ')', 'm')], p);
-      else if (b.k === 'break') L([T('<!-- mdteca:pagebreak -->', 'm')], p);
+      else if (b.k === 'break') L([T('<!-- mdtor:pagebreak -->', 'm')], p);
       else if (b.k === 'code') { L([T('```' + b.lang, 'm')], p); b.lines.forEach(l => L([T(l.map(x => x[0]).join(''), 'c')], p)); L([T('```', 'm')], p); }
       else if (b.k === 'table') { const rows = [b.head, ...b.rows], w = b.head.map((_, i) => Math.max(...rows.map(r => r[i].length)));
         const row = r => { const out = [T('| ', 'm')]; r.forEach((x, i) => { out.push(T(x.padEnd(w[i]))); out.push(T(i < r.length - 1 ? ' | ' : ' |', 'm')); }); return out; };
@@ -827,9 +827,9 @@ class Component extends DCLogic {
       ready: true, isEditor, isStart: !isEditor, showChrome, isFocus: s.focus, chromeEditor: showChrome && isEditor,
       modeIcon: proj ? 'library' : 'file-text', modeLabel: proj ? 'Proyecto' : 'Archivo', modeMenu: s.modeMenu,
       toggleModeMenu: () => this.setState({ modeMenu: !s.modeMenu }),
-      modeOpts: [['file', 'Archivo', 'file-text', 'Edita este .md como documento suelto, sin navegador.'], ['project', 'Proyecto', 'library', 'Abre el índice manual-planillas.mdteca con sus libros y capítulos.']].map(([k, label, icon, desc]) => ({ label, icon, desc, on: s.mode === k, bg: s.mode === k ? 'var(--accent-soft)' : 'transparent', fg: s.mode === k ? 'var(--accent)' : 'var(--text-2)', onClick: () => k === 'project' ? this.toProject() : this.toFile() })),
-      modeAction: proj ? { icon: 'file-output', label: 'Editar solo este archivo', hint: 'Cierra el navegador sin cerrar pestañas', onClick: () => this.toFile() } : { icon: 'folder-search', label: 'Abrir como proyecto', hint: 'Busca un .mdteca en carpetas superiores', onClick: () => this.toProject() },
-      titleName: isEditor ? 'manual.md' : 'MDteca', titleDirty: isEditor && s.dirty, titleProj: isEditor && proj, isDark: dark, themeIcon: dark ? 'sun' : 'moon',
+      modeOpts: [['file', 'Archivo', 'file-text', 'Edita este .md como documento suelto, sin navegador.'], ['project', 'Proyecto', 'library', 'Abre el índice manual-planillas.mdtor con sus libros y capítulos.']].map(([k, label, icon, desc]) => ({ label, icon, desc, on: s.mode === k, bg: s.mode === k ? 'var(--accent-soft)' : 'transparent', fg: s.mode === k ? 'var(--accent)' : 'var(--text-2)', onClick: () => k === 'project' ? this.toProject() : this.toFile() })),
+      modeAction: proj ? { icon: 'file-output', label: 'Editar solo este archivo', hint: 'Cierra el navegador sin cerrar pestañas', onClick: () => this.toFile() } : { icon: 'folder-search', label: 'Abrir como proyecto', hint: 'Busca un .mdtor en carpetas superiores', onClick: () => this.toProject() },
+      titleName: isEditor ? 'manual.md' : 'MDTor', titleDirty: isEditor && s.dirty, titleProj: isEditor && proj, isDark: dark, themeIcon: dark ? 'sun' : 'moon',
       toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
       ribbonTabs, keytips: s.keytips, showRibbon: !s.ribbonCollapsed && s.tab !== 'archivo', ribbonChev: s.ribbonCollapsed ? 'chevron-down' : 'chevron-up',
       toggleRibbon: () => this.setState({ ribbonCollapsed: !s.ribbonCollapsed }), groups, styleGallery, presets, hideTip: () => this.hideTip(),
@@ -872,7 +872,7 @@ class Component extends DCLogic {
     const bsItems = BI.map(b => b ? { isSep: false, isItem: true, icon: b[0], label: b[1], kbd: b[2] || '', bg: b[4] === 'inicio' && b[1] === 'Inicio' ? 'var(--active)' : 'transparent', fg: b[0] === 'arrow-left' ? 'var(--accent-ink)' : 'var(--text)', weight: b[1] === 'Inicio' ? 600 : 400,
       onClick: b[3] || (() => { this.setState({ tab: 'inicio' }); this.toast(b[1] + ' · no disponible en el prototipo', b[0]); }) } : { isSep: true, isItem: false });
     const openP = () => this.toProject(), openF = () => this.toFile();
-    const homeActions = [['file-plus', 'Nuevo documento', 'Un .md suelto, sin bloque de configuración.', 'Ctrl+N', openF], ['folder-plus', 'Nuevo proyecto', 'Carpeta con índice .mdteca, libros y capítulos.', 'Ctrl+Shift+N', openP], ['folder-open', 'Abrir…', 'Un archivo .md o un proyecto .mdteca.', 'Ctrl+O', openF]].map(([icon, label, desc, kbd, onClick]) => ({ icon, label, desc, kbd, onClick }));
+    const homeActions = [['file-plus', 'Nuevo documento', 'Un .md suelto, sin bloque de configuración.', 'Ctrl+N', openF], ['folder-plus', 'Nuevo proyecto', 'Carpeta con índice .mdtor, libros y capítulos.', 'Ctrl+Shift+N', openP], ['folder-open', 'Abrir…', 'Un archivo .md o un proyecto .mdtor.', 'Ctrl+O', openF]].map(([icon, label, desc, kbd, onClick]) => ({ icon, label, desc, kbd, onClick }));
 
     // paste dialog
     const pc = s.paste.choice;
@@ -935,7 +935,7 @@ class Component extends DCLogic {
     const fbarItems = [FB('pilcrow', 'Estilo de párrafo', null, true), SEP, FB('bold', 'Negrita · Ctrl+B', 'b'), FB('italic', 'Cursiva · Ctrl+I', 'i'), FB('strikethrough', 'Tachado · Ctrl+Shift+X', 's'), FB('code', 'Código en línea · Ctrl+E', 'c'), FB('link', 'Enlace · Ctrl+K'), SEP, FB('quote', 'Cita'), FB('list', 'Lista'), SEP, FB('remove-formatting', 'Quitar formato')];
 
     return {
-      showHome: !isEditor || s.tab === 'archivo', isBackstage: isEditor && s.tab === 'archivo', homeTitle: isEditor ? 'Inicio' : 'Bienvenido a MDteca', bsItems, homeActions,
+      showHome: !isEditor || s.tab === 'archivo', isBackstage: isEditor && s.tab === 'archivo', homeTitle: isEditor ? 'Inicio' : 'Bienvenido a MDTor', bsItems, homeActions,
       recentProjects: M.RECENT_PROJECTS.map(r => ({ ...r, onClick: openP })), recentFiles: M.RECENT_FILES.map(r => ({ ...r, onClick: openF })),
       dlgOpen: !!s.dialog, isPaste: s.dialog === 'paste', isPage: s.dialog === 'page' && !!s.pd, isStyles: s.dialog === 'styles',
       closeDialog: () => this.closeDialog(), stop: e => e.stopPropagation(), paste, confirmPaste: () => this.confirmPaste(), pd, applyPage, st,

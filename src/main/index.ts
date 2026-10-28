@@ -68,9 +68,9 @@ import { firstH1 } from '@shared/project';
 import { existsSync, promises as fsp } from 'node:fs';
 
 const isDev = !app.isPackaged && !!process.env['ELECTRON_RENDERER_URL'];
-const e2e = process.env['MDTECA_E2E'] === '1';
+const e2e = process.env['MDTOR_E2E'] === '1';
 // Las pruebas E2E usan un userData propio para no tocar los ajustes reales.
-if (process.env['MDTECA_USER_DATA']) app.setPath('userData', process.env['MDTECA_USER_DATA']);
+if (process.env['MDTOR_USER_DATA']) app.setPath('userData', process.env['MDTOR_USER_DATA']);
 
 let mainWindow: BrowserWindow | null = null;
 let allowClose = false;
@@ -110,9 +110,9 @@ function registerIpc(): void {
       defaultPath: getLastOpenDir() ?? undefined,
       properties: ['openFile', 'multiSelections'],
       filters: [
-        { name: 'Documentos y proyectos', extensions: ['md', 'markdown', 'mdown', 'mdteca'] },
+        { name: 'Documentos y proyectos', extensions: ['md', 'markdown', 'mdown', 'mdtor'] },
         { name: 'Markdown', extensions: ['md', 'markdown', 'mdown'] },
-        { name: 'Proyecto MDteca', extensions: ['mdteca'] },
+        { name: 'Proyecto MDTor', extensions: ['mdtor'] },
         { name: 'Texto', extensions: ['txt'] },
       ],
     });
@@ -123,7 +123,7 @@ function registerIpc(): void {
   });
   handle('file:saveDialog', async (req: { defaultName: string; kind?: 'md' | 'pdf' | 'html' }) => {
     // Las pruebas E2E indican la ruta por variable de entorno (el diálogo nativo no es automatizable).
-    const forced = process.env['MDTECA_E2E_SAVE_PATH'];
+    const forced = process.env['MDTOR_E2E_SAVE_PATH'];
     if (e2e && forced) return grant(forced);
     const kind = req.kind ?? 'md';
     const filters = {
@@ -232,12 +232,12 @@ function registerIpc(): void {
   }));
   // ---- Proyectos (05) ----
   handle('project:openDialog', async () => {
-    const forced = process.env['MDTECA_E2E_OPEN_PATH'];
+    const forced = process.env['MDTOR_E2E_OPEN_PATH'];
     if (e2e && forced) return grant(forced);
     const result = await dialog.showOpenDialog(mainWindow!, {
       defaultPath: getLastOpenDir() ?? undefined,
       properties: ['openFile'],
-      filters: [{ name: 'Proyecto MDteca', extensions: ['mdteca'] }],
+      filters: [{ name: 'Proyecto MDTor', extensions: ['mdtor'] }],
     });
     if (result.canceled || !result.filePaths[0]) return null;
     setLastOpenDir(result.filePaths[0]);
@@ -245,7 +245,7 @@ function registerIpc(): void {
     return grant(result.filePaths[0]);
   });
   handle('project:folderDialog', async () => {
-    const forced = process.env['MDTECA_E2E_FOLDER_PATH'];
+    const forced = process.env['MDTOR_E2E_FOLDER_PATH'];
     if (e2e && forced) return grantTree(forced);
     const result = await dialog.showOpenDialog(mainWindow!, {
       properties: ['openDirectory', 'createDirectory'],
@@ -425,7 +425,7 @@ function createWindow(): BrowserWindow {
 
 // El esquema debe registrarse antes de que la app esté lista.
 protocol.registerSchemesAsPrivileged([
-  { scheme: 'mdteca-asset', privileges: { standard: true, secure: true, supportFetchAPI: true } },
+  { scheme: 'mdtor-asset', privileges: { standard: true, secure: true, supportFetchAPI: true } },
 ]);
 
 if (!app.requestSingleInstanceLock()) {
@@ -454,7 +454,7 @@ if (!app.requestSingleInstanceLock()) {
       });
     });
     session.defaultSession.setPermissionRequestHandler((_wc, _perm, cb) => cb(false));
-    protocol.handle('mdteca-asset', (request) => assetResponse(request.url));
+    protocol.handle('mdtor-asset', (request) => assetResponse(request.url));
     registerIpc();
     mainWindow = createWindow();
     app.on('activate', () => {

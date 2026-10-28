@@ -48,7 +48,7 @@ CommonMark + GFM:
 | Tabla GFM | ✔ edición de celdas, añadir/quitar filas/columnas, alineación | Insertar › Tabla (selector de cuadrícula) |
 | Línea horizontal | ✔ | Insertar › Separador |
 | Imagen | ✔ (redimensionado visual NO altera el MD; ver `06`) | Insertar › Imagen |
-| Salto de página | ✔ marca visual discreta | Insertar › Salto de página (`<!-- mdteca:pagebreak -->`) |
+| Salto de página | ✔ marca visual discreta | Insertar › Salto de página (`<!-- mdtor:pagebreak -->`) |
 | Notas al pie | ✔ | Insertar › Nota al pie |
 | HTML embebido | Bloque atómico renderizado y sanitizado; doble clic abre editor de fuente del bloque | — |
 | Matemáticas (`$…$`, `$$…$$`) | PUEDE (fase posterior, KaTeX) | — |
@@ -86,7 +86,7 @@ Todo lo no reconocido se conserva como **bloque crudo** intacto (nodo atómico q
   | `$x$` (si matemáticas está activo) | `\$x\$` | Evita fórmula |
   | ```` ``` ```` (al inicio) | ```` \`\`\` ```` | Evita bloque de código |
 
-  - Las URLs escritas como texto (`https://…`) no se escapan; GFM puede mostrarlas como enlace en otros visores. Convertirlas en enlace dentro de MDteca es siempre una acción explícita (`Ctrl+K`).
+  - Las URLs escritas como texto (`https://…`) no se escapan; GFM puede mostrarlas como enlace en otros visores. Convertirlas en enlace dentro de MDTor es siempre una acción explícita (`Ctrl+K`).
   - El escapado lo hace el serializador (remark-stringify con `unsafe` patterns + reglas propias); el modelo ProseMirror guarda el texto **sin** escapes.
   - Prueba obligatoria por propiedad (*property-based*, p. ej. `fast-check`): para cualquier cadena `s` tecleada en un párrafo WYSIWYG, `parse(serialize(s))` produce exactamente un párrafo cuyo texto es `s`.
   - Los bloques no editados conservan su fuente original (ED-21), incluidos los escapes que ya traían.

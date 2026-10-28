@@ -82,7 +82,7 @@ export function sourceExtensions(): Extension[] {
     headingFolding,
     foldGutter({ openText: '▾', closedText: '▸' }),
     highlightSelectionMatches(),
-    // La barra de búsqueda es la de MDteca, común a ambos modos: se anula el panel de CodeMirror.
+    // La barra de búsqueda es la de MDTor, común a ambos modos: se anula el panel de CodeMirror.
     search({ createPanel: () => ({ dom: document.createElement('span') }) }),
     keymap.of([...historyKeymap, ...foldKeymap, ...defaultKeymap, indentWithTab]),
     EditorView.contentAttributes.of({

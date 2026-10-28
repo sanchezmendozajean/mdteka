@@ -2,7 +2,7 @@ import { promises as fs, realpathSync } from 'node:fs';
 import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { assertGranted, isInDocDir } from './files';
 
-/** Imágenes (06): nombres `<doc>.<NNN>.<ext>`, importación y servicio por `mdteca-asset://`. */
+/** Imágenes (06): nombres `<doc>.<NNN>.<ext>`, importación y servicio por `mdtor-asset://`. */
 
 export const IMAGE_TYPES: Record<string, string> = {
   png: 'image/png',
@@ -147,7 +147,7 @@ export async function copyImagesFor(
   return folder;
 }
 
-/** Respuesta del protocolo `mdteca-asset://`: solo imágenes dentro de carpetas de documentos abiertos. */
+/** Respuesta del protocolo `mdtor-asset://`: solo imágenes dentro de carpetas de documentos abiertos. */
 export async function assetResponse(url: string): Promise<Response> {
   try {
     const raw = decodeURIComponent(new URL(url).pathname.replace(/^\//, ''));

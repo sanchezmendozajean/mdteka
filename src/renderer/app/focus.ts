@@ -4,7 +4,7 @@ import { useUi } from './store';
 export function setFocusMode(on: boolean): void {
   if (useUi.getState().focusMode === on) return;
   useUi.getState().set({ focusMode: on });
-  void window.mdteca.window.setFullScreen(on);
+  void window.mdtor.window.setFullScreen(on);
 }
 
 export const toggleFocusMode = (): void => setFocusMode(!useUi.getState().focusMode);

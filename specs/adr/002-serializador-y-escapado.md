@@ -13,7 +13,7 @@ mdast-util-to-markdown escapan de forma conservadora y sin conocer el contexto d
 
 1. La **estructura** (listas, citas, tablas con relleno, código con vallas, títulos ATX, énfasis,
    enlaces) la sigue generando `mdast-util-to-markdown` con las convenciones fijas de ED-22.
-2. El **texto literal** lo escapa MDteca (`editor/model/escape.ts`) al convertir ProseMirror → mdast,
+2. El **texto literal** lo escapa MDTor (`editor/model/escape.ts`) al convertir ProseMirror → mdast,
    donde se conoce el contexto (inicio de línea, celda de tabla, título, vecinos). El texto ya escapado
    viaja en un nodo propio `literal` con su *handler*, no como `html` (este degrada los saltos duros).
 3. La conversión es **por bloque** y solo se ejecuta para bloques modificados. Cada bloque de primer

@@ -19,7 +19,7 @@ El mismo documento se puede ver de dos formas. Cambiar entre ellas no modifica e
   - Tablas se cortan por filas y repiten la fila de encabezado (fase posterior: PUEDE).
   - Bloques de código se cortan por líneas.
   - Imágenes no se cortan; si son más altas que la página se escalan para caber.
-  - `<!-- mdteca:pagebreak -->` fuerza salto.
+  - `<!-- mdtor:pagebreak -->` fuerza salto.
 - **VW-13** El bloque que contiene el cursor no cambia de página mientras el usuario escribe dentro de la misma línea; si debe moverse, se hace al terminar la ráfaga (pausa ≥ 150 ms) compensando el scroll para que el cursor quede en la misma posición en pantalla.
 - **VW-14** La paginación en pantalla DEBE coincidir con la exportación a PDF (misma lógica de corte; el PDF se genera desde una vista de impresión que reutiliza el paginador).
 - **VW-15** En modo **texto** también hay vista de páginas: líneas de código en la hoja con los mismos márgenes (útil para revisar longitud).

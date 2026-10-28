@@ -21,7 +21,7 @@ Cada fase termina con la app ejecutable, pruebas en verde y una nota en `CHANGEL
 
 ## Fase 2 — Configuración del documento y tipografía
 
-- Lectura/escritura del bloque `mdteca:config` (DOC-01…05), esquema zod + JSON Schema.
+- Lectura/escritura del bloque `mdtor:config` (DOC-01…05), esquema zod + JSON Schema.
 - Panel Documento, pestaña *Diseño*, presets, fuentes incluidas, CSS por documento con scope (DOC-10…13).
 - Herencia app → documento (proyecto se suma en fase 5).
 - **Acepta si**: dos pestañas con fuentes distintas no se afectan; cambiar el tamaño de fuente modifica una sola línea del bloque; abrir un archivo con bloque desconocido conserva claves extra; documento sin cambios de config no recibe bloque.
@@ -40,12 +40,12 @@ Cada fase termina con la app ejecutable, pruebas en verde y una nota en `CHANGEL
 
 ## Fase 5 — Proyectos
 
-- Formato `.mdteca` (PRJ-01…05), esquema, carga/guardado determinista.
+- Formato `.mdtor` (PRJ-01…05), esquema, carga/guardado determinista.
 - Navegador de libros con colecciones, libros, capítulos, drag & drop, menú contextual, "Sin indexar", faltantes (PRJ-20…29).
 - Cambio de modo archivo ⇄ proyecto durante la edición (PRJ-30…34). Asistente de creación/importación.
 - Búsqueda en proyecto, defaults de proyecto, exportar libro/proyecto a PDF.
-- Asociación de archivos `.mdteca` y `.md`.
-- **Acepta si**: reordenar un capítulo cambia solo las líneas de ese ítem en el `.mdteca`; abrir el `.mdteca` por doble clic en Windows abre el proyecto; un `.md` suelto dentro de un proyecto ofrece "Abrir proyecto".
+- Asociación de archivos `.mdtor` y `.md`.
+- **Acepta si**: reordenar un capítulo cambia solo las líneas de ese ítem en el `.mdtor`; abrir el `.mdtor` por doble clic en Windows abre el proyecto; un `.md` suelto dentro de un proyecto ofrece "Abrir proyecto".
 
 ## Fase 6 — Pulido
 

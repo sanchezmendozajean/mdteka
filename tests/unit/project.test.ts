@@ -27,8 +27,8 @@ import {
 
 /** Ejemplo de `specs/05-proyectos.md`. */
 const EXAMPLE = `{
-  "$schema": "https://mdteca.app/schemas/project-v1.json",
-  "format": "mdteca-project",
+  "$schema": "https://mdtor.app/schemas/project-v1.json",
+  "format": "mdtor-project",
   "version": 1,
   "title": "Manual del Sistema de Planillas",
   "description": "Documentación funcional y técnica",
@@ -85,7 +85,7 @@ const read = (text: string): Project => {
 const book = (): Project =>
   read(
     serializeProject({
-      format: 'mdteca-project',
+      format: 'mdtor-project',
       version: 1,
       title: 'P',
       collections: [
@@ -109,7 +109,7 @@ const book = (): Project =>
     }),
   );
 
-describe('[PRJ-01][PRJ-05] formato .mdteca', () => {
+describe('[PRJ-01][PRJ-05] formato .mdtor', () => {
   it('lee el ejemplo de la especificación', () => {
     const p = read(EXAMPLE);
     expect(p.title).toBe('Manual del Sistema de Planillas');
@@ -126,15 +126,15 @@ describe('[PRJ-01][PRJ-05] formato .mdteca', () => {
   });
 
   it('el orden de claves es canónico aunque el archivo lo traiga distinto', () => {
-    const shuffled = `{"title":"X","collections":[],"version":1,"format":"mdteca-project"}`;
+    const shuffled = `{"title":"X","collections":[],"version":1,"format":"mdtor-project"}`;
     expect(serializeProject(read(shuffled))).toBe(
-      '{\n  "format": "mdteca-project",\n  "version": 1,\n  "title": "X",\n  "collections": []\n}\n',
+      '{\n  "format": "mdtor-project",\n  "version": 1,\n  "title": "X",\n  "collections": []\n}\n',
     );
   });
 
   it('conserva las claves desconocidas', () => {
     const p = read(
-      '{"format":"mdteca-project","version":1,"title":"X","futuro":{"a":1},"collections":[]}',
+      '{"format":"mdtor-project","version":1,"title":"X","futuro":{"a":1},"collections":[]}',
     );
     expect(serializeProject(p)).toContain('"futuro": {\n    "a": 1\n  }');
   });
@@ -153,7 +153,7 @@ describe('[PRJ-01][PRJ-05] formato .mdteca', () => {
     expect(isProjectPath('a/b.md')).toBe(true);
     const withFile = (file: string, id2 = 'y') =>
       JSON.stringify({
-        format: 'mdteca-project',
+        format: 'mdtor-project',
         version: 1,
         title: 'X',
         collections: [
@@ -180,7 +180,7 @@ describe('[PRJ-01][PRJ-05] formato .mdteca', () => {
 
   it('marcadores de conflicto de Git: error con la línea y sin interpretar el archivo', () => {
     const text =
-      '{\n  "format": "mdteca-project",\n<<<<<<< HEAD\n  "title": "A",\n=======\n  "title": "B",\n>>>>>>> otra\n  "version": 1\n}\n';
+      '{\n  "format": "mdtor-project",\n<<<<<<< HEAD\n  "title": "A",\n=======\n  "title": "B",\n>>>>>>> otra\n  "version": 1\n}\n';
     expect(parseProject(text)).toEqual({
       ok: false,
       error: 'marcadores de conflicto de Git en la línea 3',
@@ -322,7 +322,7 @@ describe('[PRJ-05] ids, nombres y patrones', () => {
 describe('JSON Schema publicado', () => {
   it('specs/schemas/project.schema.json está al día', () => {
     const schema = z.toJSONSchema(ProjectSchema, { io: 'input' });
-    const text = `${JSON.stringify({ $id: 'https://mdteca.app/schemas/project-v1.json', title: 'MDtecaProject', ...schema }, null, 2)}\n`;
+    const text = `${JSON.stringify({ $id: 'https://mdtor.app/schemas/project-v1.json', title: 'MDTorProject', ...schema }, null, 2)}\n`;
     const file = resolve(__dirname, '../../specs/schemas/project.schema.json');
     if (process.env['UPDATE_SCHEMA'] === '1' || !existsSync(file)) {
       mkdirSync(dirname(file), { recursive: true });

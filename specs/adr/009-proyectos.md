@@ -6,7 +6,7 @@
 ## Decisiones
 
 1. **El índice se escribe al instante.** Cada operación del navegador (reordenar, renombrar, añadir…)
-   serializa el `.mdteca` y lo guarda con escritura atómica; el proyecto no tiene «cambios sin
+   serializa el `.mdtor` y lo guarda con escritura atómica; el proyecto no tiene «cambios sin
    guardar». Es lo que hace que reordenar un capítulo sea un cambio de una línea en Git y que el
    archivo pueda editarse a mano a la vez: un cambio externo se recarga solo (se vigila con el mismo
    observador de archivos que los documentos).
@@ -21,9 +21,9 @@
 4. **Rutas del proyecto: relativas, con `/`, sin `./` ni `..` (PRJ-03).** Se validan en el esquema y
    en el renderer se convierten a rutas del sistema solo en el borde (`absolutePath`).
 5. **Concesiones por carpeta.** Hasta ahora el renderer solo podía leer archivos que el usuario eligió.
-   Para un proyecto el proceso principal concede la **carpeta del `.mdteca`** (`grantTree`): dentro de
-   ella solo se conceden, al primer uso, los `.md`/`.txt`/`.mdteca`, y las imágenes por
-   `mdteca-asset://`. El asistente de proyecto nuevo solo puede conceder la carpeta de un documento
+   Para un proyecto el proceso principal concede la **carpeta del `.mdtor`** (`grantTree`): dentro de
+   ella solo se conceden, al primer uso, los `.md`/`.txt`/`.mdtor`, y las imágenes por
+   `mdtor-asset://`. El asistente de proyecto nuevo solo puede conceder la carpeta de un documento
    ya abierto (o una elegida en el diálogo nativo).
 6. **Herencia (04).** fábrica ← ajustes de la app ← **proyecto** ← preset ← bloque del documento. Si el
    documento no elige preset vale el del proyecto (`defaults.theme`) y los valores explícitos del
@@ -38,7 +38,7 @@
    5000 archivos) y se restan lo indexado y los patrones `ignore` (globs propios: `**` cruza
    carpetas, `*` y `?` no).
 9. **Sesión en `userData` (PRJ-04, 09).** Nodos desplegados, pestañas abiertas y la activa se guardan
-   en `userData/state/projects.json`, con la ruta del `.mdteca` como clave; nunca en el proyecto.
+   en `userData/state/projects.json`, con la ruta del `.mdtor` como clave; nunca en el proyecto.
 10. **Un solo proyecto abierto.** Abrir otro proyecto reemplaza al actual (los documentos abiertos se
     quedan como archivos sueltos). Pasar a modo archivo deja las pestañas como están (PRJ-32).
 11. **Modo archivo con el panel visible.** El navegador sigue mostrándose (con acciones para abrir o
@@ -46,10 +46,10 @@
     sea visible solo en modo proyecto. Se oculta o muestra con `Ctrl+Shift+B` y su ancho se
     arrastra (200–520 px, se recuerda).
 12. **Exportación a PDF.** Un libro o el proyecto se exporta armando un documento temporal (sin
-    pestaña) con portada, índice generado y los capítulos, separados por `mdteca:pagebreak` si se
+    pestaña) con portada, índice generado y los capítulos, separados por `mdtor:pagebreak` si se
     pide, y se imprime con el mismo motor de páginas que el editor. Las rutas de imágenes de cada
     capítulo se reescriben relativas a la carpeta del proyecto.
-13. **Conflictos de Git.** Un `.mdteca` con marcadores `<<<<<<<` se rechaza con la línea del conflicto
+13. **Conflictos de Git.** Un `.mdtor` con marcadores `<<<<<<<` se rechaza con la línea del conflicto
     y no se toca (10 · Merge).
 
 ## Desviaciones y pendientes
@@ -60,7 +60,7 @@
 - **Exportación a HTML de sitio estático con navegación**: no implementada (el PDF sí).
 - **Ajustes del proyecto**: el cuadro cubre título, descripción, numeración de capítulos nuevos,
   `ignore`, preset, fuente, tamaño y pegado de imágenes; el resto de los defaults se editan en el
-  `.mdteca` o con «Fijar todo en el documento». «Carpeta de imágenes» queda para cuando exista la
+  `.mdtor` o con «Fijar todo en el documento». «Carpeta de imágenes» queda para cuando exista la
   opción por documento.
 - **`.gitattributes`** (PUEDE en `10`): no se sugiere al crear el proyecto.
 - Los subcapítulos nuevos se crean en la carpeta del libro (no en una subcarpeta del padre).

@@ -117,7 +117,7 @@ export const ipcContract = {
   'project:folderDialog': { request: z.undefined(), response: path.nullable() },
   /** Concede la carpeta de un documento abierto para crear en ella un proyecto. */
   'project:grantFolder': { request: z.object({ folder: path }), response: path },
-  /** Lee el .mdteca y concede la carpeta del proyecto. */
+  /** Lee el .mdtor y concede la carpeta del proyecto. */
   'project:load': {
     request: z.object({ path }),
     response: z.object({ path, root: path, text: z.string() }),
@@ -127,7 +127,7 @@ export const ipcContract = {
     request: z.object({ root: path, ignore: z.array(z.string().max(300)).max(200) }),
     response: z.array(z.string()),
   },
-  /** Archivos .mdteca de la carpeta del documento o de las superiores. */
+  /** Archivos .mdtor de la carpeta del documento o de las superiores. */
   'project:find': { request: z.object({ docPath: path }), response: z.array(path) },
   /** Existencia y primer título de cada archivo indexado. */
   'project:inspect': {
@@ -230,7 +230,7 @@ export const ipcContract = {
   'spell:replace': { request: z.object({ word: z.string().max(200) }), response: z.undefined() },
   'spell:addWord': { request: z.object({ word: z.string().max(200) }), response: z.undefined() },
   'window:setFullScreen': { request: z.object({ on: z.boolean() }), response: z.undefined() },
-  /** Abre «Aplicaciones predeterminadas» de Windows para asociar .md y .mdteca. */
+  /** Abre «Aplicaciones predeterminadas» de Windows para asociar .md y .mdtor. */
   'app:openDefaultApps': { request: z.undefined(), response: z.undefined() },
   'shell:openExternal': {
     request: z.object({ url: z.string().max(4096) }),
@@ -251,8 +251,8 @@ export const ipcEvents = [
 ] as const;
 export type IpcEvent = (typeof ipcEvents)[number];
 
-/** API expuesta en `window.mdteca` por el preload. */
-export interface MdtecaApi {
+/** API expuesta en `window.mdtor` por el preload. */
+export interface MdtorApi {
   app: {
     info(): Promise<IpcResponse<'app:info'>>;
     launchPaths(): Promise<string[]>;

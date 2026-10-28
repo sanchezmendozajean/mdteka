@@ -1,10 +1,10 @@
 import { contextBridge, ipcRenderer, webFrame, webUtils } from 'electron';
-import { ipcEvents, type IpcChannel, type MdtecaApi } from '@shared/ipc';
+import { ipcEvents, type IpcChannel, type MdtorApi } from '@shared/ipc';
 
 const invoke = <T>(channel: IpcChannel, payload?: unknown) =>
   ipcRenderer.invoke(channel, payload) as Promise<T>;
 
-const api: MdtecaApi = {
+const api: MdtorApi = {
   app: {
     info: () => invoke('app:info'),
     launchPaths: () => invoke('app:launchPaths'),
@@ -104,4 +104,4 @@ const api: MdtecaApi = {
   },
 };
 
-contextBridge.exposeInMainWorld('mdteca', api);
+contextBridge.exposeInMainWorld('mdtor', api);

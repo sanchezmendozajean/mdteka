@@ -56,8 +56,8 @@ describe('round-trip byte-idéntico', () => {
   it('[DOC-03] el bloque de configuración se aparta del cuerpo y se conserva idéntico', () => {
     const raw = all.find((f) => f.name === 'config-block.md')!.raw;
     const { body, configRaw } = splitConfigBlock(raw);
-    expect(body).not.toContain('mdteca:config');
-    expect(configRaw.startsWith('<!-- mdteca:config')).toBe(true);
+    expect(body).not.toContain('mdtor:config');
+    expect(configRaw.startsWith('<!-- mdtor:config')).toBe(true);
     expect(body + configRaw).toBe(raw);
   });
 });

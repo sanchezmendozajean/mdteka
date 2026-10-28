@@ -18,13 +18,13 @@ import {
   type DocInfo,
 } from './store';
 
-const api = () => window.mdteca;
+const api = () => window.mdtor;
 const baseName = (path: string) => path.split(/[\\/]/).pop() ?? path;
 
 /** Enganches que rellena el módulo de proyectos (evita la dependencia circular). */
 export const hooks: {
   openProject?: (path: string) => void;
-  /** Devuelve true si la ruta era el `.mdteca` abierto (el cambio ya está atendido). */
+  /** Devuelve true si la ruta era el `.mdtor` abierto (el cambio ya está atendido). */
   projectFileChanged?: (path: string) => boolean;
   documentOpened?: (path: string) => void;
 } = {};
@@ -123,7 +123,7 @@ function parseRaw(raw: string): { body: string; configRaw: string; eol: Eol; bom
 
 export async function openPaths(paths: string[]): Promise<void> {
   for (const path of paths) {
-    if (/.mdteca$/i.test(path)) {
+    if (/.mdtor$/i.test(path)) {
       hooks.openProject?.(path);
       continue;
     }

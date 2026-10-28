@@ -51,7 +51,7 @@
 - **Actualizaciones automáticas: no implementadas.** Necesitan decidir dónde se publican las
   versiones (GitHub Releases, un servidor propio…) y firmar el instalador; sin eso `electron-updater`
   no tiene a qué preguntar. Por eso Ajustes no muestra «comprobar actualizaciones».
-- **Íconos propios de `.md` y `.mdteca` (09)**: el instalador usa el ícono por defecto de Electron;
+- **Íconos propios de `.md` y `.mdtor` (09)**: el instalador usa el ícono por defecto de Electron;
   faltan los recursos gráficos de marca.
 - **Modo máquina de escribir** solo en WYSIWYG (en modo texto no se centra la línea).
 - **Convenciones de serialización configurables (09 › Archivos)** no se ofrecen: el serializador usa
