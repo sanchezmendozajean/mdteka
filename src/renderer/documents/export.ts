@@ -3,6 +3,7 @@ import { bundledFont, fontKind, fontStack } from '@shared/document-config';
 import { expandTokens, pageGeometry, type PageGeometry } from '@shared/page';
 import tokensCss from '../styles/tokens.css?raw';
 import editorCss from '../styles/editor.css?raw';
+import { useToast } from '../app/toast';
 import { editor } from '../editor/controller';
 import { docFromSource } from '../editor/model/doc';
 import { Paginator, type Analysis } from '../editor/paginator/paginator';
@@ -229,6 +230,10 @@ export async function exportPdf(id: string): Promise<string | null> {
   try {
     print = await preparePrint(id);
     await api().export.pdf(path);
+    useToast.getState().show(i18next.t('export.pdfDone'), {
+      label: i18next.t('export.goToFile'),
+      run: () => void api().project.reveal(path),
+    });
     return path;
   } catch (error) {
     await showError(`${i18next.t('export.error', { name: info.name })}\n${String(error)}`);

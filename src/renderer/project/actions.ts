@@ -115,7 +115,12 @@ export async function openProjectFile(path: string, select?: string): Promise<bo
   if (previous && !same(previous, loaded.path)) void api().file.unwatch(previous);
   const state = await api()
     .project.getState(loaded.path)
-    .catch(() => ({ expanded: [], open: [], active: null as string | null }));
+    .catch(() => ({
+      expanded: [],
+      open: [],
+      active: null as string | null,
+      navView: 'chapters' as const,
+    }));
   store().set({
     project: parsed.project,
     path: loaded.path,
@@ -123,6 +128,7 @@ export async function openProjectFile(path: string, select?: string): Promise<bo
     info: {},
     files: [],
     expanded: state.expanded.length ? state.expanded : defaultExpanded(parsed.project),
+    navView: state.navView,
     filter: '',
     panel: 'tree',
     suggestion: null,
@@ -800,7 +806,7 @@ export const dismissSuggestion = () => store().set({ suggestion: null });
 /** Guarda en `userData` los nodos desplegados y las pestañas del proyecto (no va al `.mdtor`, PRJ-04). */
 let timer: ReturnType<typeof setTimeout> | undefined;
 function persistSession(): void {
-  const { path, expanded } = store();
+  const { path, expanded, navView } = store();
   if (!path) return;
   const { docs, activeId } = useDocs.getState();
   const open = docs
@@ -812,6 +818,7 @@ function persistSession(): void {
     expanded,
     open,
     active: (active && projectRelative(active)) || null,
+    navView,
   });
 }
 
@@ -849,7 +856,8 @@ export function wireProject(): () => void {
     timer = setTimeout(persistSession, 400);
   };
   const offA = useProject.subscribe((s, prev) => {
-    if (s.expanded !== prev.expanded || s.path !== prev.path) schedule();
+    if (s.expanded !== prev.expanded || s.path !== prev.path || s.navView !== prev.navView)
+      schedule();
   });
   const offB = useDocs.subscribe((s, prev) => {
     if (s.activeId !== prev.activeId || s.docs.length !== prev.docs.length) schedule();

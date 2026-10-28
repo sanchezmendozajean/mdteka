@@ -172,6 +172,7 @@ export const ipcContract = {
       expanded: z.array(z.string()),
       open: z.array(z.string()),
       active: z.string().nullable(),
+      navView: z.enum(['chapters', 'files']),
     }),
   },
   'state:setProject': {
@@ -180,6 +181,7 @@ export const ipcContract = {
       expanded: z.array(z.string().max(200)).max(5000),
       open: z.array(z.string().max(1024)).max(200),
       active: z.string().max(1024).nullable(),
+      navView: z.enum(['chapters', 'files']),
     }),
     response: z.undefined(),
   },

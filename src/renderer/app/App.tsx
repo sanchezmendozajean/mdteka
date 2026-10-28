@@ -18,6 +18,7 @@ import { DocumentPanel } from '../ui/DocumentPanel';
 import { DocTabs } from '../ui/DocTabs';
 import { EditorHost } from '../ui/EditorHost';
 import { EditorContextMenu } from '../ui/EditorContextMenu';
+import { Toast } from '../ui/Toast';
 import { FindBar } from '../ui/FindBar';
 import { FloatingToolbar } from '../ui/FloatingToolbar';
 import { PanelRail } from '../ui/HidePanelButton';
@@ -164,6 +165,7 @@ export function App() {
       <KeyTips />
       <EditorContextMenu />
       <Dialogs />
+      <Toast />
     </div>
   );
 }

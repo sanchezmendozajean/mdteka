@@ -135,6 +135,9 @@ export const es = {
   },
   export: {
     error: 'No se pudo exportar «{{name}}».',
+    pdfDone: 'PDF exportado con éxito.',
+    goToFile: 'Ir al archivo',
+    closeNotice: 'Cerrar aviso',
   },
   symbols: {
     title: 'Insertar símbolo',
@@ -347,6 +350,10 @@ export const es = {
     modeProject: 'Proyecto',
     settings: 'Ajustes del proyecto',
     filter: 'Filtrar capítulos',
+    moreActions: 'Más acciones',
+    newFile: 'Nuevo archivo',
+    viewFiles: 'Ver archivos',
+    viewChapters: 'Ver capítulos',
     searchPlaceholder: 'Buscar en el proyecto',
     searchResults: '{{count}} coincidencias',
     searchNone: 'Sin coincidencias',

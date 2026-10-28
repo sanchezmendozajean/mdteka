@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react';
+import { Check, type LucideIcon } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Icon } from './Icon';
@@ -12,6 +12,8 @@ export interface MenuItem {
   /** Línea separadora encima de este elemento. */
   separator?: boolean;
   hidden?: boolean;
+  /** Opción de elección única: se marca con un check si es la vigente. */
+  checked?: boolean;
 }
 
 /** Menú contextual con íconos en la posición del puntero. Se cierra con clic fuera, Escape o al elegir. */
@@ -71,7 +73,8 @@ export function ContextMenu({
           <div key={item.id}>
             {item.separator && <div className="context-sep" role="separator" />}
             <button
-              role="menuitem"
+              role={item.checked === undefined ? 'menuitem' : 'menuitemradio'}
+              aria-checked={item.checked}
               className={`context-item${item.danger ? ' danger' : ''}`}
               data-testid={`menu-${item.id}`}
               onClick={() => {
@@ -80,7 +83,8 @@ export function ContextMenu({
               }}
             >
               <Icon icon={item.icon} size={16} />
-              <span>{item.label}</span>
+              <span className="context-label">{item.label}</span>
+              {item.checked && <Icon icon={Check} size={16} />}
             </button>
           </div>
         ))}
